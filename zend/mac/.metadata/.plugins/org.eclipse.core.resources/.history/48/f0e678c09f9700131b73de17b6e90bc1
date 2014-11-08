@@ -1,0 +1,85 @@
+<?php
+require_once (dirname(__FILE__).'/../wechat/wechatBase.class.php');
+require_once (dirname(__FILE__).'/adventure/adventure.do.php');
+require_once (dirname(__FILE__).'/vampire/vampire.do.php');
+require_once (dirname(__FILE__).'/user/user.do.php');
+class appDo extends wechatBase {
+	
+	public function __construct($debug = false)	{
+		parent::__construct($debug);
+	}
+	
+	//程序主入口
+	public function startApp($userInput){
+		if($this->_debug)debug(__FILE__,__LINE__,"App Start",$userInput);
+		//解析玩家请求
+		$userInputInfo =  json_decode($userInput, true);
+		//获取到玩家的微信ID
+		$this->_userID = $userInputInfo["FromUserName"][0];
+		//解析玩家请求，根据命令返回返回给用户的内容
+		$result = $this->_StartModel($userInput);
+		$ResultMsg = array();
+		if(is_array($result)){
+			$ResultMsg = $result;
+		}else{
+			$ResultMsg ["MsgType"] = "text";
+			$ResultMsg["Content"] = $result;
+		}
+		if($this->_debug)debug(__FILE__,__LINE__,"App Finished", $ResultMsg);
+		return $ResultMsg;
+	}
+	
+	//检测玩家输入的命令是否和合法，并将输入转化为对应的ID
+	public function _StartModel($userInput){
+		$userInputInfo = json_decode($userInput, true);
+		if("text" != $userInputInfo["MsgType"]){
+			//如果是事件，处理方法
+			if("event" == $userInputInfo["MsgType"]){
+				if("subscribe" == $userInputInfo["Event"]){
+					//用户关注
+					return $this->__subscribe();
+				}else if("unsubscribe" == $userInputInfo["Event"]){
+					//用户取消关注
+					return $this->__unsubscribe();
+				}else{
+					//获取菜单的key值
+					$eventKey = $userInputInfo["EventKey"];
+					return $this->vampireDoObj->startApp($userInput);
+				}
+			}else {
+				return $this->__getTips($this->err_config["SYSTEM_BADTYPE"]);
+			}
+		}
+		$userCommand = explode(" ",$this->__merge_spaces($userInputInfo["Content"]));
+		$command = strtoupper(trim($userCommand[0]));
+		$tempCommand = strtoupper(substr(trim($userInputInfo["Content"]),0,1));
+		$baseCommandArr =  array("SUB","UNSUB","J","N","K","ZIXIE");
+		$vampirCommandArr =  array("A","B","C","F","Z","Q","HQ","HS","HK","？","?","HELP","帮助","？？","??","?？","？?");
+		$userCommandArr =  array("M","V","T","R");
+		$adventureCommandArr =  array("D");
+		if($this->_debug)debug(__FILE__,__LINE__,"App command",$command);
+		if($command < 5 && $command >0){
+			$this->adventureDoObj = new adventureDo($this->_debug);
+			return $this->adventureDoObj -> startApp($userInput,$command);
+		}else if($command >4){
+			$this->vampireDoObj = new vampireDo($this->_debug);
+			return $this->vampireDoObj->startApp($userInput);
+		}else if(in_array($command, $baseCommandArr) || in_array($tempCommand, $baseCommandArr)){
+			return $this->__specialRequestType($command, $userInputInfo["Content"]);
+		}else if(in_array($command, $vampirCommandArr) || in_array($tempCommand, $vampirCommandArr)){
+			$this->vampireDoObj = new vampireDo($this->_debug);
+			return $this->vampireDoObj->startApp($userInput);
+		}else if(in_array($command, $userCommandArr) || in_array($tempCommand, $userCommandArr)){
+			$this->userDoObj = new userDo($this->_debug);
+			return $this->userDoObj->startApp($userInput);
+		}else if(in_array($command, $adventureCommandArr) || in_array($tempCommand, $adventureCommandArr)){
+			$this->adventureDoObj = new adventureDo($this->_debug);
+			return $this->adventureDoObj -> startApp($userInput,$command);
+		}else{
+			//无法处理的玩家其他输入，先暂时先记入捉鬼游戏的异常处理
+			$this->vampireDoObj = new vampireDo($this->_debug);
+			return $this->vampireDoObj->startApp($userInput);
+		}
+	}
+}
+?>

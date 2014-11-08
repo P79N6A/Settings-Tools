@@ -1,0 +1,1910 @@
+
+**** Build of configuration Default for project MSDKSample ****
+
+ndk-build all 
+
+Cannot run program "ndk-build": Unknown reason
+Error: Program "ndk-build" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+ndk-build all 
+
+Cannot run program "ndk-build": Unknown reason
+Error: Program "ndk-build" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDK <= MSDK.cpp
+[armeabi] StaticLibrary  : libstdc++.a
+[armeabi] SharedLibrary  : libMSDK.so
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDK <= MSDK.cpp
+[armeabi] StaticLibrary  : libstdc++.a
+[armeabi] SharedLibrary  : libMSDK.so
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : WeGameSample [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : WeGameSample [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : WeGameSample [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : WeGameSample [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1149:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1149:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1149:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1149:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : WeGameSample [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : WeGameSample [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : WeGameSample [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : WeGameSample [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : WeGameSample [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : WeGameSample [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : WeGameSample [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : WeGameSample [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:905) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : WeGameSample [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : WeGameSample [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : WeGameSample [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : WeGameSample [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:726:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1154:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDK <= MSDK.cpp
+[armeabi] StaticLibrary  : libstdc++.a
+[armeabi] SharedLibrary  : libMSDK.so
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:725:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:332) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1153:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:908) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDK <= MSDK.cpp
+[armeabi] StaticLibrary  : libstdc++.a
+[armeabi] SharedLibrary  : libMSDK.so
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+[armeabi] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi/gdbserver
+[armeabi] Gdbsetup       : libs/armeabi/gdb.setup
+[armeabi-v7a] Gdbserver      : [arm-linux-androideabi-4.6] libs/armeabi-v7a/gdbserver
+[armeabi-v7a] Gdbsetup       : libs/armeabi-v7a/gdb.setup
+[x86] Gdbserver      : [x86-4.6] libs/x86/gdbserver
+[x86] Gdbsetup       : libs/x86/gdb.setup
+[mips] Gdbserver      : [mipsel-linux-android-4.6] libs/mips/gdbserver
+[mips] Gdbsetup       : libs/mips/gdb.setup
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKSample ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+
+Cannot run program "/Users/zixie/Documents/android-ndk-r9c/ndk-build": Unknown reason
+Error: Program "ndk-build" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDK ****
+
+/Users/zixie/Documents/android-ndk-r9c/ndk-build all 
+
+Cannot run program "/Users/zixie/Documents/android-ndk-r9c/ndk-build": Unknown reason
+Error: Program "ndk-build" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKSample ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : WeGameSample [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : WeGameSample [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : WeGameSample [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : WeGameSample [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****

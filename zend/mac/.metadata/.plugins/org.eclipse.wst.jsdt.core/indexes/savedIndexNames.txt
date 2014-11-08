@@ -1,0 +1,7 @@
+INDEX VERSION 1.122+/Users/zixie/Documents/web_workspace/.metadata/.plugins/org.eclipse.wst.jsdt.core/indexes
+797243354.index
+3817094253.index
+426234720.index
+1692582295.index
+3928328665.index
+1864697065.index

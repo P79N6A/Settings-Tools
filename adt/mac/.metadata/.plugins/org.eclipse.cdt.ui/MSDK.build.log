@@ -1,0 +1,8 @@
+
+**** Clean-only build of configuration Default for project MSDK ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDK [armeabi]
+[armeabi] Clean          : stdc++ [armeabi]
+
+**** Build Finished ****
