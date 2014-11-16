@@ -1,0 +1,533 @@
+
+package com.tencent.msdk.handle;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.db.QQLoginModel;
+import com.tencent.msdk.lbs.LocationInfo;
+import com.tencent.msdk.notice.NoticeRequestPara;
+import com.tencent.msdk.notice.NoticeManager;
+import com.tencent.msdk.notice.eMSG_NOTICETYPE;
+import com.tencent.msdk.remote.api.RemoteApiWrapper;
+import com.tencent.msdk.request.NoticeMsgMng;
+import com.tencent.msdk.request.PfKeyRequestMng;
+import com.tencent.msdk.request.QQA8RequestMng;
+import com.tencent.msdk.request.WxRequestMng;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+import com.tencent.msdk.webview.WebViewManager;
+import com.tencent.msdk.weixin.BtnBase;
+import com.tencent.msdk.weixin.MsgBase;
+import com.tencent.msdk.weixin.MsgWechatWrapper;
+import com.tencent.qqgamemi.QmiSdkApi;
+import com.tencent.qqgamemi.common.QMiCommon;
+
+/**
+ * @author erichua
+ */
+public class MsdkThreadManager {
+    private MsdkThread msdkThread = null;
+    private Handler msdkHandler = null;
+    private Handler mainHandler = null; // 主线程消息
+    private static volatile MsdkThreadManager instance = null;
+
+    public static MsdkThreadManager getInstance() {
+        if (instance == null) {
+            synchronized (MsdkThreadManager.class) {
+                if (instance == null) {
+                    instance = new MsdkThreadManager();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void init() {
+        msdkThread = new MsdkThread("MsdkThread");
+        msdkThread.start();
+        msdkHandler = new Handler(msdkThread.getLooper(), msdkThread);
+
+        mainHandler = new Handler(Looper.getMainLooper(), new android.os.Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                switch (msg.what) {
+                    case MsdkThread.login: // QQ 的登录 需在主线程中处理
+                        WeGame.getInstance().login(msg.arg1);
+                        break;
+                    case MsdkThread.wxFirstLoginReq:
+                        WxFirstLoginInfo wxInfo = (WxFirstLoginInfo) msg.obj;
+                        if (null != wxInfo) {
+                            new WxRequestMng().wxFirstLoginReq(wxInfo.wxCode,
+                                            wxInfo.notifyState);
+                        }
+                        break;
+                    case MsdkThread.wxExpiredLoginReq:
+                        new WxRequestMng().wxExpiredLoginReq(msg.arg1);
+                        break;
+                    case MsdkThread.getPfKeyReq:
+                    	new PfKeyRequestMng().getPfKeyReq(msg.arg1);
+                        break;
+                    case MsdkThread.getQQFirstLoginPfKeyReq:
+                        QQLoginModel qlm = (QQLoginModel) msg.obj;
+                        if (null != qlm) {
+                        	new PfKeyRequestMng().getQQFirstLoginPfKeyReq(qlm);
+                        }
+                        break;
+                    case MsdkThread.getPfKeyReqWithWakeup:
+                        WakeupRet wakeup = (WakeupRet) msg.obj;
+                        if (null != wakeup) {
+                        	new PfKeyRequestMng().getPfKeyReq(msg.arg1, wakeup);
+                        }
+                        break;
+                    case MsdkThread.qqA8Req:
+                        QQA8Info a8Info = (QQA8Info) msg.obj;
+                        if (null != a8Info) {
+                            //QQA8RequestMng.getInstance()
+                            //       .qqA8Req(a8Info.openAuthData, a8Info.openAuthSt,
+                            //                a8Info.notifyState);
+                          new QQA8RequestMng().qqA8Req(a8Info.openAuthData, a8Info.openAuthSt,
+                                            a8Info.notifyState);
+                        }
+                        break;
+                    // ------后台7接口 s
+                    case MsdkThread.sendToQQGameFriend:
+                        SendToQQGameFriend info = (SendToQQGameFriend) msg.obj;
+                        if (null != info) {
+                            RemoteApiWrapper.WGSendToQQGameFriend(info.act, info.friendOpenId,
+                                    info.title, info.summary,
+                                    info.targetUrl, info.imageUrl, info.previewText, info.gameTag,
+                                    info.msdkExtInfo);
+                        }
+                        break;
+                    case MsdkThread.sendToWXGameFriend:
+                        SendToWXGameFriend wxGameFriend = (SendToWXGameFriend) msg.obj;
+                        if (null != wxGameFriend) {
+                            RemoteApiWrapper.WGSendToWXGameFriend(wxGameFriend.fopenid,
+                                    wxGameFriend.title, wxGameFriend.description,
+                                    wxGameFriend.extinfo, wxGameFriend.media_tag_name,
+                                    wxGameFriend.thumb_media_id, wxGameFriend.msdkExtInfo);
+                        }
+                        break;
+                    case MsdkThread.queryQQUserInfo:
+                        RemoteApiWrapper.WGQueryQQUserInfo();
+                        break;
+                    case MsdkThread.queryQQGameFriendsInfo:
+                        RemoteApiWrapper.WGQueryQQGameFriendsInfo();
+                        break;
+                    case MsdkThread.queryWXUserInfo:
+                        RemoteApiWrapper.WGQueryWXUserInfo();
+                        break;
+                    case MsdkThread.queryWXGameFriendsInfo:
+                        RemoteApiWrapper.WGQueryWXGameFriendsInfo();
+                        break;
+                    // ------后台7接口 e
+                    case MsdkThread.getNotice:
+                        NoticeRequestPara noticeRequestPara = (NoticeRequestPara) msg.obj;
+                        Logger.d(noticeRequestPara);
+                        if (null != noticeRequestPara){
+                        	NoticeMsgMng noticeMsgMng = new NoticeMsgMng();
+                        	noticeMsgMng.getNoticeReq(noticeRequestPara);
+                        }else{
+                        	Logger.w("noticeInfo is null");
+                        }
+                        break;
+                    case MsdkThread.showNoticeByScene:
+                        ShowNoticeInfoByScene showNoticeInfoByScene = (ShowNoticeInfoByScene) msg.obj;
+                        if (null != showNoticeInfoByScene)
+                            NoticeManager.getInstance().showNoticeByScene(
+                                    showNoticeInfoByScene.type, showNoticeInfoByScene.scene);
+                        break;
+                    case MsdkThread.closeScrollNotice:
+                        NoticeManager.getInstance().closeScrollNotice();
+                        break;
+
+                    case MsdkThread.wxRefreshTokenLoginReq: // 登陆过程自动刷新票据
+                        new WxRequestMng().refreshAccessTokenWithLocalRefreshToken();
+                        break;
+                    case MsdkThread.feedbackWithAppId:
+                        RemoteApiWrapper.Feedback((String) msg.obj);
+                        break;
+                    case MsdkThread.getNearbyPlayer:
+                        if (msg.obj == null) {
+                            Logger.d("location info null");
+                            return false;
+                        }
+                        if (!(msg.obj instanceof LocationInfo)) {
+                            Logger.d("obj is not a LocationInfo");
+                            return false;
+                        }
+                        RemoteApiWrapper.QueryNearbyPlayer((LocationInfo) msg.obj);
+                        break;
+                    case MsdkThread.clearLocation:
+                        RemoteApiWrapper.ClearLocation();
+                        break;
+                    case MsdkThread.openUrl:
+                        if (msg.obj == null) {
+                            Logger.d("openUrl info null");
+                            return false;
+                        }
+                        WebViewManager.getInstance().openUrl((String) msg.obj);
+                        break;
+                    case MsdkThread.sendMessageToWechatGameCenter:
+                        if (msg.obj == null) {
+                            Logger.d("sendMessageToWechatGameCenter info null");
+                            return false;
+                        }
+                        if (!(msg.obj instanceof SendMessageToWechatGameCenterReq)) {
+                            Logger.d("obj is not a SendMessageToWechatGameCenterReq");
+                            return false;
+                        }
+                        SendMessageToWechatGameCenterReq req = (SendMessageToWechatGameCenterReq) msg.obj;
+                        RemoteApiWrapper.SendMessageToWechatGameCenter(req.wechatMsg,
+                                req.msdkExtInfo);
+                        break;
+                    case MsdkThread.showQmi:
+                        QmiSdkApi.showQMi(WeGame.getInstance().getActivity(), "Android");
+                        break;
+                    case MsdkThread.hideQmi:
+                        QmiSdkApi.hideQMi(WeGame.getInstance().getActivity());
+                        break;
+                    default:
+                        Logger.d("invalid message");
+                }
+                return false;
+            }
+        });
+    }
+
+    public void wxFirstLoginReq(String wxCode, int notifyState) {
+        Logger.d("wxFirstLoginReq");
+        Message msg = new Message();
+        msg.what = MsdkThread.wxFirstLoginReq;
+        WxFirstLoginInfo info = new WxFirstLoginInfo();
+        info.wxCode = wxCode;
+        info.notifyState = notifyState;
+        msg.obj = info;
+        mainHandler.sendMessage(msg);
+
+    }
+
+    public void getNoticeReq(NoticeRequestPara info) {
+        Logger.d("getNoticeReq");
+        Message msg = new Message();
+        msg.what = MsdkThread.getNotice;
+        msg.obj = info;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void showNoticeByScene(eMSG_NOTICETYPE type, String scene) {
+        Logger.d("showNotice");
+        Message msg = new Message();
+        ShowNoticeInfoByScene info = new ShowNoticeInfoByScene();
+        info.scene = scene;
+        info.type = type;
+        msg.what = MsdkThread.showNoticeByScene;
+        msg.obj = info;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void closeScrollNotice() {
+        Logger.d("closeScrollNotice");
+        mainHandler.sendEmptyMessage(MsdkThread.closeScrollNotice);
+    }
+
+    public void wxExpiredLoginReq(int notifyState) {
+        Logger.d("wxExpiredLoginReq");
+        Message msg = new Message();
+        msg.what = MsdkThread.wxExpiredLoginReq;
+        msg.arg1 = notifyState;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void getPfKeyReq(int notifyState) {
+        Logger.d("getPfKeyReq(int notifyState)");
+        Message msg = new Message();
+        msg.what = MsdkThread.getPfKeyReq;
+        msg.arg1 = notifyState;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void showQMi() {
+        Logger.d("showQmi");
+        Message msg = new Message();
+        msg.what = MsdkThread.showQmi;
+        mainHandler.sendMessage(msg);
+    }
+    
+    public void hideQMi() {
+        Logger.d("hideQMi");
+        Message msg = new Message();
+        msg.what = MsdkThread.hideQmi;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void getQQFirstLoginPfKeyReq(QQLoginModel qlm) {
+        Logger.d("getPfKeyReq(int notifyState)");
+        Message msg = new Message();
+        msg.what = MsdkThread.getQQFirstLoginPfKeyReq;
+        msg.obj = qlm;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void getPfKeyReqWithWakeup(int notifyState, WakeupRet wakeup) {
+        Logger.d("getPfKeyReq(int notifyState,WakeupRet wakeup)");
+        Message msg = new Message();
+        msg.what = MsdkThread.getPfKeyReqWithWakeup;
+        msg.arg1 = notifyState;
+        msg.obj = wakeup;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void sendToQQGameFriend(int act, String friendOpenId, String title, String summary,
+            String targetUrl,
+            String imageUrl, String previewText, String gameTag, String msdkExtInfo) {
+        Logger.d("sendToQQGameFriend");
+        Message msg = new Message();
+        msg.what = MsdkThread.sendToQQGameFriend;
+        SendToQQGameFriend info = new SendToQQGameFriend();
+
+        info.act = act;
+        info.friendOpenId = friendOpenId;
+        info.title = title;
+        info.summary = summary;
+        info.targetUrl = targetUrl;
+        info.imageUrl = imageUrl;
+        info.previewText = previewText;
+        info.gameTag = gameTag;
+        info.msdkExtInfo = msdkExtInfo;
+
+        msg.obj = info;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void sendToWXGameFriend(String fopenid, String title, String description,
+            String extinfo,
+            String media_tag_name, String thumb_media_id, String msdkExtInfo) {
+        Logger.d("sendToWXGameFriend");
+        Message msg = new Message();
+        msg.what = MsdkThread.sendToWXGameFriend;
+        SendToWXGameFriend info = new SendToWXGameFriend();
+
+        info.fopenid = fopenid;
+        info.title = title;
+        info.description = description;
+        info.extinfo = extinfo;
+        info.media_tag_name = media_tag_name;
+        info.thumb_media_id = thumb_media_id;
+        info.msdkExtInfo = msdkExtInfo;
+        msg.obj = info;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void queryQQUserInfo() {
+        Logger.d("queryQQMyInfo");
+        Message msg = new Message();
+        msg.what = MsdkThread.queryQQUserInfo;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void queryQQGameFriendsInfo() {
+        Logger.d("queryQQGameFriendsInfo");
+        Message msg = new Message();
+        msg.what = MsdkThread.queryQQGameFriendsInfo;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void queryWXUserInfo() {
+        Logger.d("queryWXMyInfo");
+        Message msg = new Message();
+        msg.what = MsdkThread.queryWXUserInfo;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void queryWXGameFriendsInfo() {
+        Logger.d("queryWXGameFriendsInfo");
+        Message msg = new Message();
+        msg.what = MsdkThread.queryWXGameFriendsInfo;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void qqA8Req(String openAuthData, String openAuthSt, int notifyState) {
+        Logger.d("qqA8Req");
+        Message msg = new Message();
+        msg.what = MsdkThread.qqA8Req;
+        QQA8Info info = new QQA8Info();
+        info.openAuthData = openAuthData;
+        info.openAuthSt = openAuthSt;
+        info.notifyState = notifyState;
+        msg.obj = info;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void sendLoginMsg(int platform) {
+        Logger.d("sendLoginMsg");
+        Message msg = new Message();
+        msg.what = MsdkThread.login;
+        msg.arg1 = platform;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void sendGetPermissionMsg() {
+        Logger.d("sendGetPermissionMsg");
+        msdkHandler.sendEmptyMessage(MsdkThread.getPermission);
+    }
+
+    public void sendGetSchedulingMsg(Context ctx) {
+        Logger.d("sendGetSchedulingMsg");
+        Message msg = new Message();
+        msg.what = MsdkThread.getScheduling;
+        msg.obj = ctx;
+        msdkHandler.sendMessage(msg);
+    }
+
+    public void sendReportLogin(String openId, int platId) {
+        Logger.d("sendReportLogin");
+        Bundle data = new Bundle();
+        data.putString("openId", openId);
+        data.putInt("platId", platId);
+        Message msg = new Message();
+        msg.what = MsdkThread.reportLogin;
+        msg.setData(data);
+        msdkHandler.sendMessage(msg);
+    }
+
+    public void sendFeedback(String game, String txt, int platID, String openId) {
+        Logger.d("sendFeedback");
+        Message msg = new Message();
+        msg.what = MsdkThread.feedback;
+
+        Bundle bundle = new Bundle();
+        bundle.putString("platID", "" + platID);
+        bundle.putString("gameID", game);
+        bundle.putString("openID", openId);
+        bundle.putString("question", txt);
+        msg.setData(bundle);
+
+        msdkHandler.sendMessage(msg);
+    }
+
+    public void sendFeedbackWithAppid(String body) {
+        Logger.d("sendFeedbackWithAppid");
+        Message msg = new Message();
+        msg.what = MsdkThread.feedbackWithAppId;
+        msg.obj = body;
+        mainHandler.sendMessage(msg);
+    }
+
+    public void getNearbyPlayer(LocationInfo li) {
+        Logger.d("called");
+        Message msg = new Message();
+        msg.what = MsdkThread.getNearbyPlayer;
+        msg.obj = li;
+        mainHandler.sendMessage(msg);
+    }
+
+    public boolean clearLocation() {
+        // 如果没有登录则返回false
+        LoginRet lr = new LoginRet();
+        if (WGPlatform.WGGetLoginRecord(lr) == 0) {
+            return false;
+        }
+        Logger.d("called");
+        Message msg = new Message();
+        msg.what = MsdkThread.clearLocation;
+        mainHandler.sendMessage(msg);
+        return true;
+    }
+
+    public boolean sendMessageToWechatGameCenter(String friendOpenId, String title, String content,
+            MsgBase pInfo, BtnBase pButton, String msdkExtInfo) {
+        LoginRet lr = new LoginRet();
+        if (WGPlatform.WGGetLoginRecord(lr) == 0) {
+            return false;
+        }
+        Logger.d("called");
+        Message msg = new Message();
+        msg.what = MsdkThread.sendMessageToWechatGameCenter;
+        MsgWechatWrapper msgWechatWrapper = new MsgWechatWrapper(friendOpenId, title, content,
+                pButton, pInfo);
+        SendMessageToWechatGameCenterReq req = new SendMessageToWechatGameCenterReq();
+        req.wechatMsg = msgWechatWrapper;
+        req.msdkExtInfo = msdkExtInfo;
+        msg.obj = req;
+        mainHandler.sendMessage(msg);
+        return true;
+    }
+
+    public void openUrl(String url) {
+        if (T.ckIsEmpty(url)) {
+            Logger.w("Url is empty!");
+            return;
+        }
+        Logger.d("called");
+        Message msg = new Message();
+        msg.what = MsdkThread.openUrl;
+        msg.obj = url;
+        mainHandler.sendMessage(msg);
+    }
+
+    public class WxFirstLoginInfo {
+        String wxCode = "";
+        int notifyState = 0;
+    }
+
+    public class ShowNoticeInfoByOpenId {
+        String openId = "";
+        int type = 0;
+    }
+
+    public class ShowNoticeInfoByScene {
+        String scene = "1";
+        eMSG_NOTICETYPE type = eMSG_NOTICETYPE.eMSG_NOTICETYPE_ALERT;
+    }
+
+    public class QQA8Info {
+        String openAuthData = "";
+        String openAuthSt = "";
+        int notifyState = 0;
+    }
+
+    public class SendMessageToWechatGameCenterReq {
+        MsgWechatWrapper wechatMsg;
+        String msdkExtInfo = "";
+    }
+
+    public class SendToQQGameFriend {
+        int act = 0;
+        String friendOpenId = "";
+        String title = "";
+        String summary = "";
+        String targetUrl = "";
+        String imageUrl = "";
+        String previewText = "";
+        String gameTag = "";
+        String msdkExtInfo = "";
+    }
+
+    public class SendToWXGameFriend {
+        String fopenid = "";
+        String title = "";
+        String description = "";
+        String extinfo = "";
+        String media_tag_name = "";
+        String thumb_media_id = "";
+        String msdkExtInfo = "";
+    }
+
+    public class SendToQzone {
+        String title = "";
+        String summary = "";
+        String targetUrl = "";
+        String imageUrl = "";
+        String description = "";
+    }
+
+}

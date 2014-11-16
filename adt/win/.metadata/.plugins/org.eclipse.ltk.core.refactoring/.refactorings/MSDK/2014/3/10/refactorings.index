@@ -1,0 +1,7 @@
+1394105927127	Rename type 'NoticeInfoForDB'
+1394106204759	Rename type 'ShowNoticeInfo'
+1394106318349	Rename method 'showNotice'
+1394106325018	Rename method 'showNoticeByopenID'
+1394106349705	Rename method 'showNoticeByopenId'
+1394106495752	Rename method 'showNotice'
+1394106656264	Rename method 'showNotice'

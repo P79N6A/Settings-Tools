@@ -1,0 +1,71 @@
+package com.tencent.msdk.stat;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import android.app.Activity;
+
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.tools.Logger;
+public class Stat {
+    private BeaconHelper beaconHelper;
+    private MtaHelper mtaHelper;
+    private String openId = ""; // 第一次上报完成填写此值, 之后如果检查到有值并和当前openid相同, 则不在上报
+
+    public Stat() {
+        beaconHelper = new BeaconHelper();
+        mtaHelper = new MtaHelper();
+    }
+
+    public void init(Activity activity, String qqAppId, boolean b) {
+        String channelId = WGPlatform.WGGetChannelId();
+        Logger.d("ChannelID: " + channelId);
+        beaconHelper.init(activity, qqAppId, channelId, b);
+        mtaHelper.init(activity, qqAppId, channelId, b);
+    }
+
+    public boolean reportLogin(String openId, int platId) {
+        if (openId == null || "".equals(openId) || platId == 0) {
+            Logger.d("did not report login: " + openId + ";" + platId);
+            return false;
+        }
+        
+        // 第一次设置时或者openId变化时候都要算作一次登陆, 需要上报
+        if ("".equals(this.openId) || !this.openId.equals(openId)) { 
+            Logger.d("report login: " + openId + ";" + platId);
+            beaconHelper.onLogin(openId, platId);
+            mtaHelper.onLogin(openId, platId);
+            // 每次登陆需要上报一次渠道号
+            this.openId = openId;
+        }
+        Logger.d("called");
+        return false;
+    }
+
+    public void enableCrashReport(boolean bRdmEnable, boolean mMtaEnable) {
+        beaconHelper.enableCrashReport(bRdmEnable);
+        mtaHelper.enableCrashReport(mMtaEnable);
+    }
+
+    public void reportEvent(String name, String body, int platId, boolean isRealTime) {
+    	Logger.d("String called");
+        beaconHelper.reportEvent(name, body, platId, isRealTime);
+        mtaHelper.reportEvent(name, body, platId); // Mta上报策略在后台配置
+    }
+    
+    public void reportEvent(String name, HashMap<String, String> params, int platId, boolean isRealTime) {
+        Logger.d("HashMap called");
+    	beaconHelper.reportEvent(name, params, platId, isRealTime);
+        mtaHelper.reportEvent(name, params, platId); // Mta上报策略在后台配置
+    }
+    
+    public void speedTest(ArrayList<String> addrList) {
+        Logger.d("Stat speedTest");
+        beaconHelper.speedTest(addrList);
+    }
+
+    public void resetOpenId() {
+        this.openId = "";
+    }
+}

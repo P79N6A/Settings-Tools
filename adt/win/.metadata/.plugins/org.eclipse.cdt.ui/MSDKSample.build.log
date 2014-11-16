@@ -1,0 +1,10 @@
+
+**** Build of configuration Default for project MSDKSample ****
+
+E:\android-ndk-r9b\ndk-build.cmd all 
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****

@@ -1,0 +1,103 @@
+package com.tencent.msdk.notice;
+
+import com.tencent.map.b.s;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.tools.APNUtil;
+
+import android.app.Activity;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.util.DisplayMetrics;
+
+/**
+ * 
+ * @author hardyshi 2014-03-13 
+ * App 请求公告时需要上传到后台的内容
+ */
+public class NoticeRequestPara implements Parcelable{
+	public static eMSDK_SCREENDIR SCREEN_DIR = eMSDK_SCREENDIR.eMSDK_SCREENDIR_SENSOR;
+	public static int GAME_VERSION = 0;
+	public static int SCREEN_DPI= 0;
+	public String mAppId = "";
+	public String mAppKey = "";
+	public String mMatid = "";
+	public String mOpenId = "";
+	public int mOs = 1;
+	public String mOsVersion = "";
+	public String mTradeMark = "";
+	public String mResolution = "";
+	public String mApn = "";
+	public String mMsdkVersion = "";
+	public String mProtocolVer = "";
+	public String mIosDeviceToken = "";
+	public String mLastTime = "";
+	public int mNoticeVersion = 0;
+	public int mScreenDir = 0;
+	public int mScreenDpi = 0;
+	
+    public NoticeRequestPara() {
+    	//Android
+    	this.mOs = 1;
+    	this.mOsVersion = android.os.Build.VERSION.RELEASE;
+    	this.mTradeMark = android.os.Build.MODEL;
+    	this.mResolution = NoticeManager.getInstance().getWidth() + "*" + NoticeManager.getInstance().getHeight();
+		byte apn = APNUtil.getApnType(NoticeManager.getInstance().getContext());
+		this.mApn = Byte.toString(apn);
+		this.mMsdkVersion = WeGame.getInstance().getMsdkVersion();
+		this.mProtocolVer = "1.1";
+		this.mNoticeVersion = NoticeManager.NOTICE_VERSION;
+		this.mScreenDir = NoticeRequestPara.SCREEN_DIR.val();
+		this.mScreenDpi = String.valueOf(NoticeRequestPara.SCREEN_DPI);
+    }  
+      
+    public NoticeRequestPara(Parcel source) { 
+    	this();
+    	mAppId = source.readString(); 
+    	mMatid = source.readString(); 
+    	mOpenId = source.readString(); 
+    	mOsVersion = source.readString(); 
+    	mTradeMark = source.readString(); 
+    	mResolution = source.readString(); 
+    	mApn = source.readString(); 
+    	mIosDeviceToken = source.readString(); 
+    	mLastTime = source.readString(); 
+    }  
+	
+	@Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeString(mAppId); 
+		dest.writeString(mMatid);  
+		dest.writeString(mOpenId);
+		dest.writeInt(mOs);
+		dest.writeString(mOsVersion);  
+		dest.writeString(mTradeMark);
+		dest.writeString(mResolution);  
+		dest.writeString(mApn);
+		dest.writeString(mMsdkVersion);  
+		dest.writeString(mProtocolVer);
+		dest.writeString(mIosDeviceToken);  
+		dest.writeString(mLastTime);
+		dest.writeInt(mNoticeVersion);	
+		dest.writeInt(mScreenDir);
+		dest.writeString(mScreenDpi);
+	}
+	
+	 //实例化静态内部对象CREATOR实现接口Parcelable.Creator  
+    public static final Parcelable.Creator<NoticeRequestPara> CREATOR = new Creator<NoticeRequestPara>() {  
+          
+        @Override  
+        public NoticeRequestPara[] newArray(int size) {  
+            return new NoticeRequestPara[size];  
+        }  
+          
+        //将Parcel对象反序列化为ParcelableDate  
+        @Override  
+        public NoticeRequestPara createFromParcel(Parcel source) {  
+            return new NoticeRequestPara(source);  
+        }  
+    }; 
+}

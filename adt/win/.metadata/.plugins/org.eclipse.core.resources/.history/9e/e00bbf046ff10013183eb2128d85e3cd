@@ -1,0 +1,185 @@
+package com.tencent.msdk.request;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.communicator.HttpRequestManager;
+import com.tencent.msdk.communicator.IHttpRequestListener;
+import com.tencent.msdk.communicator.UrlManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.consts.MessageNo;
+import com.tencent.msdk.consts.RequestConst;
+import com.tencent.msdk.db.LoginInfoManager;
+import com.tencent.msdk.db.QQLoginModel;
+import com.tencent.msdk.permission.PermissionManage;
+import com.tencent.msdk.pf.WGPfManager;
+import com.tencent.msdk.remote.api.SafeJSONObject;
+import com.tencent.msdk.stat.BeaconHelper;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/*
+ * */
+public class QQA8RequestMng implements IHttpRequestListener {
+    private static volatile QQA8RequestMng instance = null;
+    private int notifyState = RequestConst.notifyNone;
+    private long refreshStartTime = 0;
+    QQA8Response rspFromA8 = new QQA8Response();
+    private String callbackMsg = "";// 回调 msg
+    public static QQA8RequestMng getInstance() {
+        if (instance == null) {
+            synchronized (QQA8RequestMng.class) {
+                if (instance == null) {
+                    instance = new QQA8RequestMng();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void qqA8Req(String openAuthData, String openAuthSt, int notifyState) {
+        this.notifyState = notifyState;
+
+        if (T.ckIsEmpty(openAuthData) || T.ckIsEmpty(openAuthSt)) {
+            Logger.d("qqA8Req params error !!!");
+            notify(false,"qqA8Req params error !!!",-1);
+            return;
+        }
+        refreshStartTime = System.currentTimeMillis();
+        QQA8Request loginReq = new QQA8Request();
+        // .....
+        String appid = WeGame.getInstance().qq_appid;
+        String channel = WGPfManager.getInstance().getChannelId();
+        String platformId = WGPfManager.getInstance().getPlatformId();
+        String offerId = WeGame.getInstance().offerId;
+
+        JSONObject json = loginReq.getReqJson(openAuthData, openAuthSt, appid, channel, offerId, platformId);
+        String url = UrlManager.getUrl(HttpRequestManager.QQA8LOGIN_ACTION, WeGame.QQPLATID);
+        new HttpRequestManager(this).postTextAsync(url, json.toString(), MessageNo.MSG_NO_GET_QQA8LOGIN);
+    }
+
+    private void notify(boolean isOk,String content, int statusCode) {
+    	callbackMsg = " content: " + content + " statusCode: " + statusCode;
+        if (this.notifyState == RequestConst.notifyLogin) {
+            notifyLogin(isOk);
+        } else if (this.notifyState == RequestConst.notifyWakeup) {
+            notifyWakup(isOk);
+        }
+    }
+
+    private void notifyLogin(boolean isOk) {
+        LoginRet loginRet = LoginInfoManager.getInstance().getLastLoginUserInfo();
+        loginRet.flag = CallbackFlag.eFlag_Error;
+        loginRet.desc = ":-( , MSDK 数据失败";
+        if (true == isOk) {
+            loginRet.flag = CallbackFlag.eFlag_Succ;
+            loginRet.desc = WeGame.setDescribe(CallbackFlag.eFlag_Succ, loginRet.platform);
+        }
+        loginRet.desc += " cb:" + callbackMsg;
+        Logger.d("notifyLogin flag = " + loginRet.flag + " desc = " + loginRet.desc);
+        WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+    }
+
+    private void notifyWakup(boolean isOk) {
+        WakeupRet wakeupRet = new WakeupRet();
+        
+        if (true == isOk) { // 此函数需要在到后台换取票据完成, 票据写到db以后, 再调用
+            LoginRet lr = LoginInfoManager.getInstance().getLastLoginUserInfo();
+            wakeupRet.platform = WeGame.QQHALL;
+            wakeupRet.open_id = lr.open_id;
+            wakeupRet.flag = CallbackFlag.eFlag_Succ;
+            wakeupRet.desc = WeGame.setDescribe(CallbackFlag.eFlag_Succ, WeGame.QQHALL);
+        } else {
+        	wakeupRet.flag = CallbackFlag.eFlag_Error;
+            wakeupRet.desc = "大厅拉起失败";
+        }
+        Logger.d("notifyWakup flag = " + wakeupRet.flag + " desc = " + wakeupRet.desc);
+        wakeupRet.desc += " cb:" + callbackMsg;
+        WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+    }
+
+    private void updateA8Info(QQA8Response rspFromA8) {
+        WeGame.getInstance().setPlatId(WeGame.QQPLATID);
+        // 保存票据到本地
+        long curTime = System.currentTimeMillis() / 1000;
+        QQLoginModel qqloginRecord = new QQLoginModel();
+        qqloginRecord.open_id = rspFromA8.openid;
+        qqloginRecord.access_token = rspFromA8.accessToken;
+        qqloginRecord.access_token_expire = curTime + rspFromA8.expired;
+        qqloginRecord.pay_token = rspFromA8.payToken;
+        qqloginRecord.pay_token_expire = curTime + 2 * 24 * 60 * 60;// 2天
+        qqloginRecord.pf = rspFromA8.pf;
+        qqloginRecord.pf_key = rspFromA8.pfKey;
+        qqloginRecord.save();
+        // 刷新一下保存在WeGame示例内存中的mTencent中的票据
+        WeGame.getInstance().setOpenSdkLoginInfo(rspFromA8.openid, rspFromA8.accessToken,
+                rspFromA8.expired);
+
+        WGPfManager.getInstance().setRegChannelId(rspFromA8.regChannel);
+        PermissionManage.getInstance().updateDataFromNet(rspFromA8.permission);// 权限管理
+    }
+
+    @Override
+    public void onFailure(String errorContent, int statusCode, int what) {
+        Logger.d("errorContent:" + errorContent + " statusCode: " + statusCode);
+        reportEventToBeacon(false, statusCode, false);
+        notify(false, errorContent, what);
+    }
+
+    private void reportEventToBeacon(boolean success, int statusCode, boolean isLogicError) {
+        if(success) {
+            BeaconHelper.reportMSDKEvent("qqA8Req", refreshStartTime, true, null, true);
+        } else {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("param_FailCode", "" + statusCode);
+            map.put("msdk_logic_error", "" + (isLogicError ? 1 : 0));
+            BeaconHelper.reportMSDKEvent("qqA8Req", refreshStartTime, false, map, true);
+        }
+    }
+    
+    @Override
+    public void onSuccess(String netContent, int statusCode, int what) {
+        // QQ A8
+        boolean isOk = false;
+        String content = "";
+        if (what == MessageNo.MSG_NO_GET_QQA8LOGIN) {
+            if (null == netContent) { /* 防止 */
+                Logger.d("server response data is NULL; statusCode: " + statusCode);
+                notify(false,"server response data is NULL",statusCode);
+                reportEventToBeacon(false, ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL, false);
+                return;
+            }
+            try {
+                JSONObject json = new SafeJSONObject(netContent);
+                rspFromA8.reset();
+                rspFromA8.parseJson(json);
+                content = rspFromA8.msg;
+                if (rspFromA8.ret == 0) {
+                    reportEventToBeacon(true, ErrorCodeFlag.SDK_SUCCESS, false);
+                    isOk = true;
+                    updateA8Info(rspFromA8);
+                } else {
+                    reportEventToBeacon(false, rspFromA8.ret, true);
+                    Logger.d("onSuccess error ret:" + rspFromA8.ret + " ret: " + rspFromA8.msg);
+                    isOk = false;
+                }
+            } catch (JSONException e) {
+                isOk = false;
+                e.printStackTrace();
+                reportEventToBeacon(false, ErrorCodeFlag.SDK_ERROR_JSON_VALUES, false);
+            } finally {
+                notify(isOk,content,statusCode);
+            }
+        }
+    }
+
+}

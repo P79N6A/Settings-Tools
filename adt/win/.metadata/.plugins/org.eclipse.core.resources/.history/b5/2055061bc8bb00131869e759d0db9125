@@ -1,0 +1,184 @@
+package com.tencent.msdk.communicator;
+
+import java.io.IOException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+
+import com.tencent.msdk.tea.TEACoding;
+import com.tencent.msdk.tools.Logger;
+
+public class HttpTask extends AsyncTask<MHttpRequest, Integer, MHttpResponse> {
+	private Handler handler;
+	private int what;
+	private TEACoding teaCode = new TEACoding(TEACoding.somStr.getBytes());
+    private int TIME_OUT = 15 * 1000; // 15 ms
+
+	public HttpTask(Handler handler, int what) {
+		if (handler == null) {
+			Logger.d("hanlder is null");
+		}
+		this.handler = handler;
+		this.what = what;
+	}
+
+    private MHttpResponse clientParamError(String msg) {
+        return new MHttpResponse(MHttpResponse.HTTP_PARAMS_ERROR, msg, null);
+    }
+
+    private MHttpResponse serverErrorRsp(String msg) {
+    	return serverErrorRsp(MHttpResponse.HTTP_ERROR, msg);
+    }
+
+    private MHttpResponse serverErrorRsp(int errorCode, String msg) {
+        return new MHttpResponse(errorCode, msg, null);
+    }
+
+    @Override
+    protected MHttpResponse doInBackground(MHttpRequest... params) {
+        if (params.length == 0) {
+            // 没有传入参数进来, 算作错误
+            Logger.d("no params");
+            return clientParamError("no params");
+        }
+
+		MHttpRequest req = params[0];
+		if (req == null) {
+			Logger.d("HttpRequest is null");
+			return clientParamError("HttpRequest is null");
+		}
+
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpConnectionParams.setConnectionTimeout(httpClient.getParams(),
+				TIME_OUT);
+
+		HttpRequestBase baseReq = null;
+		switch (req.getMethod()) {
+		case GET:
+			baseReq = new HttpGet(req.getUrl());
+			break;
+		case POST:
+			baseReq = new HttpPost(req.getUrl());
+			baseReq.setHeader("Content-Type",
+					"application/x-www-form-urlencoded");
+			if (HttpRequestManager.isEncode) {
+				baseReq.setHeader("Content-Encrypt", "msdktea");
+				baseReq.setHeader("Accept-Encrypt", "msdktea");
+			}
+			((HttpPost) baseReq).setEntity(new ByteArrayEntity(req.getBody()));
+			((HttpPost) baseReq).getParams().setBooleanParameter(
+					CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
+			HttpProtocolParams.setUseExpectContinue(httpClient.getParams(),
+					false);
+			break;
+		case PUT:
+		case DELETE:
+			// 暂时不用实现这两个方法
+			break;
+		}
+
+        HttpResponse response;
+        try {
+            response = httpClient.execute(baseReq);
+            return processHttpResponse(response);
+        } catch (RuntimeException e) {
+            Logger.w("RuntimeException, url: "+ req.getUrl());
+            e.printStackTrace();
+            return serverErrorRsp("RuntimeException");
+        } catch (ClientProtocolException e) {
+            Logger.w("ClientProtocolException, url: " + req.getUrl());
+            e.printStackTrace();
+            return serverErrorRsp("ClientProtocolException" + e.getMessage());
+        } catch (ConnectTimeoutException timeoutException) { 
+        	// 超时异常
+            return serverErrorRsp(MHttpResponse.HTTP_TIME_OUT, "ConnectTimeoutException" + timeoutException.getMessage());
+        } catch (IOException e) {
+            Logger.w("IOException, url: " + req.getUrl());
+            e.printStackTrace();
+            return serverErrorRsp("IOException" + e.getMessage());
+        }
+    }
+
+	private MHttpResponse processHttpResponse(HttpResponse response) {
+		HttpEntity entity = response.getEntity();
+		int length = (int) entity.getContentLength();
+		Logger.w("getContentLength is：" + length);
+		if (length < 0) { // 任何内容没返回, 不做处理
+			// 没有返回错误
+			Logger.w("response is null");
+			return null;
+		}
+		byte[] entityBeforeDecode;
+		byte[] entityAfterDecode;
+		try {
+			String strResult = "";
+			if (HttpRequestManager.isEncode) {
+				entityBeforeDecode = new byte[length];
+				entity.getContent().read(entityBeforeDecode, 0, length);
+				entityAfterDecode = teaCode.decode(entityBeforeDecode);
+				if(null == entityAfterDecode){
+					strResult = "";
+					Logger.w("entityAfterDecode is null");
+				}else{
+					strResult = new String(entityAfterDecode, "UTF-8");
+					Logger.d("strResult:"+strResult);
+				}
+			} else {
+				// 解决后台下发中文乱码问题 2013/11/26 turing
+				strResult = EntityUtils.toString(response.getEntity(),
+						HTTP.UTF_8);
+			}
+			return new MHttpResponse(response.getStatusLine().getStatusCode(),
+					"", strResult);
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+			return null;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+
+	@Override
+	protected void onPostExecute(MHttpResponse result) {
+		super.onPostExecute(result);
+		Message message;
+		if (result == null) {
+			Logger.d("net error!!!");
+			result = new MHttpResponse(-1, "网络返回值为 null", null);
+		}
+
+		if (null != result.getBody()) {
+			Logger.d("result body is" + new String(result.getBody()));
+		} else {
+			Logger.d("result body is null");
+		}
+
+		Bundle data = new Bundle();
+		data.putParcelable(HttpRequestManager.RSP_KEY, result);
+
+		if (this.handler != null) {
+			message = Message.obtain(handler, this.what, result.getStatus(), 0);
+			message.setData(data);
+			this.handler.sendMessage(message);
+		}
+	}
+
+}

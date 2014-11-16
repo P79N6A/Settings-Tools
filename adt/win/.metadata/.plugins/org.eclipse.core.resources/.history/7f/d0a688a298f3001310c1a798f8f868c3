@@ -1,0 +1,1987 @@
+package com.tencent.msdk;
+
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import com.tencent.connect.share.QQShare;
+import com.tencent.feedback.ua.UserAction;
+import com.tencent.mm.sdk.modelbase.BaseResp;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
+import com.tencent.mm.sdk.modelmsg.SendMessageToWX;
+import com.tencent.mm.sdk.modelmsg.WXAppExtendObject;
+import com.tencent.mm.sdk.modelmsg.WXImageObject;
+import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.sdk.modelmsg.WXMusicObject;
+import com.tencent.mm.sdk.modelmsg.WXWebpageObject;
+import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.tencent.msdk.api.KVPair;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.MsdkBaseInfo;
+import com.tencent.msdk.api.ShareRet;
+import com.tencent.msdk.api.TokenRet;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.api.WGPlatformObserver;
+import com.tencent.msdk.api.WGQZonePermissions;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.api.eQQScene;
+import com.tencent.msdk.api.eWechatScene;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.Consts;
+import com.tencent.msdk.consts.EPlatform;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.consts.RequestConst;
+import com.tencent.msdk.consts.TokenType;
+import com.tencent.msdk.db.LoginInfoManager;
+import com.tencent.msdk.db.QQLoginModel;
+import com.tencent.msdk.doctor.MsdkCheckConfig;
+import com.tencent.msdk.doctor.MsdkDoctor;
+import com.tencent.msdk.handle.MsdkThreadManager;
+import com.tencent.msdk.myapp.autoupdate.AutoUpdateManager;
+import com.tencent.msdk.myapp.whitelist.WhiteListMng;
+import com.tencent.msdk.notice.NoticeManager;
+import com.tencent.msdk.pf.WGPfManager;
+import com.tencent.msdk.push.PushManager;
+import com.tencent.msdk.qq.ApiName;
+import com.tencent.msdk.qq.QQLogin;
+import com.tencent.msdk.qq.QQVersionApiManager;
+import com.tencent.msdk.stat.BeaconHelper;
+import com.tencent.msdk.stat.Stat;
+import com.tencent.msdk.timer.TaskManager;
+import com.tencent.msdk.timer.task.NoticeTask;
+import com.tencent.msdk.timer.task.WechatTokenRefreshTask;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+import com.tencent.msdk.tools.VersionHelper;
+import com.tencent.msdk.webview.WebViewManager;
+import com.tencent.stat.common.StatConstants;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
+
+public final class WeGame {
+	//票据类型, QQHALL不算做票据类型, 平台ID标识统一使用平台传入的platformId字段标识
+	public final static int WXPLATID = EPlatform.ePlatform_Weixin.val();
+	public final static int QQPLATID = EPlatform.ePlatform_QQ.val();
+	public static final int QQHALL = EPlatform.ePlatform_QQHall.val();
+	private static final String MSDK_VERSION = "1.9.0a";
+
+	//各种票据默认的有效期
+	public static final int DEFAULT_PATYOKEN_EXPIRATION = 6 * 24 * 60 * 60;
+	public static final int DEFAULT_QQ_ACCESSTOKEN_EXPIRATION = 90 * 24 * 60 * 60;
+	//各种票据设置的提前过期的buff
+	private final int PAYTOKEN_BUFFER = 600;
+	private final int WX_ACCESS_TOKEN_BUFFER = 600;
+	private final int REFRESHTOKEN_BUFFER = 24 * 3600;
+	private final int QQ_ACCESS_TOKEN_BUFFER = 24 * 3600;
+	
+	// 回调的Flag默认设置为成功
+	private int flag = CallbackFlag.eFlag_Succ;
+	private Activity mActivity = null;
+
+	private Activity firstGameActivity = null;
+	private int mPlatId = 0;
+	public String qq_appid = "";
+	public String wx_appid = "";
+	public String qqAppKey = "";
+	public String wxAppKey = "";
+	
+	private Tencent mTencent;
+	public IWXAPI api;
+	public String mPermission = "all";
+	private Stat mStat = new Stat();
+	private volatile static WeGame instance;
+	public String offerId = null;
+	// Msdk 线程管理
+	private MsdkThreadManager threadMgn;
+	// 微信缩略图支持32k, 这里200为最长边的像素值
+	private final int THUMB_SIZE = 200; 
+	// 微信分享图片的限制值
+	// 32k
+	private final int THUMB_MAX_SIZE = 32000;
+	// 10M
+	private final int IMG_MAX_SIZE = 10 * 1000 * 1000;
+	//临时保存拉起平台携带的票据信息，当切换异账号使用拉起平台登录时使用这里保存的票据登陆
+	private LoginRet mCallbackRet = null;
+
+	// 记录微信首次登录时间
+	private long wxRequestStartTime = 0;
+	// 抢号SDK Manager
+	public static WeGame getInstance() {
+		if (instance == null) {
+			synchronized (WeGame.class) {
+				if (instance == null) {
+					instance = new WeGame();
+				}
+			}
+		}
+		return instance;
+	}
+	
+	public boolean IsDifferentActivity(Activity activity) {
+		if (null != this.firstGameActivity
+				&& !this.firstGameActivity.equals(activity)) {
+			return true;
+		}
+		return false;
+	}
+
+	public void onDestory(Activity game) {
+		// 如果挡墙结束的Activity是保存在WeGame中的，则清空
+		if (game != null && game.equals(firstGameActivity)) {
+			this.firstGameActivity = null;
+		}
+	}
+
+	/**
+	 * 初始化接口
+	 * 
+	 * @param wx_appId
+	 *            微信appid
+	 * @param qq_appId
+	 *            QQ appid
+	 * **/
+	public void Initialized(Activity activity, MsdkBaseInfo baseInfo) {
+		Logger.d("Initialized end: " + this.wx_appid + "-" + this.qq_appid);
+		this.mActivity = activity;
+		this.firstGameActivity = activity;
+		this.qq_appid = baseInfo.qqAppId;
+		this.qqAppKey = baseInfo.qqAppKey;
+		this.wx_appid = baseInfo.wxAppId;
+		this.wxAppKey = baseInfo.wxAppKey;
+		this.offerId = baseInfo.offerId;
+
+		this.api = WXAPIFactory.createWXAPI(mActivity, wx_appid);
+		this.api.registerApp(wx_appid);
+		this.mTencent = Tencent.createInstance(this.qq_appid,
+				activity.getApplicationContext());
+		mStat.init(activity, baseInfo.qqAppId, true);
+		threadMgn = MsdkThreadManager.getInstance();
+		threadMgn.init();
+		threadMgn.sendGetPermissionMsg();
+		// 初始化webview
+		WebViewManager.getInstance().init(mActivity);
+		Logger.d("Initialized end: " + this.wx_appid + "-" + this.qq_appid);
+		Logger.d("WeGameSDK Version: " + this.WGGetVersion());
+		
+		if (isTestEnv()) {
+		    MsdkCheckConfig md = new MsdkCheckConfig();
+		    MsdkDoctor doctor = new MsdkDoctor(WeGame.getInstance().getActivity());
+		    ArrayList<String> checkResult = doctor.checkAll();
+		    if (null != checkResult && checkResult.size() != 0) {
+		        Logger.w("MSDK Config Error!!!!");
+		        for (String errorMsg: checkResult) {
+		            Logger.w(errorMsg);
+		        }
+		    } else {
+		        Logger.d("All Config OK!!!");
+		    }
+
+			Toast.makeText(getActivity(), "You are using " + getApiDomain(), Toast.LENGTH_LONG).show();
+		}
+		// 获取公告
+		NoticeManager.getInstance().init(this.mActivity);
+
+		// 要给应用白名单sdk最新的context
+		WhiteListMng.gDefault.get().setmContext(getActivity());
+
+		if ("true".equals(ConfigManager.readValueByKey(getActivity(),
+				"SAVE_UPDATE"))) {
+			AutoUpdateManager.init();
+		}
+
+        Logger.d("PUSH: " + ConfigManager.readValueByKey(getActivity(), "PUSH"));
+		if ("true".equals(ConfigManager.readValueByKey(getActivity(), "PUSH"))) {
+		    Logger.d("PUSH opened!");
+		    //  先注册一遍App, 登录完成以后再注册一遍AppUser, 注册完成以后发起轮询
+		    PushManager.gDefault.get().registerAppOnce(getActivity(), this.qq_appid, this.wx_appid);
+		} else {
+		    Logger.d("PUSH closed!");
+		}
+		
+		TaskManager.gDefault.get().startTimer();
+		TaskManager.gDefault.get().addTask(new WechatTokenRefreshTask());
+		TaskManager.gDefault.get().addTask(new NoticeTask());
+	}
+	
+	private boolean isTestEnv() {
+		String domain = getApiDomain();
+	    return domain.contains("test") || domain.contains("dev");
+	}
+
+	
+    public Tencent getTencent(){
+	    return mTencent;
+	}
+	
+	public Stat getStat() {
+		return this.mStat;
+	}
+
+	// 设置java层委托
+	public void setObserver(WGPlatformObserver observer) {
+		WeGameNotifyGame.getInstance().setObserver(observer);
+	}
+
+	//判断拉起平台是否为QQ游戏大厅
+	public boolean wakeUpFromHall(Intent intent) {
+		if (intent == null || intent.getExtras() == null) {
+			Logger.d("wakeUpFromHall" + "intent is NULL");
+			return false;
+		}
+		Bundle b = intent.getExtras();
+		Set<String> keys = b.keySet();
+		if (keys.contains("KEY_START_FROM_HALL")) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	private void handleQQCallback(Bundle b, int diffAccoutFlag) {
+		Logger.d("handleQQCallback" + "");
+
+		String openID = b.getString("current_uin");
+		Logger.d("qq SetOpenid " + openID);
+
+		WakeupRet wakeup = new WakeupRet();
+		wakeup.platform = WeGame.QQPLATID;
+		wakeup.open_id = openID;
+		wakeup.flag = diffAccoutFlag;
+		bundleToVector(b, wakeup);
+		MsdkThreadManager.getInstance().getPfKeyReqWithWakeup(
+				RequestConst.notifyWakeup, wakeup);
+	}
+
+	private void handleHallCallback(Bundle b, int diffAccoutFlag) {
+		/*
+		 * 1、键值为'channelId', 数据类型为string的统计渠道ID；
+		 * 2、键值为'OPEN_AUTH_DATA',* 数据类型为string的开放平台加密数据； 
+		 * 3、键值为'OPEN_AUTH_ST', 数据类型为string的开放平台加密st；
+		 */
+		if (b == null) {
+			Logger.d("handleHallCallback Bundle EMPTY");
+			return;
+		}
+		String channelId = b.getString("channelId");
+		String openAuthData = b.getString("OPEN_AUTH_DATA");
+		String openAuthSt = b.getString("OPEN_AUTH_ST");
+
+		Logger.d("From Hall, channelId: " + channelId);
+		Logger.d("From Hall, openAuthData: " + openAuthData);
+		Logger.d("From Hall, openAuthSt: " + openAuthSt);
+
+		MsdkThreadManager.getInstance().qqA8Req(openAuthData, openAuthSt,
+				RequestConst.notifyWakeup);
+	}
+
+	private void handleWXCallback(Bundle extras, int diffAccoutFlag) {
+		Logger.d("handleWXCallback" + "");
+		if (extras == null) {
+			Logger.d("handleWXCallback Bundle EMPTY");
+			return;
+		}
+		// 这里的数据是在WXEntryActivity中设置的
+		String wxCallbackFlag = extras.getString("wx_callback");
+		int errCode = extras.getInt("wx_errCode");
+		String errStr = extras.getString("wx_errStr");
+		String transaction = extras.getString("wx_transaction");
+		String openID = extras.getString("wx_openId");
+		String token = extras.getString("wx_token");
+		String mediaTagName = extras.getString("wx_mediaTagName");
+		String messageExt = extras.getString("messageExt");
+		String country = extras.getString("country");
+		String lang = extras.getString("lang");
+
+		Logger.d("handleWXCallback errorCode: " + errCode);
+		if ("onReq".equals(wxCallbackFlag)) { 
+			// 微信拉起
+			WakeupRet wakeup = new WakeupRet();
+			wakeup.platform = WeGame.WXPLATID;
+			wakeup.open_id = openID;
+			wakeup.flag = diffAccoutFlag;
+
+			if (!T.ckIsEmpty(mediaTagName)) {
+				Logger.d("handleWXCallback" + "mediaTagName : " + mediaTagName);
+				wakeup.media_tag_name = mediaTagName;
+			} else {
+				Logger.d("handleWXCallback" + "mediaTagName null or empty");
+			}
+			if (!T.ckIsEmpty(messageExt)) {
+				Logger.d("handleWXCallback" + "messageExt : " + messageExt);
+				wakeup.messageExt = messageExt;
+			}
+			if (!T.ckIsEmpty(country)) {
+				Logger.d("handleWXCallback" + "country : " + messageExt);
+				wakeup.country = country;
+			}
+			if (!T.ckIsEmpty(lang)) {
+				Logger.d("handleWXCallback" + "lang : " + messageExt);
+				wakeup.lang = lang;
+			}
+			bundleToVector(extras, wakeup);
+			// 更新 pfkey
+			MsdkThreadManager.getInstance().getPfKeyReqWithWakeup(
+					RequestConst.notifyWakeup, wakeup);
+		} else if ("appdata".equals(transaction) || "img".equals(transaction)) { 
+			// 分享返回
+			ShareRet shareRet = new ShareRet();
+			shareRet.flag = errCode;
+			shareRet.platform = WeGame.WXPLATID;
+			if (!T.ckIsEmpty(errStr)) {
+				shareRet.desc = errStr;
+			}
+			Logger.d("WX Share ErrorCode :" + errCode);
+			switch (errCode) {
+			case BaseResp.ErrCode.ERR_OK:
+				shareRet.flag = CallbackFlag.eFlag_Succ;
+				break;
+			case BaseResp.ErrCode.ERR_USER_CANCEL:
+				shareRet.flag = CallbackFlag.eFlag_WX_UserCancel;
+				break;
+			case BaseResp.ErrCode.ERR_UNSUPPORT:
+				shareRet.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+				break;
+			default:
+				shareRet.flag = CallbackFlag.eFlag_Error;
+				break;
+			}
+			
+			
+			WeGameNotifyGame.getInstance().OnShareNotify(shareRet);
+		} else { 
+			// 登陆回调
+			LoginRet loginRet = new LoginRet();
+			loginRet.platform = WeGame.WXPLATID;
+			Logger.e("WXEntryActivity errcode:" + errCode);
+			
+			int beaconErrorCode = 0;
+			boolean isLogicError = false;
+			switch (errCode) {
+			case BaseResp.ErrCode.ERR_OK:
+				loginRet.flag = CallbackFlag.eFlag_Succ;
+				// 没有openid
+				if (openID != null) {
+					loginRet.open_id = openID;
+				}
+				TokenRet code = new TokenRet();
+				code.type = TokenType.eToken_WX_Code;
+				if (token == null) {
+					code.value = "";
+				} else {
+					code.value = token;
+				}
+				loginRet.token.add(code);
+
+				Logger.d("code: " + code.value);
+				// 到MSDK后台换票, 并且通知上层
+				MsdkThreadManager.getInstance().wxFirstLoginReq(code.value,
+						RequestConst.notifyLogin);
+				break;
+			case BaseResp.ErrCode.ERR_USER_CANCEL:
+				loginRet.flag = CallbackFlag.eFlag_WX_UserCancel;
+				beaconErrorCode = ErrorCodeFlag.SDK_ERROR_USER_CANCEL;
+				isLogicError = true; 
+				WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+				break;
+			case BaseResp.ErrCode.ERR_AUTH_DENIED:
+				loginRet.flag = CallbackFlag.eFlag_WX_UserDeny;
+				beaconErrorCode = ErrorCodeFlag.SDK_ERROR_WX_AUTH_DENIED;
+				WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+				break;
+			case BaseResp.ErrCode.ERR_SENT_FAILED:
+			case BaseResp.ErrCode.ERR_UNSUPPORT:
+			case BaseResp.ErrCode.ERR_COMM:
+			default: // 通信失败 ，flag = 1
+				loginRet.flag = CallbackFlag.eFlag_WX_LoginFail;
+				beaconErrorCode = ErrorCodeFlag.SDK_ERROR_WX_LOGIN_FAIL;
+				break;
+			}
+			
+			if(beaconErrorCode == 0) {
+			    BeaconHelper.reportMSDKEvent("wxEntryFirstLogin", wxRequestStartTime, true, null, true);
+            } else {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("param_FailCode", "" + beaconErrorCode);
+                map.put("msdk_logic_error", "" + (isLogicError ? 1 : 0));
+                BeaconHelper.reportMSDKEvent("wxEntryFirstLogin", wxRequestStartTime, false, map, true);
+            }
+		}
+	}
+
+	/**
+	 * @param intent
+	 */
+	public void handleCallback(Intent intent) {
+		Logger.d("handleCallBack");
+		// 手动启动, 不处理callback
+		if (intent == null || intent.getExtras() == null) {
+			Logger.d("handleCallBack" + "intent is NULL");
+			return;
+		}
+
+		Logger.d("INTENT ************************************************");
+		Logger.d(intent);
+		Logger.d("INTENT ************************************************");
+		Bundle extras = new Bundle();
+		// 即使getExtras()也有可能是手动启动, 取决于游戏是否设置putExtras
+		extras.putAll(intent.getExtras());
+		Set<String> keys = intent.getExtras().keySet();
+		for (String key : keys) {
+			Logger.d("remove " + key);
+			intent.removeExtra(key);
+		}
+		Logger.d("INTENT start************************************************");
+		Logger.d(intent);
+		Logger.d("INTENT end************************************************");
+
+		mActivity.setIntent(intent);
+		// 获得拉起渠道ID
+		String channelId = extras.getString("channel");
+		if (T.ckIsEmpty(channelId)) {
+			Logger.d("user old channel: " + channelId);
+		}
+
+		String platformId = extras.getString("platformId");
+		// 手Q游戏中心拉起游戏传递的字段为platform
+		if (T.ckIsEmpty(platformId)) {
+			platformId = extras.getString("platform");
+		}
+		// 设置拉起平台
+		WGPfManager.getInstance().setPlatformId(platformId);
+		mCallbackRet = new LoginRet();
+
+		// 如果platform为空, 使用不同平台的特殊字段区分平台
+		if (T.ckIsEmpty(platformId)) {
+			// 用是否带有current_uin来判断是不是手Q
+			String qqCallbackFlag = extras.getString("current_uin");
+			// 此值在WXEntryActivity中启动游戏时putExtras进去
+			String wxCallbackFlag = extras.getString("wx_callback");
+			// 此值在大厅启动游戏时putExtras进去
+			String hallCallbackFlag = extras.getString("KEY_REPORT_CHID");
+
+			if (!T.ckIsEmpty(qqCallbackFlag)) {
+				mCallbackRet.platform = WeGame.QQPLATID;
+				if (!T.ckIsEmpty(extras.getString("openid"))) {
+					mCallbackRet.open_id = extras.getString("openid");
+				} else {
+					mCallbackRet.open_id = extras.getString("current_uin");
+				}
+				if (!T.ckIsEmpty(extras.getString("atoken"))) {
+					mCallbackRet.token.add(new TokenRet(
+							TokenType.eToken_QQ_Access, extras
+									.getString("atoken"),
+							DEFAULT_QQ_ACCESSTOKEN_EXPIRATION));
+				}
+				if (!T.ckIsEmpty(extras.getString("ptoken"))) {
+					mCallbackRet.token.add(new TokenRet(
+							TokenType.eToken_QQ_Pay,
+							extras.getString("ptoken"),
+							DEFAULT_PATYOKEN_EXPIRATION));
+				}
+				if (!T.ckIsEmpty(extras.getString("pfKey"))) {
+					mCallbackRet.pf_key = extras.getString("pfKey");
+				}
+			} else if (!T.ckIsEmpty(wxCallbackFlag)) {
+				mCallbackRet.platform = WeGame.WXPLATID;
+				mCallbackRet.open_id = extras.getString("wx_openId");
+			} else if (!T.ckIsEmpty(hallCallbackFlag)) {
+				mCallbackRet.platform = WeGame.QQHALL;
+			} else {
+				Logger.d("handdle unknow platformID: " + platformId);
+			}
+		} else {
+			// 如果传了PlatformID过来, 则根据传递platformID判断
+			if (WGPfManager.WG_QQ_PLATFORM_ID.equals(platformId)) {
+				mCallbackRet.platform = WeGame.QQPLATID;
+				if (!T.ckIsEmpty(extras.getString("openid"))) {
+					mCallbackRet.open_id = extras.getString("openid");
+				} else {
+					mCallbackRet.open_id = extras.getString("current_uin");
+				}
+				if (!T.ckIsEmpty(extras.getString("atoken"))) {
+					mCallbackRet.token.add(new TokenRet(
+							TokenType.eToken_QQ_Access, extras
+									.getString("atoken"),
+							DEFAULT_QQ_ACCESSTOKEN_EXPIRATION));
+				}
+				if (!T.ckIsEmpty(extras.getString("ptoken"))) {
+					mCallbackRet.token.add(new TokenRet(
+							TokenType.eToken_QQ_Pay,
+							extras.getString("ptoken"),
+							DEFAULT_PATYOKEN_EXPIRATION));
+				}
+				if (!T.ckIsEmpty(extras.getString("pfKey"))) {
+					mCallbackRet.pf_key = extras.getString("pfKey");
+				}
+			} else if (WGPfManager.WG_WX_PLATFORM_ID.equals(platformId)) {
+				mCallbackRet.platform = WeGame.WXPLATID;
+				mCallbackRet.open_id = extras.getString("wx_openId");
+			} else if (WGPfManager.WG_MOBILE_PLATFORM_ID.equals(platformId)) {
+				mCallbackRet.platform = WeGame.QQHALL;
+			} else {
+				Logger.d("handdle unknow platformID: " + platformId);
+			}
+		}
+		Logger.d("******************callback lr start ********************");
+		Logger.d(mCallbackRet);
+		Logger.d("******************callback lr end ********************");
+
+		int diffAccountFlag = checkDiffLogin(mCallbackRet);
+
+		if (WeGame.QQPLATID == mCallbackRet.platform) {
+			Logger.d("handleQQCallback,diffAccountFlag:" + diffAccountFlag);
+			this.handleQQCallback(extras, diffAccountFlag);
+		} else if (WeGame.WXPLATID == mCallbackRet.platform) {
+			Logger.d("handleWXCallback,diffAccountFlag:" + diffAccountFlag);
+			this.handleWXCallback(extras, diffAccountFlag);
+		} else if (WeGame.QQHALL == mCallbackRet.platform) {
+			Logger.d("handleHallCallback,diffAccountFlag:" + diffAccountFlag);
+			this.handleHallCallback(extras, diffAccountFlag);
+		} else {
+			Logger.d("handdle unknow platformID: " + platformId);
+		}
+
+		if (null == platformId) { // 考虑老游戏大厅版本
+			String chid = extras.getString("KEY_REPORT_CHID");
+			if (null != chid) {
+				platformId = WGPfManager.WG_MOBILE_PLATFORM_ID;
+				channelId = chid;
+			}
+		}
+		Logger.d("###platformId:" + platformId);
+		Logger.d("###channel:" + channelId);
+	}
+
+	/**
+	 * @param intent
+	 */
+	public int checkDiffLogin(LoginRet callbacklr) {
+		LoginRet locallr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(locallr);
+		Logger.d("******************local lr start********************");
+		Logger.d(locallr);
+		Logger.d("******************local lr end*******************");
+		if (locallr.open_id.equals(callbacklr.open_id)) {
+			Logger.d("local and callback is same user!");
+			if (CallbackFlag.eFlag_Succ == locallr.flag) {
+				// 如果本地票据有效，检查本地票据于拉起票据是否一致，
+				if(WeGame.QQPLATID == locallr.platform){
+					//如果拉起平台是手Q，检查accesstoken和paytoken
+					if(this.checkTokenIsSame(locallr.getAccessToken(),callbacklr.getAccessToken()) && 
+							this.checkTokenIsSame(locallr.getTokenByType(TokenType.eToken_QQ_Pay),callbacklr.getTokenByType(TokenType.eToken_QQ_Pay))
+							){
+						//如果一致，用本地
+						return CallbackFlag.eFlag_Succ;
+					}else{
+						//如果不一致，用拉起
+						switchUser(true);
+						return CallbackFlag.eFlag_UrlLogin;
+					}
+				}else if(WeGame.WXPLATID == locallr.platform){
+					//如果拉起平台是微信，检查accesstoken和refreshtoken
+					if(
+							locallr.getAccessToken().equals(
+							callbacklr.getAccessToken())
+							&& locallr.getTokenByType(TokenType.eToken_WX_Refresh).equals(
+									callbacklr.getTokenByType(TokenType.eToken_WX_Refresh))){
+						//如果一致，用本地
+						return CallbackFlag.eFlag_Succ;
+					}else{
+						//如果不一致，用拉起
+						switchUser(true);
+						return CallbackFlag.eFlag_UrlLogin;
+					}
+				}else{
+					return CallbackFlag.eFlag_Succ;
+				}
+				
+			} else if (CallbackFlag.eFlag_WX_AccessTokenExpired == locallr.flag) {
+				// 如果本地access token过期，这个时候手Q必然无法登陆，微信用refresh刷新
+				refreshWxToken();
+				return CallbackFlag.eFlag_AccountRefresh;
+			} else {
+				// 如果本地票据无效，则尝试用拉起平台传递的参数登陆
+				if (switchUser(true)) {
+					// 使用拉起票据登陆成功
+					return CallbackFlag.eFlag_UrlLogin;
+				} else {
+					// 使用拉起票据登陆失败。让用户去登陆
+					return CallbackFlag.eFlag_NeedLogin;
+				}
+			}
+		}
+
+		if (!T.ckIsEmpty(locallr.open_id)) {
+			// 本地账号有票据，
+			Logger.d("local openid:" + locallr.open_id);
+			if (CallbackFlag.eFlag_Succ == locallr.flag
+					|| CallbackFlag.eFlag_WX_AccessTokenExpired == locallr.flag) {
+				// 本地票据有效
+				if (CallbackFlag.eFlag_WX_AccessTokenExpired == locallr.flag) {
+					// 如果是微信refresh有效，刷新一下
+					refreshWxToken();
+				}
+				Logger.d("local user is valid");
+				if (!T.ckIsEmpty(callbacklr.open_id)) {
+					// 拉起有openid，提示异账号
+					Logger.d("call back openid:" + callbacklr.open_id);
+					return CallbackFlag.eFlag_NeedSelectAccount;
+				} else {
+					// 拉起不带openid，本地有效，直接登陆
+					Logger.d("call back without openid");
+					return CallbackFlag.eFlag_Succ;
+				}
+			} else {
+				// 本地票据无效
+				Logger.d("local user is invalid");
+				if (!T.ckIsEmpty(callbacklr.open_id)
+						&& !T.ckIsEmpty(callbacklr.getAccessToken())) {
+					// 拉起有openid，异账号提示
+					Logger.d("call back openid:" + callbacklr.open_id);
+					return CallbackFlag.eFlag_NeedSelectAccount;
+				} else {
+					// 拉起不带openid，登陆页
+					Logger.d("call back without openid");
+					return CallbackFlag.eFlag_NeedLogin;
+				}
+			}
+		} else {
+			// 本地账号无票据
+			Logger.d("local without openid");
+			if (!T.ckIsEmpty(callbacklr.open_id)
+					&& !T.ckIsEmpty(callbacklr.getAccessToken())) {
+				// 拉起有openid，如果拉起有效，使用URL登陆
+				Logger.d("call back openid:" + callbacklr.open_id);
+				if (switchUser(true)) {
+					// 登陆成功，返回拉起登陆
+					return CallbackFlag.eFlag_UrlLogin;
+				} else {
+					// 拉起带的票据无法登陆，让用户去登陆
+					return CallbackFlag.eFlag_NeedLogin;
+				}
+			} else {
+				// 拉起不带openid，显示登陆页面，让用户去登陆
+				Logger.d("call back without openid");
+				return CallbackFlag.eFlag_NeedLogin;
+			}
+		}
+	}
+
+	/**
+	 * 检查本地的票据是否要使用
+	 * @param orignToken
+	 * @param newToken
+	 * @return
+	 */
+	private boolean checkOldTokenIsUserful(String orignToken, String newToken){
+		if(T.ckIsEmpty(newToken)){
+			//拉起为空，视为票据相同，
+			return true;
+		}else{
+			if(T.ckIsEmpty(orignToken)){
+				//拉起非空，本地空，视为票据不同
+				return false;
+			}else{
+				if(orignToken.equals(newToken)){
+					return true;
+				}else{
+					return false;
+				}
+			}
+		}
+	}
+	/**
+	 * 使用拉起账号登陆，目前只有手Q支持
+	 * 
+	 * @param switchToLaunchUser
+	 *            是否用拉起账号登陆
+	 * @return 如果没有票据，或票据无效将会返回NO；其它情况返回YES，YES不代表登陆成功
+	 */
+	public boolean switchUser(boolean switchToLaunchUser) {
+		if (switchToLaunchUser) {
+			Logger.d("login with callback");
+			if (WeGame.QQPLATID == mCallbackRet.platform) {
+				Logger.d("loginWithUrlInfo: qq");
+				QQLoginModel qui = new QQLoginModel();
+				qui.open_id = mCallbackRet.open_id;
+				long curTime = System.currentTimeMillis() / 1000;
+				qui.access_token = mCallbackRet.getAccessToken();
+				qui.access_token_expire = curTime
+						+ mCallbackRet
+								.getTokenExpireByType(TokenType.eToken_QQ_Access);
+				qui.pay_token = mCallbackRet
+						.getTokenByType(TokenType.eToken_QQ_Pay);
+				qui.pay_token_expire = curTime
+						+ mCallbackRet
+								.getTokenExpireByType(TokenType.eToken_QQ_Pay);
+				qui.pf = mCallbackRet.pf;
+				qui.pf_key = mCallbackRet.pf_key;
+				qui.save();
+				MsdkThreadManager.getInstance().getQQFirstLoginPfKeyReq(qui);
+				return true;
+			} else if (WeGame.WXPLATID == mCallbackRet.platform) {
+				Logger.d("loginWithUrlInfo: wechat");
+				return false;
+			} else if (WeGame.QQHALL == mCallbackRet.platform) {
+				Logger.d("loginWithUrlInfo: hall");
+				return false;
+			} else {
+				Logger.w("loginWithUrlInfo: " + mCallbackRet.platform);
+				return false;
+			}
+		} else {
+			Logger.d("login with local");
+			// 清空缓存中的票据信息
+			mCallbackRet = new LoginRet();
+			return true;
+		}
+	}
+
+	public void WGSetPermission(int permissions) {
+		Logger.d("WGSetQzonePermission + permissions: " + permissions);
+		String[] permissionStr = WGQZonePermissions
+				.getPermissionStr(permissions);
+		ArrayList<String> list = new ArrayList<String>(
+				Arrays.asList(permissionStr));
+		// Remove all empty values
+		list.removeAll(Arrays.asList("", null));
+		StringBuilder builder = new StringBuilder();
+
+		for (int i = 0; i < list.size(); i++) {
+			if (i > 0) {
+				builder.append(", ");
+			}
+			builder.append(list.get(i));
+		}
+		mPermission = builder.toString();
+		Logger.d("mPermission: " + mPermission);
+	}
+
+	public int getFlag() {
+		return this.flag;
+	}
+
+	public int getPlatId() {
+		return mPlatId;
+	}
+
+	public void setFlag(int flag) {
+		this.flag = flag;
+	}
+
+	public void setPlatId(int platId) {
+		this.mPlatId = platId;
+	}
+
+	public void setOpenSdkLoginInfo(String openId, String atoken,
+			long actExpired) {
+		if (openId == null) {
+			openId = "";
+		}
+		if (atoken == null) {
+			atoken = "";
+		}
+		mTencent.setOpenId(openId);
+		mTencent.setAccessToken(atoken, "" + actExpired);
+	}
+
+	public Activity getActivity() {
+		return mActivity;
+	}
+
+	/** 拉起微信获取token信息 **/
+	public void lauchWXPlatForm() {
+		Logger.d("lauchWXPlatForm");
+		WeGame.getInstance().mPlatId = WXPLATID;
+		int code = this.checkWXEnv();
+
+		switch (code) {
+		case CallbackFlag.eFlag_WX_NotInstall: {
+			LoginRet lr = new LoginRet();
+			lr.platform = WeGame.getInstance().getPlatId();
+			lr.desc = "Weixin NOT Installed";
+			lr.flag = CallbackFlag.eFlag_WX_NotInstall;
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(lr);
+			return;
+		}
+		case CallbackFlag.eFlag_WX_NotSupportApi: {
+			LoginRet lr = new LoginRet();
+			lr.platform = WeGame.getInstance().getPlatId();
+			lr.desc = "Weixin API NOT Support";
+			lr.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(lr);
+			return;
+		}
+		}
+
+		wxRequestStartTime = System.currentTimeMillis();
+		final SendAuth.Req req = new SendAuth.Req();
+		req.scope = "snsapi_userinfo,snsapi_friend,snsapi_message";
+		req.state = "none";
+
+		Logger.d("wexin sendReq");
+		boolean ret = WeGame.getInstance().api.sendReq(req);
+		Logger.d("lauchWXPlatForm wx SendReqRet: " + ret);
+	}
+
+	private int checkWXEnv() {
+		if (!WeGame.getInstance().api.isWXAppInstalled()) {
+			Logger.d("weixin not install");
+			return CallbackFlag.eFlag_WX_NotInstall;
+		}
+		if (!WeGame.getInstance().api.isWXAppSupportAPI()) {
+			Logger.d("weixin not support api");
+		}
+		return CallbackFlag.eFlag_Succ;
+	}
+
+	public int checkQQEnv() {
+		return CallbackFlag.eFlag_Succ;
+	}
+
+	// 发起登陆请求
+	public void sendLogin(int platform) {
+		Logger.d("called");
+		MsdkThreadManager.getInstance().sendLoginMsg(platform);
+	}
+
+	public void login(int platform) {
+		WhiteListMng.gDefault.get().cleanWhiteListUserinfoCache();
+		if (platform == WXPLATID) {
+			setPlatId(WXPLATID);
+			lauchWXPlatForm();
+		} else if (platform == QQPLATID) {
+			setPlatId(QQPLATID);
+			//lauchQQPlatForm();
+			new QQLogin().lauchQQPlatForm();
+		} else {
+			Logger.e("Wrong platformId");
+		}
+	}
+
+	// /**注销登录**/
+	public boolean logout() {
+		Logger.d("logout ");
+		// 清空openid
+		this.mStat.resetOpenId();
+		// 登出以后pf不在有效, 如果需要需要重新取,在登出时清空之
+		WGPfManager.getInstance().clearPfAndPfKey();
+		LoginRet lr = LoginInfoManager.getInstance().getLastLoginUserInfo();
+		if (lr.platform != 0) {
+			mPlatId = lr.platform;// 设置平台
+			LoginInfoManager.getInstance().deleteLoginRecord(lr.open_id);
+		}
+
+		if (mPlatId == QQPLATID) {
+			this.setPlatId(0);// 此处为bug，之前会导致帐号注销失败。
+			if (mTencent == null)
+				return false;
+			if (!mTencent.isSessionValid())
+				return false;
+			mTencent.logout(mActivity);
+		} else if (mPlatId == WXPLATID) {
+			this.setPlatId(0);
+			if (api == null)
+				return false;
+			api.unregisterApp();
+		}
+		return true;
+	}
+
+	protected String setExpiresTime(String expiresTime) {
+		return (System.currentTimeMillis() + Long.parseLong(expiresTime) * 1000)
+				+ "";
+	}
+
+	protected long getExpiresTime(String expiresTime) {
+		return (Long.parseLong(expiresTime) - System.currentTimeMillis()) / 1000;
+	}
+
+	private String buildTransaction(final String type) {
+		return (type == null) ? String.valueOf(System.currentTimeMillis())
+				: type + System.currentTimeMillis();
+	}
+
+	/**
+	 * 
+	 * @param scene
+	 *            指定分享到朋友圈还是分享给特定好友
+	 * @param title
+	 * @param desc
+	 * @param webpageUrl
+	 *            点击跳转的url
+	 * @param mediaTagName
+	 *            一般可填写webpage
+	 * @param imgData
+	 *            缩略图不超过32K
+	 */
+	public void WGSendToWeixinWithUrl(int scene, String title, String desc,
+			String webpageUrl, String mediaTagName, byte[] imgData,
+			int imgDataLen) {
+		Logger.d("WGSendToWeixinWithUrl " + scene);
+		int code = this.checkWXEnv();
+
+		switch (code) {
+		case CallbackFlag.eFlag_WX_NotInstall: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin NOT Installed";
+			sr.flag = CallbackFlag.eFlag_WX_NotInstall;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		case CallbackFlag.eFlag_WX_NotSupportApi: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin API NOT Support";
+			sr.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		}
+
+		if (imgData == null || imgDataLen == 0) {
+			Logger.e("imgData should NOT BE NULL and imgDataLen !== 0");
+			return;
+		}
+
+		Logger.d("imgData: " + imgData.length + ";imgDataLen: " + imgDataLen);
+		if (imgData.length > THUMB_MAX_SIZE) {
+			Logger.w("imgData too big, it should be less than 32K");
+		}
+
+		Bitmap bmp = BitmapFactory.decodeByteArray(imgData, 0, imgDataLen);
+		if(null == bmp){
+			Logger.e("imgData decode to bmp error!");
+			return;
+		}
+		float w = bmp.getWidth();
+		float h = bmp.getHeight();
+
+		Bitmap thumbBmp = null;
+		if (w > h) {
+			thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE,
+					(int) (THUMB_SIZE * (h / w)), true);
+		} else {
+			thumbBmp = Bitmap.createScaledBitmap(bmp,
+					(int) (THUMB_SIZE * (w / h)), THUMB_SIZE, true);
+		}
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		thumbBmp.compress(Bitmap.CompressFormat.JPEG, 90, byteStream);
+
+		WXWebpageObject webpage = new WXWebpageObject();
+		webpage.webpageUrl = webpageUrl;
+		WXMediaMessage msg = new WXMediaMessage(webpage);
+		msg.title = title;
+		msg.description = desc;
+		msg.thumbData = byteStream.toByteArray();
+
+		SendMessageToWX.Req req = new SendMessageToWX.Req();
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		req.openId = lr.open_id;
+		req.transaction = buildTransaction("webpage");
+		req.message = msg;
+		req.scene = scene;
+
+		Logger.d("WGSendToWeixinWithUrl" + "sendReq with openid  " + req.openId);
+		boolean isSendReqSucc = WeGame.getInstance().api.sendReq(req);
+		Logger.d("WGSendToWeixinWithUrl isSendReqSucc: " + isSendReqSucc);
+	}
+
+	/**
+	 * @param scene
+	 *            指定分享到朋友圈还是分享给特定好友
+	 * @param title
+	 *            分享标题
+	 * @param desc
+	 *            分享描述
+	 * @param ur
+	 *            点击跳转的url
+	 * @param mediaTagName
+	 *            一般可填写webpage
+	 * @param imgData
+	 *            缩略图不超过32K
+	 */
+	public void WGSendToWeixin(int scene, String title, String desc,
+			String url, String mediaTagName, byte[] imgData, int imgDataLen) {
+		Logger.d("WGSendToWeixin：" + scene);
+		int code = this.checkWXEnv();
+
+		switch (code) {
+		case CallbackFlag.eFlag_WX_NotInstall: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin NOT Installed";
+			sr.flag = CallbackFlag.eFlag_WX_NotInstall;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		case CallbackFlag.eFlag_WX_NotSupportApi: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin API NOT Support";
+			sr.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		}
+
+		if (imgData == null || imgDataLen == 0) {
+			Logger.e("imgData should NOT BE NULL and imgDataLen !== 0");
+			return;
+		}
+
+		Logger.d("imgData: " + imgData.length + ";imgDataLen: " + imgDataLen);
+		if (imgData.length > THUMB_MAX_SIZE) {
+			Logger.w("imgData too big, it should be less than 32K");
+		}
+
+		WXAppExtendObject appData = new WXAppExtendObject();
+
+		if (!T.ckIsEmpty(mediaTagName)) {
+			appData.extInfo = mediaTagName;
+		} else {
+			appData.extInfo = Consts.EMPTY_MEDIA_TAG_NAME;
+		}
+
+		WXMediaMessage msg = new WXMediaMessage();
+		msg.title = title;
+		msg.description = desc;
+		msg.mediaObject = appData;
+		msg.mediaTagName = mediaTagName;
+
+		msg.thumbData = imgData;
+
+		SendMessageToWX.Req req = new SendMessageToWX.Req();
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		req.openId = lr.open_id;
+		req.transaction = "appdata";
+		req.message = msg;
+		req.scene = scene;
+
+		Logger.d("WGSendToWinxin" + "sendReq with openid  " + req.openId);
+		boolean isSendReqSucc = WeGame.getInstance().api.sendReq(req);
+		Logger.d("WGSendToWeixin isSendReqSucc: " + isSendReqSucc);
+	}
+
+	// messageAction=WECHAT_SNS_JUMP_SHOWRANK 跳排行
+	// messageAction=WECHAT_SNS_JUMP_URL 跳链接
+	// messageAction=WECHAT_SNS_JUMP_APP 跳APP
+	/**
+	 * @param params
+	 *            微信分享需要的基本参数
+	 * @param scene
+	 *            指定分享到朋友圈还是分享给特定好友
+	 * @return int 返回码标识 微信是否安装, 微信版本是否支持api
+	 */
+	public void WGSendToWeixin(String title, String desc, String mediaTagName,
+			byte[] imgData, int imgDataLen, String messageExt) {
+		Logger.d("WGSendToWeixin ");
+		int code = this.checkWXEnv();
+
+		switch (code) {
+		case CallbackFlag.eFlag_WX_NotInstall: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin NOT Installed";
+			sr.flag = CallbackFlag.eFlag_WX_NotInstall;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		case CallbackFlag.eFlag_WX_NotSupportApi: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin API NOT Support";
+			sr.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		}
+
+		if (imgData == null || imgDataLen == 0) {
+			Logger.e("imgData should NOT BE NULL and imgDataLen !== 0");
+			return;
+		}
+
+		Logger.d("imgData: " + imgData.length + ";imgDataLen: " + imgDataLen);
+		if (imgData.length > THUMB_MAX_SIZE) {
+			Logger.w("imgData too big, it should be less than 32K");
+		}
+
+
+		WXAppExtendObject appData = new WXAppExtendObject();
+
+		if (!T.ckIsEmpty(mediaTagName)) {
+			appData.extInfo = mediaTagName;
+		} else {
+			appData.extInfo = Consts.EMPTY_MEDIA_TAG_NAME;
+
+		}
+
+		WXMediaMessage msg = new WXMediaMessage();
+		msg.title = title;
+		msg.description = desc;
+		msg.mediaObject = appData;
+		msg.mediaTagName = mediaTagName;
+		msg.thumbData = imgData;
+		msg.messageExt = messageExt;
+		SendMessageToWX.Req req = new SendMessageToWX.Req();
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		req.openId = lr.open_id;
+		req.transaction = "appdata";
+		req.message = msg;
+		req.scene = SendMessageToWX.Req.WXSceneSession;
+
+		Logger.d("WGSendToWinxin" + "sendReq with openid  " + req.openId);
+		boolean isSendReqSucc = WeGame.getInstance().api.sendReq(req);
+		Logger.d("WGSendToWeixin isSendReqSucc: " + isSendReqSucc);
+	}
+
+	public void WGSendToWeixinWithPhoto(int scene, String mediaTagName,
+			byte[] imgData, int imgDataLen) {
+		Logger.d("" + "WGSendToWeixinWithPhoto scene: " + scene);
+		int code = this.checkWXEnv();
+
+		switch (code) {
+		case CallbackFlag.eFlag_WX_NotInstall: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin NOT Installed";
+			sr.flag = CallbackFlag.eFlag_WX_NotInstall;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		case CallbackFlag.eFlag_WX_NotSupportApi: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin API NOT Support";
+			sr.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		}
+
+		if (imgData == null || imgDataLen == 0) {
+			Logger.e("imgData should NOT BE NULL and imgDataLen !== 0");
+			return;
+		}
+		
+		Logger.d("imgData: " + imgData.length + ";imgDataLen: " + imgDataLen);
+		if (imgData.length > IMG_MAX_SIZE) {
+			Logger.w("imgData too big, it should be less than 10M");
+		}
+
+		Bitmap bmp = BitmapFactory.decodeByteArray(imgData, 0, imgDataLen);
+		if(null == bmp){
+			Logger.e("imgData decode to bmp error!");
+			return;
+		}
+		float w = bmp.getWidth();
+		float h = bmp.getHeight();
+
+		Bitmap thumbBmp = null;
+		if (w > h) {
+			thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE,
+					(int) (THUMB_SIZE * (h / w)), true);
+		} else {
+			thumbBmp = Bitmap.createScaledBitmap(bmp,
+					(int) (THUMB_SIZE * (w / h)), THUMB_SIZE, true);
+		}
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		thumbBmp.compress(Bitmap.CompressFormat.JPEG, 90, byteStream);
+
+		WXImageObject wxImg = new WXImageObject(bmp);
+
+		WXMediaMessage msg = new WXMediaMessage();
+		msg.mediaObject = wxImg;
+		msg.thumbData = byteStream.toByteArray();
+		msg.mediaTagName = mediaTagName;
+
+		Logger.d("imgData " + imgData.length);
+		Logger.d("thumbData " + byteStream.toByteArray().length);
+
+		SendMessageToWX.Req req = new SendMessageToWX.Req();
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		req.openId = lr.open_id;
+		req.transaction = "img";
+		req.message = msg;
+		req.scene = scene;
+
+		Logger.d("WGSendToWinxin" + "sendReq with openid  " + req.openId);
+		boolean isSendReqSucc = WeGame.getInstance().api.sendReq(req);
+		Logger.d("WGSendToWeixin isSendReqSucc: " + isSendReqSucc);
+	}
+
+	public void WGSendToWeixinWithPhoto(int scene, String mediaTagName,
+			byte[] imgData, int imgDataLen, String messageExt, String mediaAction) {
+		Logger.d("" + "WGSendToWeixinWithPhoto scene: " + scene);
+		int code = this.checkWXEnv();
+
+		switch (code) {
+		case CallbackFlag.eFlag_WX_NotInstall: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin NOT Installed";
+			sr.flag = CallbackFlag.eFlag_WX_NotInstall;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		case CallbackFlag.eFlag_WX_NotSupportApi: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin API NOT Support";
+			sr.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		}
+
+		if (imgData == null || imgDataLen == 0) {
+			Logger.e("imgData should NOT BE NULL and imgDataLen !== 0");
+			return;
+		}
+		Logger.d("imgData: " + imgData.length + ";imgDataLen: " + imgDataLen);
+		if (imgData.length > IMG_MAX_SIZE) {
+			Logger.w("imgData too big, it should be less than 10M");
+		}
+		Bitmap bmp = BitmapFactory.decodeByteArray(imgData, 0, imgDataLen);
+		if(null == bmp){
+			Logger.e("imgData decode to bmp error!");
+			return;
+		}
+		float w = bmp.getWidth();
+		float h = bmp.getHeight();
+
+		Bitmap thumbBmp = null;
+		if (w > h) {
+			thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE,
+					(int) (THUMB_SIZE * (h / w)), true);
+		} else {
+			thumbBmp = Bitmap.createScaledBitmap(bmp,
+					(int) (THUMB_SIZE * (w / h)), THUMB_SIZE, true);
+		}
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		thumbBmp.compress(Bitmap.CompressFormat.JPEG, 90, byteStream);
+
+		WXImageObject wxImg = new WXImageObject(bmp);
+
+		WXMediaMessage msg = new WXMediaMessage();
+		msg.mediaObject = wxImg;
+		msg.thumbData = byteStream.toByteArray();
+		msg.mediaTagName = mediaTagName;
+		msg.messageExt = messageExt;
+		msg.messageAction = mediaAction;
+
+		Logger.d("imgData " + imgData.length);
+		Logger.d("thumbData " + byteStream.toByteArray().length);
+
+		SendMessageToWX.Req req = new SendMessageToWX.Req();
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		req.openId = lr.open_id;
+		req.transaction = "img";
+		req.message = msg;
+		req.scene = scene;
+		boolean isSendReqSucc = WeGame.getInstance().api.sendReq(req);
+		Logger.d("WGSendToWeixin isSendReqSucc: " + isSendReqSucc);
+	}
+
+	/**
+	 * @param scene
+	 *            指定分享到朋友圈, 或者微信会话, 可能值和作用如下: WechatScene_Session: 分享到微信会话
+	 *            WechatScene_Timeline: 分享到微信朋友圈 (此种消息已经限制不能分享到朋友圈)
+	 * @param title
+	 *            音乐消息的标题
+	 * @param desc
+	 *            音乐消息的概要信息
+	 * @param musicUrl
+	 *            音乐消息的目标URL
+	 * @param musicDataUrl
+	 *            音乐消息的数据URL
+	 * @param imgData
+	 *            原图文件数据
+	 * @param imgDataLen
+	 *            原图文件数据长度(图片大小不z能超过10M)
+	 * @param messageExt
+	 *            游戏分享是传入字符串，通过此分享消息拉起游戏会通过 OnWakeUpNotify(WakeupRet
+	 *            ret)中ret.messageExt回传给游戏
+	 * @param messageAction
+	 *            scene为WechatScene_Timeline(分享到微信朋友圈)的情况下才起作用
+	 *            WECHAT_SNS_JUMP_SHOWRANK 跳排行,查看排行榜 WECHAT_SNS_JUMP_URL
+	 *            跳链接,查看详情 WECHAT_SNS_JUMP_APP 跳APP,玩一把
+	 * @return void 通过游戏设置的全局回调的OnShareNotify(ShareRet& shareRet)回调返回数据给游戏,
+	 *         shareRet.flag值表示返回状态, 可能值及说明如下: eFlag_Succ: 分享成功 eFlag_Error:
+	 *         分享失败 shareRet.messageExt 为游戏分享到微信时候传入的自定义数据
+	 */
+
+	public void WGSendToWeixinWithMusic(eWechatScene scene, String title,
+			String desc, String musicUrl, String musicDataUrl,
+			String mediaTagName, byte[] imgData, int imgDataLen,
+			String mediaExt, String mediaAction) {
+		Logger.d("" + "WGSendToWeixinWithMusic scene: " + scene);
+		int code = this.checkWXEnv();
+
+		switch (code) {
+		case CallbackFlag.eFlag_WX_NotInstall: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin NOT Installed";
+			sr.flag = CallbackFlag.eFlag_WX_NotInstall;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		case CallbackFlag.eFlag_WX_NotSupportApi: {
+			ShareRet sr = new ShareRet();
+			sr.platform = WeGame.getInstance().getPlatId();
+			sr.desc = "Weixin API NOT Support";
+			sr.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+			WeGameNotifyGame.getInstance().OnShareNotify(sr);
+			return;
+		}
+		}
+
+		if (imgData == null || imgDataLen == 0) {
+			Logger.e("imgData should NOT BE NULL and imgDataLen !== 0");
+			return;
+		}
+
+		Logger.d("imgData: " + imgData.length + ";imgDataLen: " + imgDataLen);
+		if (imgData.length > IMG_MAX_SIZE) {
+			Logger.w("imgData too big, it should be less than 10M");
+		}
+
+		Bitmap bmp = BitmapFactory.decodeByteArray(imgData, 0, imgDataLen);
+		if(null == bmp){
+			Logger.e("imgData decode to bmp error!");
+			return;
+		}
+		float w = bmp.getWidth();
+		float h = bmp.getHeight();
+
+		Bitmap thumbBmp = null;
+		if (w > h) {
+			thumbBmp = Bitmap.createScaledBitmap(bmp, THUMB_SIZE,
+					(int) (THUMB_SIZE * (h / w)), true);
+		} else {
+			thumbBmp = Bitmap.createScaledBitmap(bmp,
+					(int) (THUMB_SIZE * (w / h)), THUMB_SIZE, true);
+		}
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		thumbBmp.compress(Bitmap.CompressFormat.JPEG, 90, byteStream);
+
+		WXMusicObject wechatMusicObject = new WXMusicObject();
+		wechatMusicObject.musicUrl = musicUrl;
+		wechatMusicObject.musicDataUrl = musicDataUrl;
+
+		WXMediaMessage msg = new WXMediaMessage();
+		msg.title = title;
+		msg.description = desc;
+		msg.mediaObject = wechatMusicObject;
+		msg.thumbData = byteStream.toByteArray();
+		msg.mediaTagName = mediaTagName;
+		msg.messageExt = mediaExt;
+		msg.messageAction = mediaAction;
+		Logger.d("imgData " + imgData.length);
+		Logger.d("thumbData " + byteStream.toByteArray().length);
+
+		SendMessageToWX.Req req = new SendMessageToWX.Req();
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		req.openId = lr.open_id;
+		req.transaction = "img";
+		req.message = msg;
+		req.scene = scene.val();
+		boolean isSendReqSucc = WeGame.getInstance().api.sendReq(req);
+		Logger.d("WGSendToWeixin isSendReqSucc: " + isSendReqSucc);
+	}
+
+	/**
+	 * @param scene
+	 *            eQQScene: QQScene_QZone : 分享到空间 QQScene_Session：分享到会话
+	 * @param title
+	 *            结构化消息的标题
+	 * @param desc
+	 *            结构化消息的概要信息
+	 * @param musicUrl
+	 *            点击消息后跳转的URL
+	 * @param musicDataUrl
+	 *            音乐数据URL（例如http:// ***.mp3）
+	 * @param imgUrl
+	 *            分享消息缩略图URL
+	 * @return void 通过游戏设置的全局回调的OnShareNotify(ShareRet& shareRet)回调返回数据给游戏,
+	 *         shareRet.flag值表示返回状态, 可能值及说明如下: eFlag_Succ: 分享成功 eFlag_Error:
+	 *         分享失败
+	 */
+
+	public void WGSendToQQWithMusic(eQQScene scene, String title, String desc,
+			String musicUrl, String musicDataUrl, String imgUrl) {
+		Logger.d("WGSendToQQWithMusic ");
+		int code = this.checkQQEnv();
+		if (code != CallbackFlag.eFlag_Succ) {
+			return;
+		}
+		if (mTencent == null) {
+			Logger.d("WGSendToQQWithMusic" + "mTencent NULL");
+			return; // mTencent为空了, 再往下走除了crash还能干什么?
+		} else if (mTencent.getOpenId() == null) {
+			Logger.d("WGSendToQQWithMusic" + "getOpenId NULL");
+		} else if (!mTencent.isSessionValid()) {
+			Logger.d("WGSendToQQWithMusic" + "isSessionValid FALSE");
+		}
+
+		Logger.d("mTencent.isSessionValid(): " + mTencent.isSessionValid());
+		if (scene.val() != QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN
+				&& scene.val() != QQShare.SHARE_TO_QQ_FLAG_QZONE_ITEM_HIDE) {
+			Logger.e("scene error, scene should be QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN or QQShare.SHARE_TO_QQ_FLAG_QZONE_ITEM_HIDE");
+			return;
+		}
+		if(null == musicUrl || musicUrl.trim().length() == 0) {
+		    ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "musicUrl cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("musicUrl cann't be empty");
+            return;
+		}
+		
+		if(scene.val() == QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN && musicUrl.length() > 256) {
+		    Logger.e("musicUrl is too long(>256), maybe fail to share.it's length:" + musicUrl.length()); 
+		}
+		
+		if (null == imgUrl || !imgUrl.startsWith("http")) {
+		    ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "Music Image URL must be a http resource!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+			Logger.e("Music Image URL must be a http resource");
+			return;
+		}
+		if (mTencent != null) {
+			LoginRet lr = new LoginRet();
+			WGPlatform.WGGetLoginRecord(lr);
+			Logger.d("sendReq to QQ With OpenId: " + mTencent.getOpenId()  +";and local openid:"+lr.open_id);
+			Bundle params = new Bundle();
+			params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE,
+					QQShare.SHARE_TO_QQ_TYPE_AUDIO);
+			params.putString(QQShare.SHARE_TO_QQ_TARGET_URL, musicUrl);
+			params.putString(QQShare.SHARE_TO_QQ_TITLE, title);
+			params.putString(QQShare.SHARE_TO_QQ_AUDIO_URL, musicDataUrl);
+			params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, imgUrl);
+			params.putString(QQShare.SHARE_TO_QQ_SUMMARY, desc);
+			params.putString(QQShare.SHARE_TO_QQ_APP_NAME, getAppName());
+			params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, scene.val());
+			Logger.d("WGSendToQQWithMusic params:");
+			Logger.d(params);
+			mTencent.shareToQQ(mActivity, params, new IUiListener() {
+				public void onCancel() {
+					Logger.d("WGSendToQQWithMusic onCancel");
+				}
+
+				public void onComplete(Object arg0) {
+					Logger.d("WGSendToQQWithMusic onComplete");
+				}
+
+				public void onError(UiError arg0) {
+					Logger.d("WGSendToQQWithMusic onError Code ("
+							+ arg0.errorCode + "), Message("
+							+ arg0.errorMessage + ")");
+				}
+			});
+		}
+
+		ShareRet ret = new ShareRet();
+		ret.flag = CallbackFlag.eFlag_Succ;
+		ret.platform = WeGame.QQPLATID;
+		WeGameNotifyGame.getInstance().OnShareNotify(ret);
+	}
+
+	/**
+	 * 
+	 * @param scene
+	 *            Tencent.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN弹窗分享到Qzone,
+	 *            Tencent.SHARE_TO_QQ_FLAG_QZONE_ITEM_HIDE 分享到个会话界面
+	 * @param imgFilePath
+	 *            本地文件路径
+	 */
+	public void WGSendToQQWithPhoto(int scene, String imgFilePath) {
+		if (!checkApiSupport(ApiName.WGSendToQQWithPhoto)) {
+			ShareRet ret = new ShareRet();
+			ret.flag = CallbackFlag.eFlag_Error;
+			ret.desc = "分享接口只支持手Q 4.5";
+			ret.platform = WeGame.QQPLATID;
+			WeGameNotifyGame.getInstance().OnShareNotify(ret);
+			Logger.d("WGSendToQQWithPhoto only supported by MobileQQ 4.5 or later");
+			return;
+		}
+		String gameName = getAppName();
+		if (imgFilePath == null || imgFilePath.length() == 0) {
+		    ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "image file path emypty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+			Logger.w("image file path emypty");
+			return;
+		}
+
+		if (gameName == null || gameName.length() == 0) {
+			Logger.e("gameName emypty");
+			return;
+		}
+
+		if (scene != QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN
+				&& scene != QQShare.SHARE_TO_QQ_FLAG_QZONE_ITEM_HIDE) {
+			Logger.e("scene error, scene should be Tencent.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN or Tencent.SHARE_TO_QQ_FLAG_QZONE_ITEM_HIDE");
+			return;
+		}
+
+		File file = new File(imgFilePath);  
+        if(!file.exists()) { 
+		    ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "image file path invalid or not exists!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.w("image file path invalid or not exists!");
+            return ;
+		}
+		
+		if (mTencent != null) {
+			LoginRet lr = new LoginRet();
+			WGPlatform.WGGetLoginRecord(lr);
+			Logger.d("sendReq to QQ With OpenId: " + mTencent.getOpenId()  +";and local openid:"+lr.open_id);
+			Bundle params = new Bundle();
+			params.putInt(QQShare.SHARE_TO_QQ_KEY_TYPE,
+					QQShare.SHARE_TO_QQ_TYPE_IMAGE);
+			params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, scene); // 标识是否需要自动弹出分享到空间的框
+			params.putString(QQShare.SHARE_TO_QQ_IMAGE_LOCAL_URL, imgFilePath);
+			params.putString(QQShare.SHARE_TO_QQ_APP_NAME, gameName);
+			mTencent.shareToQQ(mActivity, params, new IUiListener() {
+				public void onCancel() {
+					Logger.d("WeGame", "WGSendToQQ onCancel");
+				}
+
+				public void onError(UiError arg0) {
+					Logger.d("errorCode : " + arg0.errorCode
+							+ "; errorDetail: " + arg0.errorDetail
+							+ "; errorMessage: " + arg0.errorMessage);
+				}
+
+				@Override
+				public void onComplete(Object arg0) {
+					Logger.d("WGSendToQQ onComplete");
+				}
+			});
+		}
+
+		ShareRet ret = new ShareRet();
+		ret.flag = CallbackFlag.eFlag_Succ;
+		ret.platform = WeGame.QQPLATID;
+		WeGameNotifyGame.getInstance().OnShareNotify(ret);
+	}
+
+	public void WGSendToQQ(int scene, String title, String desc, String url,
+			String imgUrl, int imgUrlLen) {
+		Logger.d("WGSendToQQ ");
+		int code = this.checkQQEnv();
+		if (code != CallbackFlag.eFlag_Succ) {
+			return;
+		}
+
+		if (mTencent == null) {
+			Logger.d("WGSendToQQ" + "mTencent NULL");
+			return; // mTencent为空了, 再往下走除了crash还能干什么?
+		} else if (mTencent.getOpenId() == null) {
+			Logger.d("WGSendToQQ" + "getOpenId NULL");
+		} else if (!mTencent.isSessionValid()) {
+			Logger.d("WGSendToQQ" + "isSessionValid FALSE");
+		}
+
+		Logger.d("mTencent.isSessionValid(): " + mTencent.isSessionValid());
+		if (scene != QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN
+				&& scene != QQShare.SHARE_TO_QQ_FLAG_QZONE_ITEM_HIDE) {
+			Logger.e("scene error, scene should be QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN or QQShare.SHARE_TO_QQ_FLAG_QZONE_ITEM_HIDE");
+			return;
+		}
+
+		if(scene == QQShare.SHARE_TO_QQ_FLAG_QZONE_AUTO_OPEN && url != null && url.length() > 256){
+		    Logger.w("url is too long(>256), maybe fail to share. it's value:" + url.length());
+		}
+		
+		final VersionHelper vh = new VersionHelper(getActivity(),
+				QQVersionApiManager.QQ_PKG_NAME);
+		if (mTencent != null) {
+			LoginRet lr = new LoginRet();
+			WGPlatform.WGGetLoginRecord(lr);
+			Logger.d("sendReq to QQ With OpenId: " + mTencent.getOpenId()  +";and local openid:"+lr.open_id);
+			Bundle params = new Bundle();
+			params.putString(QQShare.SHARE_TO_QQ_TITLE, title);
+			params.putString(QQShare.SHARE_TO_QQ_SUMMARY, desc);
+			params.putString(QQShare.SHARE_TO_QQ_TARGET_URL, url);
+			params.putString(QQShare.SHARE_TO_QQ_IMAGE_URL, imgUrl);
+			params.putInt(QQShare.SHARE_TO_QQ_EXT_INT, scene); // 标识是否需要自动弹出分享到空间的框
+			params.putString(QQShare.SHARE_TO_QQ_APP_NAME, getAppName());
+			Logger.d(params);
+
+			mTencent.shareToQQ(mActivity, params, new IUiListener() {
+				public void onCancel() {
+					Logger.d("WGSendToQQ onCancel");
+					if (vh.compareVersion("4.6") >= 0) { // 4.6一下版本
+						ShareRet ret = new ShareRet();
+						ret.flag = CallbackFlag.eFlag_QQ_UserCancel;
+						ret.platform = WeGame.QQPLATID;
+						ret.desc = "use cancel";
+						WeGameNotifyGame.getInstance().OnShareNotify(ret);
+					}
+				}
+
+				public void onComplete(Object arg0) {
+					Logger.d("WGSendToQQ onComplete");
+					if (vh.compareVersion("4.6") >= 0) { // 4.6一下版本
+						ShareRet ret = new ShareRet();
+						ret.flag = CallbackFlag.eFlag_Succ;
+						ret.platform = WeGame.QQPLATID;
+						ret.desc = "success";
+						WeGameNotifyGame.getInstance().OnShareNotify(ret);
+					}
+				}
+
+				public void onError(UiError arg0) {
+					Logger.d("WGSendToQQ onError Code (" + arg0.errorCode
+							+ "), Message(" + arg0.errorMessage + ")");
+					if (vh.compareVersion("4.6") >= 0) { // 4.6一下版本
+						ShareRet ret = new ShareRet();
+						ret.flag = CallbackFlag.eFlag_Error;
+						ret.desc = arg0.errorMessage == null ? ""
+								: arg0.errorMessage;
+						ret.platform = WeGame.QQPLATID;
+						WeGameNotifyGame.getInstance().OnShareNotify(ret);
+					}
+				}
+			});
+		}
+
+		if (vh.compareVersion("4.5") <= 0) { // 4.6一下版本
+			ShareRet ret = new ShareRet();
+			ret.flag = CallbackFlag.eFlag_Succ;
+			ret.platform = WeGame.QQPLATID;
+			WeGameNotifyGame.getInstance().OnShareNotify(ret);
+		}
+	}
+
+	public boolean feedback(String game, String txt) {
+		if (game == null) {
+			game = "";
+		}
+		if (txt == null) {
+			txt = "";
+		}
+
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		MsdkThreadManager.getInstance().sendFeedback(game, txt, lr.platform,
+				lr.open_id);
+		return true;
+	}
+
+	public String getMsdkVersion() {
+		return MSDK_VERSION;
+	}
+
+	public String WGGetVersion() {
+		String VERSION_KEY = "VERSION";
+		String VERSION_FILE = "msdkinfo.ini";
+		Activity ctx = WeGame.getInstance().getActivity();
+
+		try {
+			InputStream inputStream = ctx.getResources().getAssets()
+					.open(VERSION_FILE);
+			Properties properties = new Properties();
+			properties.load(inputStream);
+			String msdkVersion = properties.getProperty(VERSION_KEY, "");
+			if (!MSDK_VERSION.equals(msdkVersion)) { // 如果代码里面的版本号和assets里面的不一样,
+														// 提示
+				Logger.d("MSDK_VERSION in code is different from VERSION in assets/msdkmetadata.ini");
+			}
+			return msdkVersion;
+		} catch (IOException e) {
+			// e.printStackTrace();
+			Logger.d("MSDK Version does not match, is this a development version?");
+			return MSDK_VERSION;
+		}
+	}
+
+	public void enableCrashReport(boolean bRdmEnable, boolean bMtaEnable) {
+		mStat.enableCrashReport(bRdmEnable, bMtaEnable);
+	}
+
+	public void WGReportEvent(String name, String body, boolean isRealTime) {
+		Logger.d("called");
+		mStat.reportEvent(name, body, this.mPlatId, isRealTime);
+	}
+
+	public void WGReportEvent(String name, HashMap<String, String> params,
+			boolean isRealTime) {
+		if (null == name || null == params) {
+			name = "";
+			params = new HashMap<String, String>();
+			Logger.e("WGReportEvent Error: name=" + name + "params="
+					+ params.toString());
+			return;
+		}
+		mStat.reportEvent(name, params, this.mPlatId, isRealTime);
+	}
+
+	public void testSpeed(ArrayList<String> addrList) {
+		mStat.speedTest(addrList);
+	}
+
+	public String getLocalTokenByType(int type) {
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+
+		for (TokenRet tr : lr.token) {
+			if (tr.type == type) {
+				return tr.value;
+			}
+		}
+
+		return null;
+	}
+
+	public void refreshWxToken() {
+		MsdkThreadManager.getInstance().wxExpiredLoginReq(
+				RequestConst.notifyLogin);
+	}
+
+	public String getApiDomain() {
+		Logger.d("Use DOMAIN: " + ConfigManager.getApiDomain(mActivity));
+		String originDomain = ConfigManager.getApiDomain(mActivity).trim();
+		return originDomain;
+	}
+
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Logger.d("onActivityResult");
+	}
+
+	public int validateAccountToken(LoginRet ret) {
+		long curTime = System.currentTimeMillis() / 1000;// 得到秒数
+		if (ret.platform == WeGame.WXPLATID) { // 验证微信是否过期
+			long refreshExpiredTime = ret
+					.getTokenExpireByType(TokenType.eToken_WX_Refresh);
+			if (curTime > (refreshExpiredTime - REFRESHTOKEN_BUFFER)) {// refresh
+																		// 无效情况下
+				return CallbackFlag.eFlag_WX_RefreshTokenExpired;
+			} else {
+				long acExpiredTime = ret
+						.getTokenExpireByType(TokenType.eToken_WX_Access);
+				if (curTime > (acExpiredTime - WX_ACCESS_TOKEN_BUFFER)) { // refresh
+																			// 没过期,
+																			// accessToken过期
+					return CallbackFlag.eFlag_WX_AccessTokenExpired;
+				} else {
+					return CallbackFlag.eFlag_Succ;
+				}
+			}
+		} else if (ret.platform == WeGame.QQPLATID) {
+			long qqAcExpiredTime = ret
+					.getTokenExpireByType(TokenType.eToken_QQ_Access);
+			long qqPayExpiredTime = ret
+					.getTokenExpireByType(TokenType.eToken_QQ_Pay);
+			if (curTime > (qqAcExpiredTime - QQ_ACCESS_TOKEN_BUFFER)) {// 无效情况下
+				return CallbackFlag.eFlag_QQ_AccessTokenExpired;// accesstoken过期
+			}
+			if (curTime > (qqPayExpiredTime - PAYTOKEN_BUFFER)) {
+				return CallbackFlag.eFlag_QQ_PayTokenExpired;// paytoken 过期
+			}
+			return CallbackFlag.eFlag_Succ;
+		}
+
+		return CallbackFlag.eFlag_Error;
+	}
+
+	static public String setDescribe(int flag, int platform) {
+		String desc = "";
+		if (flag == CallbackFlag.eFlag_Succ) {
+			if (platform == WeGame.QQPLATID || platform == WeGame.QQHALL) {
+				desc = ":-) , QQ授权成功";
+			} else {
+				desc = ":-) , WX授权成功";
+			}
+		} else if (flag == CallbackFlag.eFlag_WX_RefreshTokenSucc) {
+			desc = ":-) , 微信refresh换acctoken 成功";
+		} else if (flag == CallbackFlag.eFlag_WX_RefreshTokenFail) {
+			desc = ":-( , 微信refresh换acctoken 失败";
+		}
+		return desc;
+	}
+
+	public String getAppName() {
+		String appName = "";
+		try {
+			PackageInfo pkgInfo = mActivity.getPackageManager().getPackageInfo(
+					mActivity.getPackageName(), 0);
+			appName = pkgInfo.applicationInfo.loadLabel(
+					mActivity.getPackageManager()).toString();
+		} catch (NameNotFoundException e) {
+			e.printStackTrace();
+		}
+		return appName;
+	}
+
+	public boolean checkApiSupport(ApiName api) {
+		if (api.val() < ApiName.MAX_QQ_API) {
+			return QQVersionApiManager.isSupport(this.mActivity, api);
+		} else if (api.val() < ApiName.MAX_WX_API) {
+			return true;
+		} else {
+			return true;
+		}
+	}
+
+	public void logPlatformSDKVersion() {
+		Logger.d("OpenSDK: " + com.tencent.connect.common.Constants.SDK_VERSION);
+		Logger.d("WeixinSDKVersionName: "
+				+ com.tencent.mm.sdk.constants.Build.SDK_VERSION_NAME);
+		Logger.d("WeixinSDKVersionCode: "
+				+ com.tencent.mm.sdk.constants.Build.SDK_INT);
+		Logger.d("Mta: " + StatConstants.VERSION);
+		Logger.d("Beacon: " + UserAction.getSDKVersion());
+		Logger.d("WeixinClient: "
+				+ VersionHelper.getAppVersionName(mActivity, "com.tencent.mm"));
+		Logger.d("QQClient: "
+				+ VersionHelper.getAppVersionName(mActivity,
+						"com.tencent.mobileqq"));
+		Logger.d("QQGameClient: "
+				+ VersionHelper.getAppVersionName(mActivity,
+						"com.tencent.qqgame"));
+	}
+
+	public void bundleToVector(Bundle b, WakeupRet wakeup) {
+		Set<String> keySet = b.keySet(); // 获取所有的Key,
+		for (String key : keySet) { // bundle.get(key);来获取对应的value
+			KVPair item = new KVPair();
+			item.key = key;
+			Object value = b.get(key);
+			if (value == null)
+				continue;
+
+			item.value = value.toString();
+			wakeup.extInfo.add(item);
+			Logger.d(String.format("%s %s (%s)", key, value.toString(), value
+					.getClass().getName()));
+		}
+	}
+
+	public void loginWithLocalInfo() {
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		if (lr.platform == WeGame.QQPLATID) {
+			switch (lr.flag) {
+			case CallbackFlag.eFlag_Succ: // 票据有效
+				Logger.d("local token valid");
+				// 如果本地时间判断还在buffer以内, 此时也不能算作票据有效, 还要到后台验证, 完成按之前的正常流程通知
+		        QQLoginModel qui = new QQLoginModel().getLastLoginUserInfo();
+				MsdkThreadManager.getInstance().getQQFirstLoginPfKeyReq(qui);
+				//	WeGameNotifyGame.getInstance().OnPlatformLoginNotify(lr);
+				break;
+			case CallbackFlag.eFlag_QQ_AccessTokenExpired:
+			case CallbackFlag.eFlag_QQ_PayTokenExpired: {
+				Logger.d("TokenExpired");
+				// 票据过期, 需要重新授权
+				LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID,
+						CallbackFlag.eFlag_Local_Invalid, "pay token expired");
+				WeGameNotifyGame.getInstance().OnPlatformLoginNotify(
+						failLoginRet);
+				break;
+			}
+			default: {
+				// 其他flag, 同票据过期处理
+				Logger.d("WGGetLoginRecord return invalid flag");
+				Logger.d(lr);
+				LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID,
+						CallbackFlag.eFlag_Local_Invalid, "invalid flag"
+								+ lr.flag);
+				WeGameNotifyGame.getInstance().OnPlatformLoginNotify(
+						failLoginRet);
+				break;
+			}
+			}
+		} else if (lr.platform == WeGame.WXPLATID) {
+			switch (lr.flag) {
+			case CallbackFlag.eFlag_Succ: // 票据有效
+				Logger.d("local token valid");
+				
+				MsdkThreadManager.getInstance().wxExpiredLoginReq(RequestConst.notifyLogin);
+//				WeGameNotifyGame.getInstance().OnPlatformLoginNotify(lr);
+				break;
+			case CallbackFlag.eFlag_WX_AccessTokenExpired:
+				// accessToken过期, 调用Refresh去刷新
+				//WxRequestMng.getInstance()
+				//		.refreshAccessTokenWithLocalRefreshToken();
+			    WeGame.getInstance().refreshWxToken();
+				break;
+			case CallbackFlag.eFlag_WX_RefreshTokenExpired: {
+				// refresh票据过期, 需要重新授权
+				LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID,
+						CallbackFlag.eFlag_Local_Invalid, "refresh token expired");
+				WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+				break;
+			}
+			default: {
+				// 其他flag, 同票据过期处理
+				Logger.d("WGGetLoginRecord return invalid flag");
+				Logger.d(lr);
+				LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID,
+						CallbackFlag.eFlag_Local_Invalid, "invalid flag"
+								+ lr.flag);
+				WeGameNotifyGame.getInstance().OnPlatformLoginNotify(
+						failLoginRet);
+				break;
+			}
+			}
+		} else {
+			Logger.d("WGGetLoginRecord return invalid platform " + lr.platform);
+			LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID,
+					CallbackFlag.eFlag_Local_Invalid, "invalid platform");
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+			WeGame.getInstance().logout();
+		}
+	}
+
+	public void feedback(String body) {
+		if (body == null) {
+			body = "";
+		}
+
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		MsdkThreadManager.getInstance().sendFeedbackWithAppid(body);
+	}
+
+}

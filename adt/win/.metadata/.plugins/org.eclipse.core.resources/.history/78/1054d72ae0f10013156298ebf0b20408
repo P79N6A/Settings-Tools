@@ -1,0 +1,10 @@
+package com.tencent.msdk.stat;
+
+import com.tencent.msdk.tools.Logger;
+
+/**
+ * @author hardyshi 2014-03-11
+ * 公告类型宏
+ */
+public class eEVENT_MODEL {
+}

@@ -1,0 +1,217 @@
+package com.tencent.msdk.notice;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.ContentValues;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.tencent.msdk.db.NoticeDBModel;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/**
+ * 
+ * @author hardyshi 2014-03-11 纯数据公告，需要传递的参数
+ */
+public class NoticeInfo implements Parcelable{
+	public String mNoticeId = ""; // 公告id
+    public String mAppId = ""; // appid
+	public String mOpenId = ""; // 用户open_id
+	public String mNoticeUrl = ""; // 公告跳转链接
+	public eMSG_NOTICETYPE mNoticeType ; // 公告展示类型，滚动弹出
+	public String mNoticeScene = ""; // 公告展示的场景，管理端后台配置
+	public String mNoticeStartTime = ""; // 公告有效期开始时间
+	public String mNoticeEndTime = ""; // 公告有效期结束时间
+	public eMSG_CONTENTTYPE mNoticeContentType;// 公告内容类型，eMSG_NOTICETYPE
+	
+	//文本公告特殊字段
+	public String mNoticeTitle = ""; // 公告标题
+	public String mNoticeContent = ""; // 公告内容
+	
+	//图片公告特殊字段
+	public String mNoticeHImgUrl = "";
+    public String mNoticeHImgHash = "";
+    public String mNoticeVImgUrl = "";
+    public String mNoticeVImgHash = "";
+	
+    //网页公告特殊字段
+    public String mNoticeContentWebUrl = "";
+	
+    public NoticeInfo(){
+    }
+    
+    public NoticeInfo(Parcel source) { 
+    	this.mNoticeId = source.readString();
+    	this.mAppId = source.readString();
+    	this.mOpenId = source.readString();
+    	this.mNoticeUrl = source.readString();
+    	this.mNoticeContentType = eMSG_CONTENTTYPE.getEnum(source.readInt());
+    	this.mNoticeScene = source.readString();
+    	this.mNoticeStartTime = source.readString();
+    	this.mNoticeEndTime = source.readString();
+    	this.mNoticeType = eMSG_NOTICETYPE.getEnum(source.readInt());
+    	this.mNoticeTitle = source.readString();
+    	this.mNoticeContent = source.readString();
+    	this.mNoticeHImgUrl = source.readString();
+    	this.mNoticeHImgHash = source.readString();
+    	this.mNoticeVImgUrl = source.readString();
+    	this.mNoticeVImgHash = source.readString();
+    	this.mNoticeContentWebUrl = source.readString();
+		
+    } 
+    
+    @Override
+	public int describeContents() {
+		return 0;
+	}
+	@Override
+	public void writeToParcel(Parcel dest, int flags) {
+		dest.writeInt(this.mNoticeId);  
+		dest.writeString(this.mAppId);  
+		dest.writeString(this.mOpenId);  
+		dest.writeString(this.mNoticeUrl);
+		dest.writeInt(this.mNoticeContentType.val());  
+		dest.writeString(this.mNoticeScene);  
+		dest.writeString(this.mNoticeStartTime);  
+		dest.writeString(this.mNoticeEndTime);
+		dest.writeInt(this.mNoticeType.val());  
+		dest.writeString(this.mNoticeTitle);  
+		dest.writeString(this.mNoticeContent);  
+		dest.writeString(this.mNoticeHImgUrl);
+		dest.writeString(this.mNoticeHImgHash);  
+		dest.writeString(this.mNoticeVImgUrl);  
+		dest.writeString(this.mNoticeVImgHash);  
+		dest.writeString(this.mNoticeContentWebUrl);
+	}
+	 //实例化静态内部对象CREATOR实现接口Parcelable.Creator  
+    public static final Parcelable.Creator<NoticeInfo> CREATOR = new Creator<NoticeInfo>() {  
+          
+        @Override  
+        public NoticeInfo[] newArray(int size) {  
+            return new NoticeInfo[size];  
+        }  
+          
+        //将Parcel对象反序列化为ParcelableDate  
+        @Override  
+        public NoticeInfo createFromParcel(Parcel source) {  
+        	if(null == source){
+        		return new NoticeInfo();
+        	}
+            return new NoticeInfo(source);  
+        }  
+    }; 
+    
+    public ContentValues getUsableContentValues(NoticeDBModel noticeDBModel) {
+        ContentValues cv = new ContentValues();
+        noticeDBModel.putValues(cv, NoticeDBModel.col_msg_id, this.mNoticeId);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_app_id, this.mAppId);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_open_id, this.mOpenId);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_msg_url, this.mNoticeUrl);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_msg_type, String.valueOf(this.mNoticeType.val()));
+        noticeDBModel.putValues(cv, NoticeDBModel.col_msg_scene, this.mNoticeScene);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_start_time, this.mNoticeStartTime);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_end_time, this.mNoticeEndTime);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_content_type,  String.valueOf(this.mNoticeContentType.val()));
+        noticeDBModel.putValues(cv, NoticeDBModel.col_msg_title, this.mNoticeTitle);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_msg_content, this.mNoticeContent);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_horizontal_img_url, this.mNoticeHImgUrl);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_horizontal_img_hash, this.mNoticeHImgHash);
+		noticeDBModel.putValues(cv, NoticeDBModel.col_vertical_img_url, this.mNoticeVImgUrl);
+		noticeDBModel.putValues(cv, NoticeDBModel.col_vertical_img_hash, this.mNoticeVImgHash);
+        noticeDBModel.putValues(cv, NoticeDBModel.col_web_url, this.mNoticeContentWebUrl);
+		return cv;
+    }
+    
+    public void getBaseInfoFromJson(JSONObject json) {
+		if (null == json){
+			return;
+		}else{
+			this.mNoticeId = this.getIntInfoFromJson(json, JsonKeyConst.NOTICE_ID);
+	    	this.mAppId = this.getStringInfoFromJson(json, JsonKeyConst.APP_ID);
+	    	this.mOpenId = this.getStringInfoFromJson(json, JsonKeyConst.OPEN_ID);
+	    	this.mNoticeUrl = this.getStringInfoFromJson(json, JsonKeyConst.NOTICE_URL);
+	    	this.mNoticeType = eMSG_NOTICETYPE.getEnum(this.getIntInfoFromJson(json,JsonKeyConst.NOTICE_TYPE));
+	    	this.mNoticeScene =  this.getStringInfoFromJson(json, JsonKeyConst.NOTICE_SCENE);
+			this.mNoticeStartTime = this.getStringInfoFromJson(json, JsonKeyConst.NOTICE_START_TIME);
+			this.mNoticeEndTime = this.getStringInfoFromJson(json, JsonKeyConst.NOTICE_END_TIME);
+			this.mNoticeContentType = eMSG_CONTENTTYPE.getEnum(this.getIntInfoFromJson(json,JsonKeyConst.NOTICE_CONTENT_TYPE));
+			this.mNoticeTitle = this.getStringInfoFromJson(json, JsonKeyConst.NOTICE_TITLE);
+			this.mNoticeContent = this.getStringInfoFromJson(json, JsonKeyConst.NOTICE_CONTENT);
+			JSONArray picList = this.getJSONArrayInfoFromJson(json,JsonKeyConst.NOTICE_PIC_LIST);
+			try {
+				for (int i = 0; i < picList.length(); i++) {
+	                 JSONObject subJson = picList.getJSONObject(i);
+	                 if(subJson.has(JsonKeyConst.SCREEN_DIR)){
+	                	 int screenDir = subJson.getInt(JsonKeyConst.SCREEN_DIR);
+	                	 eMSDK_SCREENDIR temEMSDK_SCREENDIR = eMSDK_SCREENDIR.getEnum(screenDir);
+	                	 if(eMSDK_SCREENDIR.eMSDK_SCREENDIR_LANDSCAPE == temEMSDK_SCREENDIR){
+	                		 this.mNoticeHImgUrl = subJson.getString(JsonKeyConst.NOTICE_PIC_URL);
+	                		 this.mNoticeHImgHash = subJson.getString(JsonKeyConst.NOTICE_PIC_HASH);
+	                	 }else{
+	                		 this.mNoticeVImgUrl = subJson.getString(JsonKeyConst.NOTICE_PIC_URL);
+	                		 this.mNoticeVImgHash = subJson.getString(JsonKeyConst.NOTICE_PIC_HASH);
+	                	 }
+	                 }else {
+	                	 Logger.e("Error picList, no screen dir");
+	                 }
+				}
+			} catch (Exception e) {
+				Logger.w("JSONException");
+			}
+			this.mNoticeContentWebUrl = this.getStringInfoFromJson(json, JsonKeyConst.NOTICE_CONTENT_WEB_URL);
+		}
+	}
+    
+	public String getStringInfoFromJson(JSONObject json, String key) {
+		if(T.ckIsEmpty(key)){
+			Logger.w("json key is empty");
+			return "";
+		}
+		String value = "";
+		try {
+			if (json.has(key)) {
+				value = json.getString(key);
+			}
+		} catch (JSONException e) {
+			Logger.w("JSONException");
+		}
+		return value;
+	}
+	
+	public JSONArray getJSONArrayInfoFromJson(JSONObject json, String key) {
+		if(T.ckIsEmpty(key)){
+			Logger.w("json key is empty");
+			return new JSONArray();
+		}
+		JSONArray valueArray = new JSONArray();
+		try {
+			if (json.has(key)) {
+				valueArray = json.getJSONArray(key);
+			}
+		} catch (JSONException e) {
+			Logger.w("JSONException");
+		}
+		return valueArray;
+	}
+	
+	public int getIntInfoFromJson(JSONObject json, String key) {
+		if(T.ckIsEmpty(key)){
+			Logger.w("json key is empty");
+			return 0;
+		}
+		int value = 0;
+		try {
+			if (json.has(key)) {
+				value = json.getInt(key);
+			}
+		} catch (JSONException e) {
+			Logger.w("JSONException");
+		}
+		return value;
+	}
+}

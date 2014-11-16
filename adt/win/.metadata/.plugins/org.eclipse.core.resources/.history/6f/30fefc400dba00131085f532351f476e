@@ -1,0 +1,197 @@
+package com.tencent.msdk.stat;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
+import android.app.Activity;
+import android.content.Context;
+
+import com.tencent.feedback.eup.CrashHandleListener;
+import com.tencent.feedback.eup.CrashReport;
+import com.tencent.feedback.eup.CrashStrategyBean;
+import com.tencent.feedback.ua.UserAction;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.consts.Consts;
+import com.tencent.msdk.tools.Logger;
+
+public class BeaconHelper {
+	private final static long MAX_SAVE_BUSINESS_LOG_LEN = 1024 * 9; //9k
+    public void init(Activity context, String qqAppId, String channelId, boolean isDebug) {   
+        UserAction.setAppKey(context, qqAppId);
+        UserAction.setLogAble(isDebug, false);
+        UserAction.initUserAction(context);
+        UserAction.setAutoLaunchEventUsable(true);
+        UserAction.setChannelID(channelId);
+        
+        CrashStrategyBean strategy = new CrashStrategyBean();
+        strategy.setMerged(true);
+        /** db中异常存储的最大条数，默认是10条 */
+        strategy.setMaxStoredNum(10);
+        strategy.setMaxUploadNum_GPRS(1);
+        strategy.setMaxUploadNum_Wifi(3);
+        /** 上报系统log最多行数 */
+        strategy.setMaxLogRow(100);
+        CrashHandleListener crashHandlelistener = getCrashHandleListener();
+        CrashReport.initCrashReport(context, crashHandlelistener, null, true, strategy);
+    }
+    
+	/** @return crash处理过程监听器 */
+	protected CrashHandleListener getCrashHandleListener()
+	{
+		return new CrashHandleListener() {
+			/**
+			 * 此方法将会在SDK异常处理前优先执行
+			 * 
+			 * @param thread
+			 *            发生异常的线程
+			 * @param exception
+			 *            异常
+			 */
+			@Override
+			public void onCrashHappen(Thread thread, Throwable exception) {
+			}
+
+			/**
+			 * 此方法将会在SDK异常处理前优先执行
+			 * 
+			 * @param thread
+			 *            发生异常的线程
+			 * @param exception
+			 *            异常
+			 * @return true表示需要系统默认处理或关闭进程，false表示不需要
+			 * */
+			@Override
+			public boolean onCrashFinished(Thread thread, Throwable exception) {
+				return true;
+			}
+
+			/**
+			 * RQD记录异常时，会把此接口返回的数据也记录到单条异常，并一起上报 数据不能太大否则影响上报成功率。
+			 * 
+			 * @return 需要被上报的额外数据，null则不需要
+			 * */
+			@Override
+			public String getCrashExtraMessage() {
+				String extMsg = WeGameNotifyGame.getInstance().OnCrashExtMessageNotify(0, 
+				        "upload extra crash message");
+				Logger.d("beacon", "getCrashExtraMessage, extMsg:" + extMsg);
+				if(extMsg == null) {
+				    return null;
+				}
+				byte[] b = extMsg.getBytes();
+				long len = b.length;
+				if(len > MAX_SAVE_BUSINESS_LOG_LEN) {
+				    long start = len - MAX_SAVE_BUSINESS_LOG_LEN;
+				    extMsg = new String(b, (int)start, (int)MAX_SAVE_BUSINESS_LOG_LEN);
+				}
+				return extMsg;
+			}
+
+			/**
+			 * RQD记录异常时，会把此接口返回的数据也记录到此条异常中，并一起上报。 数据不能太大否则影响上报成功率。
+			 * 
+			 * @return 需要被上报的额外数据，null则不需要
+			 * */
+			@Override
+			public byte[] getCrashExtraData() {
+				return null;
+			}
+
+			/**
+			 * Native Crash被处理后，将会回调此接口
+			 * 
+			 * @param pid
+			 *            crash进程id
+			 * @param tid
+			 *            crash线程id
+			 * @param stack
+			 *            堆栈
+			 */
+			@Override
+			public void onNativeCrash(int pid, int tid, String stack) {
+			}
+		};
+	}
+
+    public void onLogin(String openId, int platId) {
+        long start = System.currentTimeMillis();
+        HashMap<String, String> p = new HashMap<String, String>();
+        p.put("loginType", this.getCurrentLoginPlatform(platId));
+        p.put("msdkVersion", WGPlatform.WGGetVersion()); // A80表示SDK版本号
+        p.put("regChannel", WGPlatform.WGGetRegisterChannelId()); // A81表示注册渠道号
+        p.put("openId", openId); // A8 是openid
+
+        long end = System.currentTimeMillis();
+
+        String name = Consts.LOGIN_EVENT_NAME; // 事件名称
+        boolean isOk = true;// 事件是否成功，统计用
+        long elapse = end - start; // 事件耗时，统计用，ms
+        long size = 1000; // 事件网络消耗，统计用，byte
+        boolean isRealTime = true; // 实时事件
+
+        Logger.d(openId);
+        UserAction.setUserID(openId);
+        UserAction.onUserAction(name, isOk, elapse, size, p, isRealTime);
+    }
+
+    private String getCurrentLoginPlatform(int platId) {
+        if (platId == WeGame.WXPLATID) {
+            return Consts.LOGIN_TYPE_WX;
+        } else if (platId == WeGame.QQPLATID) {
+            return Consts.LOGIN_TYPE_QQ;
+        }
+        return "";
+    }
+
+    public void enableCrashReport(boolean flag) {
+        Logger.d("flag: " + flag);
+        CrashReport.setCrashReportAble(flag);
+        CrashReport.setNativeCrashReportAble(flag);
+    }
+
+    public void reportEvent(String name, String body, int platId, boolean isRealTime) {
+        HashMap<String, String> extraMap = new HashMap<String, String>();
+        if (body == null) {
+            body = "";
+        }
+        extraMap.put("evtBody", body);
+        extraMap.put("loginType", getCurrentLoginPlatform(platId));
+
+        Logger.d("Stat reportEvent name:" + name + "; body: " + body);
+        boolean isOk = true;// 事件是否成功，统计用
+        long size = -1; // 事件网络消耗，统计用，byte
+        UserAction.onUserAction(name, isOk, 0, size, extraMap, isRealTime);
+    }
+
+	public void reportEvent(String name, HashMap<String, String> params, int platId, boolean isRealTime) {
+    	Logger.d("Stat reportEvent name:" + name + "; body: " + params.toString());
+    	params.put("loginType", getCurrentLoginPlatform(platId));
+    	boolean isOk = true;// 事件是否成功，统计用
+        long size = -1; // 事件网络消耗，统计用，byte
+        UserAction.onUserAction(name, isOk, 0, size, params, isRealTime);
+    	
+    }
+    public void speedTest(ArrayList<String> addrList) {
+        ArrayList<String> ipList = new ArrayList<String>();
+        ArrayList<String> domainList = new ArrayList<String>();
+
+        for (String addr : addrList) {
+            if (addr != null && addr.matches("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})")) {
+                Logger.d("IP: " + addr);
+                ipList.add(addr);
+            } else {
+                Logger.d("Domain: " + addr);
+                domainList.add(addr);
+            }
+        }
+
+        if (ipList.size() > 0) {
+            UserAction.testSpeedIp(ipList);
+        } else if (domainList.size() > 0) {
+            UserAction.testSpeedDomain(domainList);
+        }
+    }
+
+}

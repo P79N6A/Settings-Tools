@@ -1,0 +1,17 @@
+package com.tencent.msdk.timer.task;
+
+import com.tencent.msdk.tools.Logger;
+
+public class NoticeTask extends BaseTask {
+
+    @Override
+    public int getMyInterval() {
+        return 3;
+    }
+
+    @Override
+    public void run() {
+        Logger.d("NoticeTask run");
+    }
+
+}

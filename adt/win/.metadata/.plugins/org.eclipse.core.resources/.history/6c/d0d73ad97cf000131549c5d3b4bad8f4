@@ -1,0 +1,103 @@
+package com.tencent.msdk.notice;
+
+import android.content.Context;
+import android.content.res.Resources;
+
+import com.tencent.msdk.tools.ResID;
+/**
+ * 公告资源类
+ */
+public class NoticeResID extends ResID{
+	//layout
+	public static int layout_text_notice;
+	public static int layout_text_notice_url;
+	public static int layout_image_notice;
+	public static int layout_image_notice_url;
+	public static int layout_web_notice;
+	public static int layout_web_notice_url;
+	public static int tempLoadLayer;
+	public static int tempLoadFailed;
+	public static int noticeContentLine;
+	public static int layout_scroll_notice;
+	
+	//id
+	//滚动资源
+	public static int rollImage;
+	public static int marquee;
+	
+	//弹出公用资源
+    public static int noticemain;
+    public static int alertNoticeImage;
+    public static int confirmbtn;
+    public static int morebtn;
+    public static int noticeContent;
+    
+    //文本公告
+    public static int noticeTitle;
+    
+    //网页公告
+    public static int tempLayer;
+    public static int web_load_gif;
+    //图片公告
+    public static int land_0;
+    
+    //drawable
+    public static int notice_alert_drawable;
+    public static int notice_roll_drawable;
+    
+    public static void loadTextLayout(Context context){
+    	String packageName = context.getPackageName();
+        Resources resources = context.getResources();
+        notice_alert_drawable = loadIdentifierResource(resources, "com_tencent_msdk_notice_popup", "drawable", packageName);
+        noticemain = loadIdentifierResource(resources, "noticmain", "id", packageName);
+        alertNoticeImage = loadIdentifierResource(resources, "popupImage", "id", packageName);
+        confirmbtn = loadIdentifierResource(resources, "confirmbtn", "id", packageName);
+        morebtn = loadIdentifierResource(resources, "morebtn", "id", packageName);
+    	
+        layout_text_notice = loadIdentifierResource(resources, "com_tencent_msdk_notice_text", "layout", packageName);
+        layout_text_notice = loadIdentifierResource(resources, "com_tencent_msdk_notice_text", "layout", packageName);
+        noticeTitle = loadIdentifierResource(resources, "noticeTitle", "id", packageName);
+        noticeContent = loadIdentifierResource(resources, "noticeContent", "id", packageName);
+    }
+    
+	
+	public static void loadImageLayout(Context context){
+		String packageName = context.getPackageName();
+        Resources resources = context.getResources();
+        notice_alert_drawable = loadIdentifierResource(resources, "com_tencent_msdk_notice_popup", "drawable", packageName);
+        noticemain = loadIdentifierResource(resources, "noticmain", "id", packageName);
+        alertNoticeImage = loadIdentifierResource(resources, "popupImage", "id", packageName);
+        confirmbtn = loadIdentifierResource(resources, "confirmbtn", "id", packageName);
+        morebtn = loadIdentifierResource(resources, "morebtn", "id", packageName);
+        
+        layout_image_notice = loadIdentifierResource(resources, "com_tencent_msdk_notice_image", "layout", packageName);
+    	layout_image_notice_url = loadIdentifierResource(resources, "com_tencent_msdk_notice_image_url", "layout", packageName);
+    	noticeContent = loadIdentifierResource(resources, "noticeContent", "id", packageName);
+    }
+    
+	
+	public static void loadWebLayout(Context context){
+		String packageName = context.getPackageName();
+        Resources resources = context.getResources();
+        notice_alert_drawable = loadIdentifierResource(resources, "com_tencent_msdk_notice_popup", "drawable", packageName);
+        noticemain = loadIdentifierResource(resources, "noticmain", "id", packageName);
+        alertNoticeImage = loadIdentifierResource(resources, "popupImage", "id", packageName);
+        confirmbtn = loadIdentifierResource(resources, "confirmbtn", "id", packageName);
+        morebtn = loadIdentifierResource(resources, "morebtn", "id", packageName);
+        
+        layout_web_notice = loadIdentifierResource(resources, "com_tencent_msdk_notice_web", "layout", packageName);
+    	layout_web_notice_url = loadIdentifierResource(resources, "com_tencent_msdk_notice_web_url", "layout", packageName);
+    	noticeContent = loadIdentifierResource(resources, "noticeContent", "id", packageName);
+    	noticeContentLine = loadIdentifierResource(resources, "noticeContentLine", "id", packageName);
+    	tempLoadLayer = loadIdentifierResource(resources, "tempLoadLayer", "id", packageName);
+    	tempLoadFailed = loadIdentifierResource(resources, "tempLoadFailed", "id", packageName);
+	}
+    
+	
+	public static void loadScrollLayout(Context context){
+		String packageName = context.getPackageName();
+        Resources resources = context.getResources();
+        notice_roll_drawable = loadIdentifierResource(resources, "com_tencent_msdk_notice_roll", "drawable", packageName);
+
+	}
+}

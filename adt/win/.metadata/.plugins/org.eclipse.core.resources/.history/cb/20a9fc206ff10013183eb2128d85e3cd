@@ -1,0 +1,603 @@
+
+package com.tencent.msdk.api;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import android.app.Activity;
+import android.content.Intent;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.EPlatform;
+import com.tencent.msdk.consts.TokenType;
+import com.tencent.msdk.db.LoginInfoManager;
+import com.tencent.msdk.handle.MsdkThreadManager;
+import com.tencent.msdk.lbs.Lbs;
+import com.tencent.msdk.myapp.autoupdate.AutoUpdateManager;
+import com.tencent.msdk.myapp.autoupdate.WGSaveUpdateObserver;
+import com.tencent.msdk.myapp.autoupdate.WGSaveUpdateObserverProxy;
+import com.tencent.msdk.myapp.whitelist.WhiteListMng;
+import com.tencent.msdk.notice.NoticeInfo;
+import com.tencent.msdk.notice.NoticeManager;
+import com.tencent.msdk.notice.eMSG_NOTICETYPE;
+import com.tencent.msdk.permission.PermissionManage;
+import com.tencent.msdk.pf.WGPfManager;
+import com.tencent.msdk.qq.ApiName;
+import com.tencent.msdk.request.PfKeyRequestMng;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.SharedPreferencesTool;
+import com.tencent.msdk.tools.T;
+import com.tencent.msdk.tools.WeGameTools;
+import com.tencent.msdk.weixin.BtnBase;
+import com.tencent.msdk.weixin.MsgBase;
+
+public final class WGPlatform {
+    private static final String TAG = WGPlatform.class.getName();
+
+    /**
+     * 初始化方法 SDK
+     * 
+     * @param Activity 上下文
+     */
+    public static Boolean IsDifferentActivity(Activity activity) {
+        return WeGame.getInstance().IsDifferentActivity(activity);
+    }
+
+    public static void DestroyActivity() {
+    }
+
+    /**
+     * 初始化方法 SDK
+     * 
+     * @param Activity 上下文
+     * @param MsdkBaseInfo 基本配置信息
+     * 		wx_appId 微信wx_appId
+     * 		wxAppKey 微信wxAppKey
+     * 		qq_appId Qzone qq_appId
+     * 		qqAppKey Qzone qqAppKey
+     * 		offerId 支付 offerid
+     */
+    public static void Initialized(Activity activity, MsdkBaseInfo baseInfo) {
+        WeGame.getInstance().Initialized(activity, baseInfo);
+    }
+
+    /**
+     * 设置java层委托
+     * @param WGPlatformObserver 委托的接口对象
+	 * 
+	 * 回调有如下几种:
+	 *   OnLoginNotify: 登陆回调
+	 *   OnShareNotify: 分享回调
+	 *   OnWakeupNotify: 被唤起回调
+	 *   OnRelationNotify: 关系链查询回调
+	 * @param WGPlatformObserver 委托的接口对象(游戏传入的全局回调对象)
+	 */
+    public static void WGSetObserver(WGPlatformObserver d) {
+        WeGame.getInstance().setObserver(d);
+    }
+
+    /**
+     * @param 大厅拉起游戏时传递的Intent
+     */
+    public static boolean wakeUpFromHall(Intent intent) {
+        return WeGame.getInstance().wakeUpFromHall(intent);
+    }
+
+    /**
+     * 处理平台的拉起
+     * 
+     * @param intent 平台拉起游戏时传入的Intent
+     */
+    public static void handleCallback(Intent intent) {
+        WeGame.getInstance().handleCallback(intent);
+    }
+
+    /**
+     * 设置QZONE权限 ，QZONE登录的时候调用
+     * 
+     * @param permission 调用WGQZonePermissions类里的变量,多个权限用","连接 如
+     *            WGQZonePermissions.eOPEN_PERMISSION_ADD_ALBUM
+     *            +","+WGQZonePermissions.eOPEN_PERMISSION_ADD_ONE_BLOG
+     */
+    public static void WGSetPermission(int permissions) {
+        WeGame.getInstance().WGSetPermission(permissions);
+    }
+
+    /**
+     * 返回当前SDK版本号
+     * @return String 版本号码
+     */
+    public static String WGGetVersion() {
+        return WeGame.getInstance().WGGetVersion();
+    }
+
+    public static int WGGetLoginRecord(LoginRet ret) {
+        LoginRet lr = LoginInfoManager.getInstance().getLastLoginUserInfo();
+        ret.platform = lr.platform;
+        ret.open_id = lr.open_id;
+        ret.flag = WeGame.getInstance().validateAccountToken(lr); // 检查票据有效性
+       
+        if(WeGame.QQPLATID == lr.platform){
+        	 //设置openSDK的openid和票据，用于拉起手Q拉起时判断异账号等逻辑
+        	 WeGame.getInstance().setOpenSdkLoginInfo(
+        			 lr.open_id, 
+        			 lr.getTokenByType(TokenType.eToken_QQ_Access), 
+        			 lr.getTokenExpireByType(TokenType.eToken_QQ_Access));
+        }
+        switch (ret.flag) {
+        case CallbackFlag.eFlag_Succ: // 成功, 填充所有票据
+            ret.desc = "success";
+            ret.open_id = lr.open_id;
+            ret.pf = lr.pf;
+            ret.pf_key = lr.pf_key;
+            ret.platform = lr.platform;
+            ret.user_id = lr.user_id;
+            for (TokenRet tr: lr.token) {
+                ret.token.add(tr);
+            }
+			MsdkThreadManager.getInstance().sendReportLogin(ret.open_id, ret.platform);
+            break;
+        case CallbackFlag.eFlag_QQ_AccessTokenExpired: // QQ ac过期, 需重新登录了
+            ret.desc = "qq access token expired, ask user login again!";
+            break;
+        case CallbackFlag.eFlag_QQ_PayTokenExpired: // QQ pay过期, 换不换由游戏决定
+            ret.desc = "qq pay token expired, ask user login again!";
+            break;
+        case CallbackFlag.eFlag_WX_AccessTokenExpired: // wx ac过期, 还有救, 可以用refresh去刷新 
+            ret.desc = "wechat access token expired, try to refresh it using refresh token";
+            ret.open_id = lr.open_id;
+            ret.pf = lr.pf;
+            ret.pf_key = lr.pf_key;
+            ret.platform = lr.platform;
+            ret.user_id = lr.user_id;
+            for (TokenRet tr: lr.token) {
+                ret.token.add(tr);
+            }
+            break;
+        case CallbackFlag.eFlag_WX_RefreshTokenExpired: // wx refresh过期, 需重新登录了
+            ret.desc = "wechat refresh token is expired, ask user login again!";
+            break;
+        case CallbackFlag.eFlag_Error: // what's wrong
+        default: // 默认为error
+            ret.desc = "no login record or other error, ask user to login";
+            break;
+        }
+        Logger.d("ret.platform = " + ret.platform);
+        Logger.d("\n ret.flag = " + ret.flag);
+        Logger.d("\n ret.open_id = " + ret.open_id);
+        Logger.d("\n ret.desc = " + ret.desc);
+        Logger.d("\n ret.pf = " + ret.pf);
+        Logger.d("\n ret.pf_key = " + ret.pf_key);
+        MsdkThreadManager.getInstance().sendReportLogin(ret.open_id, ret.platform);
+        return ret.platform;
+    }
+
+    /**
+	 * @return bool 返回值已弃用, 全都返回true
+	 */
+    public static boolean WGLogout() {
+        WGHideScrollNotice();//退出之前先调用滚动公告隐藏.
+        return WeGame.getInstance().logout();
+    }
+
+   public static boolean WGSwitchUser(boolean switchToLaunchUser) {
+	   return WeGame.getInstance().switchUser(switchToLaunchUser);
+   }
+    
+    
+    public static void WGLogin(EPlatform platform) {
+        WeGame.getInstance().sendLogin(platform.val());
+    }
+
+    public static void WGSendToWeixinWithUrl(eWechatScene scene, String title, String desc,
+            String webpageUrl, String mediaTagName, byte[] imgData, int imgDataLen) {
+        if(null == scene) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "scene cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("scene cann't be empty!");
+            return ;
+        }
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToWeixin)) {
+            WeGame.getInstance().WGSendToWeixinWithUrl(scene.value, title, desc, webpageUrl, mediaTagName, imgData, imgDataLen);
+        } else {
+            Logger.d(TAG, "WGSendToWeixinWithUrl function not permission");
+        }
+    }
+   
+    public static void WGSendToWeixin(String title, String desc, String mediaTagName,
+            byte[] thumbData, int thumbDataLen,String messageExt) {
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToWeixin)) {
+            WeGame.getInstance().WGSendToWeixin(title, desc,  mediaTagName, thumbData, thumbDataLen,messageExt);
+        } else {
+            Logger.d(TAG, "WGSendToWeixin function not permission");
+        }
+    }
+
+    public static void WGSendToWeixinWithPhoto(eWechatScene scene, String mediaTagName, byte[] imgData, int imgDataLen) {
+        if(null == scene) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "scene cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("scene cann't be empty!");
+            return ;
+        }
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToWeixinWithPhoto)) {
+            WeGame.getInstance().WGSendToWeixinWithPhoto(scene.value, mediaTagName, imgData, imgDataLen);
+        } else {
+            Logger.d(TAG, "WGSendToWeixinWithPhoto function not permission");
+        }
+    }
+
+    public static void WGSendToWeixinWithPhoto(eWechatScene scene, String mediaTagName, byte[] imgData, int imgDataLen,String messageExt,String mediaAction) {
+        if(null == scene) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "scene cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("scene cann't be empty!");
+            return ;
+        }
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToWeixinWithPhoto)) {
+            WeGame.getInstance().WGSendToWeixinWithPhoto(scene.value, mediaTagName, imgData, imgDataLen,messageExt,mediaAction);
+        } else {
+            Logger.d(TAG, "WGSendToWeixinWithPhoto function not permission");
+        }
+    }
+
+    public static void WGSendToWeixinWithMusic(eWechatScene scene, String  title, String  desc,
+			String musicUrl, String musicDataUrl, String mediaTagName,
+			byte[] imgData, int imgDataLen, String mediaExt, String mediaAction){
+        if(null == scene) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "scene cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("scene cann't be empty!");
+            return ;
+        }
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToWeixin)) {
+            WeGame.getInstance().WGSendToWeixinWithMusic(scene, title, desc, musicUrl, musicDataUrl, mediaTagName, imgData, imgDataLen, mediaExt, mediaAction);
+        } else {
+            Logger.d(TAG, "WGSendToWeixinWithMusic function not permission");
+        }
+    }
+
+    public static void WGSendToQQWithMusic(eQQScene scene, String title, 
+					String desc, String musicUrl,
+					String musicDataUrl,String imgUrl){
+        if(null == scene) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "scene cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("scene cann't be empty!");
+            return ;
+        }
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToQQ)) {
+            WeGame.getInstance().WGSendToQQWithMusic(scene, title, desc, musicUrl, musicDataUrl, imgUrl);
+        } else {
+            Logger.d(TAG, "WGSendToQQWithMusic function not permission");
+        }
+    }
+    
+    public static void WGSendToQQ(eQQScene scene, String title, String desc, String url, String imgUrl, int imgUrlLen) {
+        if(null == scene) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "scene cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("scene cann't be empty!");
+            return ;
+        }
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToQQ)) {
+            WeGame.getInstance().WGSendToQQ(scene.value, title, desc, url, imgUrl, imgUrlLen);
+        } else {
+            Logger.d(TAG, "WGSendToQQ function not permission");
+        }
+    }
+
+    public static void WGSendToQQWithPhoto(eQQScene scene, String imgFilePath) {
+        if(null == scene) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "scene cann't be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.e("scene cann't be empty!");
+            return ;
+        }
+        WeGame.getInstance().WGSendToQQWithPhoto(scene.value, imgFilePath);
+    }
+
+    public static boolean WGFeedback(String game, String txt) {
+        return WeGame.getInstance().feedback(game, txt);
+    }
+
+    public static void WGFeedback(String body) {
+    	MsdkThreadManager.getInstance().sendFeedbackWithAppid(body);
+    }
+
+    public static void WGEnableCrashReport(boolean bRdmEnable, boolean bMtaEnable) {
+        WeGame.getInstance().enableCrashReport(bRdmEnable, bMtaEnable);
+    }
+
+    public static void WGReportEvent(String name, String body, boolean isRealTime) {
+        WeGame.getInstance().WGReportEvent(name, body, isRealTime);
+    }
+
+    public static void WGReportEvent(String name, HashMap<String, String> params, boolean isRealTime) {
+        WeGame.getInstance().WGReportEvent(name, params, isRealTime);
+    }
+
+    public static void WGTestSpeed(ArrayList<String> addrList) {
+        WeGame.getInstance().testSpeed(addrList);
+    }
+
+    public static String WGGetChannelId() {
+        return "" + WGPfManager.getInstance().getChannelId();
+    }
+
+    public static String WGGetRegisterChannelId() {
+        return "" + WGPfManager.getInstance().getRegChannelId();
+    }
+
+    public static void WGRefreshWXToken() {
+        if (PermissionManage.getInstance().isHavePermission(PermissionManage.wgRefreshWXToken)) {
+            WeGame.getInstance().refreshWxToken();
+        } else {
+            Logger.d(TAG, "WGRefreshWXToken function not permission");
+        }
+    }
+
+    public static boolean WGIsPlatformInstalled(EPlatform platform) {
+        return WeGameTools.isPlatformInstalled(WeGame.getInstance().getActivity(), platform.val());
+    }
+
+    public static boolean WGIsPlatformSupportApi(EPlatform platform) {
+        return WeGameTools.isPlatformSupportApi(WeGame.getInstance().getActivity(), platform.val());
+    }
+
+    public static String WGGetPf(String gameCustomInfo) {
+        return WGPfManager.getInstance().getPf(gameCustomInfo);
+    }
+
+    public static String WGGetPfKey() {
+        return WGPfManager.getInstance().getPfKey();
+    }
+
+    public static boolean WGCheckApiSupport(ApiName api){
+        return WeGame.getInstance().checkApiSupport(api);
+    }
+
+    public static void WGLogPlatformSDKVersion() {
+        WeGame.getInstance().logPlatformSDKVersion();
+    }
+    
+    public static boolean WGSendToQQGameFriend(int act, String friendOpenId, String title, String summary,
+            String targetUrl, String imageUrl, String previewText, String gameTag) {
+        return WGPlatform.WGSendToQQGameFriend(act, 
+                friendOpenId, title, summary, targetUrl, imageUrl, previewText, gameTag, "");
+    }
+    
+    public static boolean WGSendToQQGameFriend(int act, String friendOpenId, String title, String summary,
+            String targetUrl, String imageUrl, String previewText, String gameTag, String msdkExtInfo) {
+        if (T.ckNonEmpty(friendOpenId, title, summary, targetUrl, imageUrl)) {
+            ShareRet ret = new ShareRet();
+            ret.flag = CallbackFlag.eFlag_Error;
+            ret.desc = "friendOpenId, title, summary, targetUrl, imageUrl can not be empty!";
+            ret.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnShareNotify(ret);
+            Logger.w("friendOpenId, title, summary, targetUrl, imageUrl CAN NOT BE EMPTY");
+            return false;
+        }
+        
+        if (null == msdkExtInfo) {
+            msdkExtInfo = "";
+        }
+        MsdkThreadManager.getInstance().sendToQQGameFriend(act, 
+                friendOpenId, title, summary, targetUrl, imageUrl, previewText, gameTag, msdkExtInfo);
+        return true;
+    }
+
+    public static boolean WGSendToWXGameFriend(String fopenid, String title, String description, String messageExt,
+            String media_tag_name, String thumb_media_id) {
+        
+        return WGSendToWXGameFriend(fopenid, title, description, messageExt, media_tag_name, thumb_media_id, "");
+    }
+    
+    public static boolean WGSendToWXGameFriend(String fopenid, String title, String description, String messageExt,
+            String media_tag_name, String thumb_media_id, String msdkExtInfo) {
+        
+        if (T.ckNonEmpty(fopenid, title, description)) {
+            Logger.w("fopenid, title, description " + " CAN NOT BE EMPTY");
+            return false;
+        }
+        
+        MsdkThreadManager.getInstance().sendToWXGameFriend(fopenid, 
+                title, description, messageExt, media_tag_name, thumb_media_id, msdkExtInfo);
+        return true;
+    }
+
+    public static boolean WGQueryQQMyInfo() {
+        MsdkThreadManager.getInstance().queryQQUserInfo();
+        return true;
+    }
+	
+    public static boolean WGQueryQQGameFriendsInfo() {
+        MsdkThreadManager.getInstance().queryQQGameFriendsInfo();
+        return true;
+    }
+	
+    public static boolean WGQueryWXMyInfo() {
+        MsdkThreadManager.getInstance().queryWXUserInfo();
+        return true;
+    }
+
+    public static boolean WGQueryWXGameFriendsInfo() {
+        MsdkThreadManager.getInstance().queryWXGameFriendsInfo();
+        return true;
+    }
+    
+    public static Vector<NoticeInfo> WGGetNoticeData(eMSG_NOTICETYPE type, String scene){       
+    	return NoticeManager.getInstance().getNoticeBySceneAndType(type,scene);
+    }
+    
+    public static void WGShowNotice(eMSG_NOTICETYPE type,String scene) {  
+        MsdkThreadManager.getInstance().showNoticeByScene(type,scene);
+    }
+    
+    public static void WGHideScrollNotice() {
+    	MsdkThreadManager.getInstance().closeScrollNotice();
+    }
+    
+    /**
+     * 游戏将恢复和暂停告知msdk
+     */
+    public static void onPause() {
+    	Logger.d("WGOnPause");
+        NoticeManager.getInstance().onPause();
+    }
+    public static void onResume() {
+    	Logger.d("WGOnResume");
+        NoticeManager.getInstance().onResume();
+		WhiteListMng.gDefault.get().onResume();
+		AutoUpdateManager.onResume(WeGame.getInstance().getActivity());
+    }
+    
+    public static void onDestory(Activity game) {
+    	Logger.d("WGOnDestory");
+    	WeGame.getInstance().onDestory(game);
+    	AutoUpdateManager.onDestory(game);
+    }
+
+    public static void WGOpenUrl(String url) {
+        MsdkThreadManager.getInstance().openUrl(url);
+    }
+    
+    public static boolean WGOpenAmsCenter(String params) {
+        final int MAX_LENGTH = 256;
+        if (null == params || params.length() > MAX_LENGTH) {
+            Logger.d("params to long, maxLength: " + MAX_LENGTH);
+            return false;
+        }
+        // 此URL为AMS固定URL, 不能改动
+        String url = ConfigManager.readValueByKey(WeGame.getInstance().getActivity(), "AMS_CENTER_URL");
+        
+        try {
+            if (T.ckIsEmpty(new URL(url).getQuery())) {
+                // 没有参数则添加参数
+                url += "?";
+            } else {
+                // 有参数则检查是否已经以&结尾
+                if (!url.endsWith("&")) {
+                    url += "&";
+                }
+            }
+        } catch (MalformedURLException e) {
+            Logger.w("this api need a valid url start with http:// or https:// ");
+            e.printStackTrace();
+            return false;
+        }
+        
+        if (!T.ckIsEmpty(params)) {
+            char firstChar = params.charAt(0);
+            Logger.d("" + firstChar);
+            if (params.charAt(0) == '?' || params.charAt(0) == '&') {  // 如果开头是&或者?, 则把这个字符去掉拼接到URL上
+                url += params.substring(1);
+            } else {
+                url += params; 
+            }
+        }
+        Logger.d(url);
+        WGPlatform.WGOpenUrl(url);
+        return true;
+    }
+    
+    public static void WGLoginWithLocalInfo(){
+    	WeGame.getInstance().loginWithLocalInfo();
+    }
+    
+    public static void WGGetNearbyPersonInfo(){
+    	Logger.d("called");
+    	new Lbs(WeGame.getInstance().getActivity()).getNearbyPlayer();
+    }
+    
+    public static boolean WGCleanLocation() {
+    	Logger.d("called");
+    	return  MsdkThreadManager.getInstance().clearLocation();
+    }
+	
+    public static int WGGetPaytokenValidTime() {
+    	int ptExpired = SharedPreferencesTool.getInt(WeGame.getInstance().getActivity(), PfKeyRequestMng.PT_EXPIRED_KEY, WeGame.DEFAULT_PATYOKEN_EXPIRATION); // 默认六天
+    	return ptExpired;
+    }
+
+    public static boolean WGSendMessageToWechatGameCenter(String friendOpenId, String title,
+            String content, MsgBase pInfo, BtnBase pButton, String msdkExtInfo) {
+        Logger.d("friendOpenId:"+friendOpenId);
+        Logger.d("title:"+title);
+        Logger.d("content:"+content);
+        Logger.d("pInfo:"+pInfo);
+        Logger.d("pButton:"+pButton);
+        Logger.d("msdkExtInfo:"+msdkExtInfo);
+        if (T.ckIsEmpty(friendOpenId)
+                || T.ckIsEmpty(title)
+                || T.ckIsEmpty(content)
+                || pInfo == null
+                || pButton == null) {
+            Logger.d("friendOpenId, title, content, pInfo, pButton can not be empty");
+            return false;
+        }
+
+        MsdkThreadManager.getInstance().sendMessageToWechatGameCenter(friendOpenId, title,
+                content, pInfo, pButton, msdkExtInfo);
+        return true;
+    }
+    
+    public static void WGStartCommonUpdate() {
+        Logger.d("WGStartCommonUpdate");
+        AutoUpdateManager.startCommonUpdate();
+    }
+    
+    public static void WGStartSaveUpdate() {
+        Logger.d("WGStartSaveUpdate");
+        AutoUpdateManager.startSaveUpdate();
+    }
+    
+    public static void WGSetSaveUpdateObserver(WGSaveUpdateObserver observer) {
+        Logger.d("WGSetSaveUpdateObserver");
+        WGSaveUpdateObserverProxy.gDefault.get().setmJavaObserver(observer);
+    }
+    
+    public static void WGCheckNeedUpdate() {
+        AutoUpdateManager.checkNeedUpdate();
+    }
+
+    public static int WGCheckYYBInstalled() {
+        return AutoUpdateManager.checkYYBInstalled();
+    }
+    
+    public static void WGShowQMi() {
+        MsdkThreadManager.getInstance().showQMi();
+    }
+
+    public static void WGHideQMi() {
+        MsdkThreadManager.getInstance().hideQMi();
+    }
+}

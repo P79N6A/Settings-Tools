@@ -1,0 +1,190 @@
+package com.tencent.msdk;
+
+
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.ShareRet;
+import com.tencent.msdk.api.WGPlatformObserver;
+import com.tencent.msdk.api.WGPlatformObserverForSO;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.handle.MsdkThreadManager;
+import com.tencent.msdk.notice.NoticeManager;
+import com.tencent.msdk.push.PushManager;
+import com.tencent.msdk.remote.api.RelationRet;
+import com.tencent.msdk.tools.Logger;
+
+public class WeGameNotifyGame {
+    private static volatile WeGameNotifyGame instance = null;
+
+    public WGPlatformObserver mObserver = null; // 添加一个java层委托接口，用来回调
+    public static WeGameNotifyGame getInstance() {
+        if (instance == null) {
+            synchronized (WeGameNotifyGame.class) {
+                if (instance == null) {
+                    instance = new WeGameNotifyGame();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void setObserver(WGPlatformObserver observer) {
+        mObserver = observer;
+    }
+    /* 平台的登录回调 */
+    public void OnPlatformLoginNotify(LoginRet loginRet) {
+        // 每次登陆完成Log, 方便获取各个游戏的accesstoken用于各种调试
+        loginRet.toLog();
+        Logger.d("OnLoginNotify");
+        WeGame.getInstance().setFlag(loginRet.flag);
+        WeGame.getInstance().setPlatId(loginRet.platform);
+        NoticeManager.getInstance().getNotice();//登录完了后去取一次公告
+        NotifyGameLogin(loginRet);
+    }
+    /* 平台的唤醒回调 */
+    public void OnPlatformWakeupNotify(WakeupRet wakeupRet) {
+        Logger.d("OnPlatformWakeupNotify");
+        NotifyGameWakeUp(wakeupRet);
+    }
+    public void OnBackendShareCallback(ShareRet sbr) {
+        callbackGameBackendShare(sbr);
+    }
+
+    public void OnBackendRelationCallback(RelationRet rr) {
+        callbackGameRelation(rr);
+    }
+    public void OnShareNotify(ShareRet shareRet) {
+        Logger.d("OnShareNotify");
+        NotifyGameShare(shareRet);
+    }
+    
+    public void OnFeedbackNotify(int flag, String desc) {
+        Logger.d("OnFeedbackNotify");
+        if (mObserver == null) {
+        	Logger.d("OnFeedbackNotify to cpp");
+        	WGPlatformObserverForSO.OnFeedbackNotify(flag, desc);
+        } else {
+        	Logger.d("OnFeedbackNotify to java");
+            mObserver.OnFeedbackNotify(flag, desc);
+        }
+    }
+
+    public void OnFeedbackCallback(int flag, String desc) {
+        Logger.d("OnFeedbackCallback");
+        if (mObserver == null) {
+        	Logger.d("OnFeedbackCallback to cpp");
+        	WGPlatformObserverForSO.OnFeedbackNotify(flag, desc);
+        } else {
+        	Logger.d("OnFeedbackCallback to java");
+            mObserver.OnFeedbackNotify(flag, desc);
+        }
+    }
+    
+    public String OnCrashExtMessageNotify(int flag, String desc) {
+        Logger.d("OnCrashExtMessageNotify");
+        if (mObserver == null) {
+        	Logger.d("OnCrashExtMessageNotify to cpp");
+        	String msg = WGPlatformObserverForSO.OnCrashExtMessageNotify();
+        	Logger.d("OnCrashExtMessageNotify to cpp, value:" + msg);
+        	return msg;
+        } else {
+        	Logger.d("OnCrashExtMessageNotify to java");
+            return mObserver.OnCrashExtMessageNotify();
+        }
+    }
+    
+    public void OnGetNearbyPlayerCallback(RelationRet ret) {
+        if (mObserver == null) {
+        	Logger.d("OnGetNearbyPlayerCallbacknotify to cpp");
+        	WGPlatformObserverForSO.OnLocationNotify(ret);
+        } else {
+        	Logger.d("OnGetNearbyPlayerCallbacknotify to java");
+            mObserver.OnLocationNotify(ret);
+        }
+    }
+
+    public void OnClearLocationCallback(RelationRet ret) {
+    	if (mObserver == null) {
+        	Logger.d("OnClearLocationCallbacknotify to cpp");
+        	WGPlatformObserverForSO.OnLocationNotify(ret);
+        } else {
+        	Logger.d("OnClearLocationCallbacknotify to java");
+            mObserver.OnLocationNotify(ret);
+        }
+    }
+
+    // 后台分享接口回调到游戏
+    private void callbackGameBackendShare(ShareRet shareBackRet) {
+        Logger.d(shareBackRet);
+        if (mObserver == null) {
+            Logger.d("WeGame callbackGameBackendShare C++ callbackGameBackendShare");
+            WGPlatformObserverForSO.OnShareNotify(shareBackRet);
+        } else {
+            Logger.d("WeGame callbackGameBackendShare Java callbackGameBackendShare");
+            mObserver.OnShareNotify(shareBackRet);
+        }
+    }
+    
+    // 后台关系链接口回调到游戏
+    private void callbackGameRelation(RelationRet rr) {
+        if (mObserver == null) {
+            Logger.d("WeGame callbackGameRelation C++ callbackGameRelation");
+            WGPlatformObserverForSO.OnRelationNotify(rr);
+        } else {
+            Logger.d("WeGame callbackGameRelation Java callbackGameRelation");
+            mObserver.OnRelationNotify(rr);
+        }
+    }
+/*----------只能回调给游戏线程  S------------------------*/
+    public void NotifyGameLogin(LoginRet loginRet) {
+        Logger.d("NotifyGameLogin"); 
+
+
+        //  登录完成以后注册AppUser
+        Logger.d("PUSH: " + ConfigManager.readValueByKey(WeGame.getInstance().getActivity(), "PUSH"));
+		if ("true".equals(ConfigManager.readValueByKey(WeGame.getInstance().getActivity(), "PUSH"))) {
+		    if (loginRet.platform == WeGame.QQPLATID) {
+		        PushManager.gDefault.get().registerAppUserOnce(WeGame.getInstance().getActivity(), 
+		                WeGame.getInstance().qq_appid, loginRet.open_id);
+		    } else if (loginRet.platform == WeGame.WXPLATID) {
+		        PushManager.gDefault.get().registerAppUserOnce(WeGame.getInstance().getActivity(), 
+		                WeGame.getInstance().wx_appid, loginRet.open_id);
+		    }
+        } else {
+            Logger.d("PUSH Closed!");
+        }
+
+        if (loginRet.flag == CallbackFlag.eFlag_Succ || loginRet.flag == CallbackFlag.eFlag_WX_RefreshTokenSucc) {
+            MsdkThreadManager.getInstance().sendReportLogin(loginRet.open_id, loginRet.platform);
+        }
+
+        if (mObserver == null) {
+            Logger.d("WeGame OnLoginNotify C++ OnLoginNotify");
+            WGPlatformObserverForSO.OnLoginNotify(loginRet);
+        } else {
+            Logger.d("WeGame OnLoginNotify Java OnLoginNotify");
+            mObserver.OnLoginNotify(loginRet);
+        }
+    }
+    public void NotifyGameWakeUp(WakeupRet wakeupRet) {
+        Logger.d("NotifyGameWakeUp");
+        if (mObserver == null) {
+            WGPlatformObserverForSO.OnWakeupNotify(wakeupRet);
+        } else {
+            mObserver.OnWakeupNotify(wakeupRet);
+        }
+    }
+    
+    public void NotifyGameShare(ShareRet shareRet) {
+        Logger.d("NotifyGameShare");
+        if (mObserver == null) {
+            WGPlatformObserverForSO.OnShareNotify(shareRet);
+        } else {
+            mObserver.OnShareNotify(shareRet);
+        }
+    }
+/*----------只能回调给游戏线程  E---------------------------*/   
+    
+
+}

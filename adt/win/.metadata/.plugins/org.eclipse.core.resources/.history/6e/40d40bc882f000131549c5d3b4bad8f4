@@ -1,0 +1,38 @@
+package com.tencent.msdk.notice;
+
+import com.tencent.msdk.tools.Logger;
+
+/**
+ * @author hardyshi 2014-03-11
+ * 公告类型宏
+ */
+public enum eMSG_EVENT {
+	eMSG_EVENT_SHOW(1),  //展示公告
+	eMSG_EVENT_MORE(2);	//点击详情
+    int value = 0;
+    eMSG_EVENT(int val) {
+        this.value = val;
+    }
+    
+    static public eMSG_EVENT getEnum(int i) {
+        eMSG_EVENT type = null;
+        switch (i) {
+            case 1:
+                type = eMSG_EVENT.eMSG_EVENT_SHOW;
+                break;
+            case 2:
+                type = eMSG_EVENT.eMSG_EVENT_MORE;
+                break;
+            default:
+            	Logger.e("bad event type:"+i);
+            	type = eMSG_EVENT.eMSG_EVENT_SHOW;
+                break;
+        }
+        return type;
+    }
+    
+    public int val() {
+    	return value;
+    }
+    
+}

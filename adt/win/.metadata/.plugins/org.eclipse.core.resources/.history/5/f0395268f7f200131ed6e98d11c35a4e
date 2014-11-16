@@ -1,0 +1,54 @@
+package com.tencent.msdk.timer;
+
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import com.tencent.msdk.Singleton;
+import com.tencent.msdk.timer.task.BaseTask;
+import com.tencent.msdk.tools.Logger;
+
+public class TaskManager {
+	// TODO 正式上线改为一分钟
+    private final int PERIOD = 5000;
+    private Timer timer = null;
+    private ArrayList<BaseTask> taskList = new ArrayList<BaseTask>();
+    
+    public static Singleton<TaskManager> gDefault = new Singleton<TaskManager>() {
+        @Override
+        protected TaskManager create() {
+            TaskManager taskManager = new TaskManager();
+            taskManager.timer = new Timer();
+            return taskManager;
+        }
+    };
+    private TaskManager() {
+        super();
+    }
+    public void startTimer() {
+        timer.schedule(new TaskDispatcher(), 0, PERIOD);
+    }
+    
+    private class TaskDispatcher extends TimerTask{
+        @Override
+        public void run() {
+            Logger.d("TaskDispatcher run");
+            for (BaseTask task: taskList) {
+                task.increaseNotifiedTimes();
+                if (task.getNotifiedTimes() == task.getMyInterval()) {
+                    task.run();
+                    task.resetNotifiedTimes();
+                }
+            }
+        }
+    }
+    
+    public int addTask(BaseTask task) {
+        if (taskList.contains(task)) {
+            return -1;
+        } else {
+            taskList.add(task);
+            return 0;
+        }
+    }
+}

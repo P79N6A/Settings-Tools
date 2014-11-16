@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="273" key="DIALOG_WIDTH"/>
+		<item value="289" key="DIALOG_Y_ORIGIN"/>
+		<item value="222" key="DIALOG_HEIGHT"/>
+		<item value="1582" key="DIALOG_X_ORIGIN"/>
+		<item value="1|微软雅黑|9.0|0|WINDOWS|1|-12|0|0|0|400|0|0|0|1|0|0|0|0|微软雅黑" key="DIALOG_FONT_NAME"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="true" key="wrap"/>
+		<item value="false" key="isRegEx"/>
+		<item value="false" key="casesensitive"/>
+		<item value="false" key="incremental"/>
+		<item value="false" key="wholeword"/>
+		<item value="OnLoginNotify" key="selection"/>
+		<list key="findhistory">
+			<item value="OnLoginNotify"/>
+			<item value="NoticeInfo"/>
+			<item value="JNI"/>
+			<item value="Java_com_example_wegame_PlatformTest_WGGetNoticeData Start"/>
+			<item value="Java_com_example_wegame_PlatformTest_WGGetNoticeData"/>
+			<item value="needDelayWakeupNotify"/>
+			<item value="needDelayWakeupNotify "/>
+			<item value="!= eMSG_NOTICETYPE.eMSG_NOTICETYPE_ALERT"/>
+		</list>
+		<list key="replacehistory">
+			<item value=""/>
+			<item value="showScrollNotice"/>
+			<item value="getNoticeData"/>
+			<item value="scene"/>
+			<item value="(jstring)noticeVector[i]."/>
+			<item value="&quot;]"/>
+			<item value=" "/>
+			<item value="std::string "/>
+		</list>
+	</section>
+</section>

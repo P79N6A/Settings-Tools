@@ -1,0 +1,386 @@
+package com.tencent.msdk.request;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.os.CountDownTimer;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.communicator.HttpRequestManager;
+import com.tencent.msdk.communicator.IHttpRequestListener;
+import com.tencent.msdk.communicator.MHttpResponse;
+import com.tencent.msdk.communicator.UrlManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.consts.MessageNo;
+import com.tencent.msdk.consts.RequestConst;
+import com.tencent.msdk.db.LoginInfoManager;
+import com.tencent.msdk.db.WxLoginModel;
+import com.tencent.msdk.myapp.whitelist.WhiteListMng;
+import com.tencent.msdk.notice.NoticeManager;
+import com.tencent.msdk.permission.PermissionManage;
+import com.tencent.msdk.pf.WGPfManager;
+import com.tencent.msdk.remote.api.SafeJSONObject;
+import com.tencent.msdk.request.WxRequest.WxExpiredLoginReq;
+import com.tencent.msdk.request.WxRequest.WxFirstLoginReq;
+import com.tencent.msdk.stat.BeaconHelper;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.stat.StatAppMonitor;
+import com.tencent.stat.StatService;
+
+/*
+ * WX 请求管理
+ * */
+
+public class WxRequestMng implements IHttpRequestListener {
+	private WxRequest req = new WxRequest();
+	private static volatile WxRequestMng instance = null;
+	private int notifyState = RequestConst.notifyNone;
+	private String callbackMsg = "";// 回调 msg
+	private long refreshStartTime = 0;
+	private long refreshRetryStartTime = 0;
+	private final String REFRESH_TIME_EVENT_NAME = "wgFirstRefreshTime";
+	private final String REFRESH_RETRY_TIME_EVENT_NAME = "wgSecondRefreshTime";
+	private final int SAMPLE_RATE = 1;
+
+	/*public static WxRequestMng getInstance() {
+		if (instance == null) {
+			synchronized (WxRequestMng.class) {
+				if (instance == null) {
+					instance = new WxRequestMng();
+				}
+			}
+		}
+		return instance;
+	}*/
+
+	public void wxFirstLoginReq(String wxCode, int notifyState) {
+	    this.refreshStartTime = System.currentTimeMillis();
+		this.notifyState = notifyState;
+		if (null == wxCode || wxCode.equals("")) {
+			notify(false, "wxFirstLoginReq wxCode is empty", -1,
+					MessageNo.MSG_NO_GET_WXEXPIREDLOGIN);
+			Logger.e("wxFirstLoginReq wxCode is empty");
+			return;
+		}
+		WxFirstLoginReq loginReq = req.new WxFirstLoginReq();
+		// .....
+		String appId = WeGame.getInstance().wx_appid;
+		String channel = WGPfManager.getInstance().getChannelId();
+		String offerId = WeGame.getInstance().offerId;
+		String platformId = WGPfManager.getInstance().getPlatformId();
+		String grantType = "";
+		WeGame.getInstance().setPlatId(WeGame.WXPLATID);
+		JSONObject json = loginReq.getReqJson(grantType, wxCode, appId,
+				channel, offerId, platformId);
+		String url = UrlManager.getUrl(HttpRequestManager.WXFIRST_LOGIN_ACTION,
+				WeGame.WXPLATID);
+		new HttpRequestManager(this).postTextAsync(url, json.toString(), MessageNo.MSG_NO_GET_WXFIRSTLOGIN);
+	}
+
+	/**
+	 * WGRefreshWXToken调用的刷新
+	 * @param notifyState  表示是 login还是wakeup
+	 */
+	public void wxExpiredLoginReq(int notifyState) {
+		Logger.d("wxExpiredLoginReq(int notifyState)");
+		wxExpiredLoginReq(notifyState, MessageNo.MSG_NO_GET_WXEXPIREDLOGIN);
+	}
+	
+	/**
+	 */
+	public void refreshAccessTokenWithLocalRefreshToken() {
+		this.refreshStartTime = System.currentTimeMillis();
+		int notifyState = RequestConst.notifyLogin;
+		wxExpiredLoginReq(notifyState,
+				MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH);
+	}
+
+	/**
+	 */
+	private void wxExpiredLoginReq(int notifyState, int msgNo) {
+
+		Properties p = new Properties();
+		p.put("startTime", "" + System.currentTimeMillis());
+		if (msgNo == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH) {
+			refreshStartTime = System.currentTimeMillis();
+		} else if (msgNo == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY) {
+			refreshRetryStartTime = System.currentTimeMillis();
+		}
+
+		Logger.d("wxExpiredLoginReq");
+		this.notifyState = notifyState;
+		WxLoginModel wxUserInfo = new WxLoginModel().getLastLoginUserInfo();
+		if (null == wxUserInfo || false == wxUserInfo.isExisted()) {
+			Logger.d("wxUserInfo is not Existed");
+			notify(false, "wxUserInfo is not Existed", -1, msgNo);
+			return;
+		}
+
+		WxExpiredLoginReq loginReq = req.new WxExpiredLoginReq();
+		String appId = WeGame.getInstance().wx_appid;
+		String channel = WGPfManager.getInstance().getChannelId();
+		String accessToken = wxUserInfo.access_token;
+		String refreshToken = wxUserInfo.refresh_token;
+		String platformId = WGPfManager.getInstance().getPlatformId();
+		String offerId = WeGame.getInstance().offerId;
+		String grantType = "";
+		WeGame.getInstance().setPlatId(WeGame.WXPLATID);
+		JSONObject json = loginReq.getReqJson(grantType, accessToken,
+				refreshToken, appId, channel, offerId, platformId);
+		String url = UrlManager.getUrl(HttpRequestManager.WXEXPIRED_LOGIN_ACTION, WeGame.WXPLATID);
+		Logger.d(url);
+		new HttpRequestManager(this).postTextAsync(url, json.toString(), msgNo);
+	}
+
+	/**
+	 */
+	public static void updateWxInfo(WxResponse rspFromLogin) {
+		WxLoginModel bi = new WxLoginModel();
+
+		long curTime = System.currentTimeMillis() / 1000;
+		bi.open_id = rspFromLogin.openid;
+		bi.access_token = rspFromLogin.accessToken;
+		bi.access_token_expire = curTime + rspFromLogin.expired; // 设置绝对时间
+		bi.refresh_token = rspFromLogin.refreshToken;
+		bi.refresh_token_expire = curTime + 30 * 24 * 60 * 60; // 设置绝对时间
+		bi.pf = rspFromLogin.pf;
+		bi.pf_key = rspFromLogin.pfKey;
+		bi.save();
+
+		WGPfManager.getInstance().setRegChannelId(rspFromLogin.regChannel);
+		PermissionManage.getInstance().updateDataFromNet(
+				rspFromLogin.permission);// 权限管理
+	}
+
+	/**
+	 * 
+	 * @param isOk  成功还是失败
+	 * @param content 返回的内容
+	 * @param statusCode 状态码
+	 * @param what 是哪个请求的返回, msgId
+	 */
+	public void notify(boolean isOk, String content, int statusCode, int what) {
+		callbackMsg = " content: " + content + " statusCode: " + statusCode;
+		if (this.notifyState == RequestConst.notifyLogin) {
+			notifyLogin(isOk, what);
+		} else if (this.notifyState == RequestConst.notifyWakeup) {
+			notifyWakup(isOk);
+		}
+	}
+
+	/**
+	 * 登陆的Notify, 根据返回时候的msgId给flag设置不同的值
+	 * 
+	 * @param isOk 是成功的还是失败的
+	 */
+	private void notifyLogin(boolean isOk, int what) {
+		LoginRet loginRet = new LoginRet();
+		loginRet.platform = WeGame.WXPLATID;
+		if (true == isOk) {
+			loginRet = LoginInfoManager.getInstance().getLastLoginUserInfo();
+			if (what == MessageNo.MSG_NO_GET_WXEXPIREDLOGIN) {
+				loginRet.flag = CallbackFlag.eFlag_WX_RefreshTokenSucc;// 更新refreshtoken成功
+				loginRet.desc = WeGame
+						.setDescribe(CallbackFlag.eFlag_WX_RefreshTokenSucc,
+								WeGame.WXPLATID);
+			} else if (what == MessageNo.MSG_NO_GET_WXFIRSTLOGIN) {
+				loginRet.flag = CallbackFlag.eFlag_Succ;
+				loginRet.desc = WeGame.setDescribe(CallbackFlag.eFlag_Succ,
+						WeGame.WXPLATID);
+			} else if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH
+					|| what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY) {
+				loginRet.flag = CallbackFlag.eFlag_Succ;
+				loginRet.desc = WeGame.setDescribe(CallbackFlag.eFlag_Succ,
+						WeGame.WXPLATID);
+				NoticeManager.getInstance().getNotice();//自动回来之后去拉一次公告
+			}
+		} else {
+			if (what == MessageNo.MSG_NO_GET_WXEXPIREDLOGIN) {
+				loginRet.flag = CallbackFlag.eFlag_WX_RefreshTokenFail;
+				loginRet.desc = WeGame
+						.setDescribe(CallbackFlag.eFlag_WX_RefreshTokenFail,
+								WeGame.WXPLATID);
+			} else if (what == MessageNo.MSG_NO_GET_WXFIRSTLOGIN) {
+				loginRet.flag = CallbackFlag.eFlag_Error;
+				loginRet.desc = "MSDK用Code换取accessToken失败";
+			} else if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH
+					|| what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY) {
+				loginRet.flag = CallbackFlag.eFlag_Local_Invalid;
+				loginRet.desc = "自动登录用refreshToken换取accessToken失败";
+			}
+		}
+		loginRet.desc += " cb:" + callbackMsg;
+		Logger.d("notifyLogin flag = " + loginRet.flag + " desc = "
+				+ loginRet.desc);
+		WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+	}
+
+	private void notifyWakup(boolean isOk) {
+		WakeupRet wakeupRet = new WakeupRet();
+		wakeupRet.platform = WeGame.WXPLATID;
+		if (true == isOk) {
+			WxLoginModel record = new WxLoginModel().getLastLoginUserInfo();
+			if (null == record)
+				record = new WxLoginModel();
+
+			wakeupRet.flag = CallbackFlag.eFlag_Succ;
+			wakeupRet.desc = WeGame.setDescribe(CallbackFlag.eFlag_Succ,
+					WeGame.WXPLATID);
+			wakeupRet.open_id = record.open_id;
+		} else {
+			wakeupRet.flag = CallbackFlag.eFlag_Error;
+			wakeupRet.desc = "MSDK 数据失败";
+		}
+		Logger.d("notifyWakup flag = " + wakeupRet.flag + " desc = "
+				+ wakeupRet.desc);
+		WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+	}
+
+	/**
+	 * 仅仅将消息id(what)保存到 this.what中, 实际要notify的时候再根据不同的msgId传递不同的flag
+	 */
+	@Override
+	public void onSuccess(String netContent, int statusCode, int what) {
+		if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH) {
+			StatAppMonitor refreshMonitor = new StatAppMonitor(REFRESH_TIME_EVENT_NAME);
+			refreshMonitor.setSampling(SAMPLE_RATE);
+			refreshMonitor.setMillisecondsConsume(System.currentTimeMillis() - refreshStartTime);
+			refreshMonitor.setResultType(StatAppMonitor.SUCCESS_RESULT_TYPE);
+			StatService.reportAppMonitorStat(WeGame.getInstance().getActivity(), refreshMonitor);
+		} else if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY) {
+			StatAppMonitor refreshRetryMonitor = new StatAppMonitor(REFRESH_RETRY_TIME_EVENT_NAME);
+			refreshRetryMonitor.setSampling(SAMPLE_RATE);
+			refreshRetryMonitor.setMillisecondsConsume(System.currentTimeMillis() - refreshRetryStartTime);
+			refreshRetryMonitor.setResultType(StatAppMonitor.SUCCESS_RESULT_TYPE);
+			// SUCCESS_RESULT_TYPE； 成功
+			// FAILURE_RESULT_TYPE； 其他失败
+			// LOGIC_FAILURE_RESULT_TYPE  超时
+			StatService.reportAppMonitorStat(WeGame.getInstance().getActivity(), refreshRetryMonitor);
+		} 
+		
+		String content = "";
+		WxResponse rsp = new WxResponse();
+		// 防止网络返回数据为空时的crash
+		if (null == netContent) {
+			Logger.d("onSuccess: statusCode :" + statusCode);
+			notify(false, "response no params", statusCode, what);
+			reportEventToBeacon(what, false, ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL, false);
+			return;
+		}
+		try {
+			JSONObject json = new SafeJSONObject(netContent);
+			rsp.parseJson(json);
+			content = rsp.msg;
+			if (rsp.ret == 0) {
+			    // 权限管理
+				PermissionManage.getInstance().updateDataFromNet(rsp.permission);
+				reportEventToBeacon(what, true, ErrorCodeFlag.SDK_SUCCESS, false);
+				if (what == MessageNo.MSG_NO_GET_WXFIRSTLOGIN 
+						&& WhiteListMng.gDefault.get().needQueryWhiteList()) {
+					WhiteListMng.gDefault.get().setTmpWXLoginInfo(rsp);
+					// 查询结果在onAuthorizedFinished里面
+					WhiteListMng.gDefault.get().queryUserWhiteListAsync(WeGame.WXPLATID, rsp.openid, rsp.accessToken); 
+					return;
+				} else {
+					updateWxInfo(rsp);
+					notify(true, content, statusCode, what);
+				}
+			} else {
+				Logger.d("onSuccess error ret:" + rsp.ret + " ret: " + rsp.msg);
+				notify(false, content, statusCode, what);
+				// MSDK服务端定义的错误
+				reportEventToBeacon(what, false, rsp.ret, true);
+			}
+		} catch (JSONException e) {
+			Logger.d("JSONException json: " + netContent);
+			e.printStackTrace();
+			notify(false, content, statusCode, what);
+			// MSDK服务端定义的错误
+            reportEventToBeacon(what, false, ErrorCodeFlag.SDK_ERROR_JSON_VALUES, false);
+		}
+	}
+
+	private void reportEventToBeacon(int what, boolean success, int errCode, boolean isLogicError) {
+	    if(success) {
+	        if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH) {
+	            BeaconHelper.reportMSDKEvent("wxExpiredLoginReq", refreshStartTime, true, null, true);
+            } else if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY) {
+                BeaconHelper.reportMSDKEvent("wxExpiredLoginReq", refreshRetryStartTime, true, null, true);
+            } else if(what == MessageNo.MSG_NO_GET_WXFIRSTLOGIN) {
+                BeaconHelper.reportMSDKEvent("wxFirstLoginReq", refreshStartTime, true, null, true);
+            }
+	    } else {
+	        if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH) {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("param_FailCode", "" + errCode);
+                map.put("msdk_logic_error", "" + (isLogicError ? 1 : 0));
+                BeaconHelper.reportMSDKEvent("wxExpiredLoginReq", refreshStartTime, false, map, true);
+            } else if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY) {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("param_FailCode", "" + errCode);
+                map.put("msdk_logic_error", "" + (isLogicError ? 1 : 0));
+                BeaconHelper.reportMSDKEvent("wxExpiredLoginReq", refreshRetryStartTime, false, map, true);
+            } else if(what == MessageNo.MSG_NO_GET_WXFIRSTLOGIN) {
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("param_FailCode", "" + errCode);
+                map.put("msdk_logic_error", "" + (isLogicError ? 1 : 0));
+                BeaconHelper.reportMSDKEvent("wxFirstLoginReq", refreshStartTime, false, map, true);
+            }
+	    }
+	}
+	
+	@Override
+	public void onFailure(String errorContent, int statusCode, int what) {
+	    Map<String, String> map = new HashMap<String, String>();
+		if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH) {
+			StatAppMonitor refreshMonitor = new StatAppMonitor(REFRESH_TIME_EVENT_NAME);
+			refreshMonitor.setSampling(SAMPLE_RATE);
+			refreshMonitor.setMillisecondsConsume(System.currentTimeMillis() - refreshStartTime);
+			if (statusCode == MHttpResponse.HTTP_TIME_OUT) {
+				refreshMonitor.setResultType(StatAppMonitor.LOGIC_FAILURE_RESULT_TYPE); // 超时, hack一下, 用LOGIC_FAILURE_RESULT_TYPE做超时
+			} else {
+				refreshMonitor.setResultType(StatAppMonitor.FAILURE_RESULT_TYPE); // 其他失败
+			}
+			StatService.reportAppMonitorStat(WeGame.getInstance().getActivity(), refreshMonitor);
+		} else if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY) {
+			StatAppMonitor refreshRetryMonitor = new StatAppMonitor(REFRESH_RETRY_TIME_EVENT_NAME);
+			refreshRetryMonitor.setSampling(SAMPLE_RATE);
+			refreshRetryMonitor.setMillisecondsConsume(System.currentTimeMillis() - refreshRetryStartTime);
+			if (statusCode == MHttpResponse.HTTP_TIME_OUT) {
+				// 超时, hack一下, 用LOGIC_FAILURE_RESULT_TYPE做超时
+				refreshRetryMonitor.setResultType(StatAppMonitor.LOGIC_FAILURE_RESULT_TYPE); 
+			} else {
+				refreshRetryMonitor.setResultType(StatAppMonitor.FAILURE_RESULT_TYPE); // 其他失败
+			}
+			// SUCCESS_RESULT_TYPE； 成功
+			// FAILURE_RESULT_TYPE； 其他失败
+			// LOGIC_FAILURE_RESULT_TYPE  超时
+			StatService.reportAppMonitorStat(WeGame.getInstance().getActivity(), refreshRetryMonitor);
+		} 
+
+		reportEventToBeacon(what, false, statusCode, false);
+		Logger.d("errorContent:" + errorContent + " statusCode: " + statusCode);
+		if (what == MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH
+				&& statusCode != MHttpResponse.HTTP_TIME_OUT) {
+			final int notifyState = RequestConst.notifyLogin;
+			new CountDownTimer(3000, 1000) { // 3秒后自动刷新
+				public void onTick(long millisUntilFinished) {
+				}
+				public void onFinish() {
+					wxExpiredLoginReq(notifyState,
+							MessageNo.MSG_NO_GET_WXLOGIN_WITH_REFRESH_RETRY);
+				}
+			}.start();
+			return;
+		}
+		notify(false, errorContent, statusCode, what);
+	}
+}

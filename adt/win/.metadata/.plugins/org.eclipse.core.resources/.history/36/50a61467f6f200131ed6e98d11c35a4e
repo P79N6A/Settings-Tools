@@ -1,0 +1,177 @@
+
+package com.tencent.msdk.config;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import android.content.Context;
+import android.os.Environment;
+
+import com.tencent.msdk.push.PushConst;
+import com.tencent.msdk.tools.Logger;
+
+public class ConfigManager {
+    private static final String domainKey = "MSDK_URL";
+    private static final String IS_BETA_KEY = "BETA";
+    private static final String NEED_NOTICE_KEY = "needNotice";
+    private static final String isBetaKey = "BETA";
+    public static final String NEED_LOCAL_LOG = "localLog";
+    private static String configFileName = "msdkconfig.ini";
+    private static String sPushConfigFile = "pushconfig.ini";
+    // 用于推送轮询
+    private static final String POLLING_URL_KEY = "POLLING_URL";
+    // 用于推送注册, 消息拉取
+    private static final String PUSH_URL_KEY = "PUSH_URL";
+    private static final String MAT_ID_KEY = "TEST_MAT_ID";
+    private static final String POLLING_INTERVAL_KEY = "TEST_POLLING_INTERVAL";
+    private static final String ACCEPT_SERVER_INTERVAL_KEY = "ACCEPT_SERVER_INTERVAL";
+
+    public static String getApiDomain(Context ctx) {
+        try {
+            InputStream inputStream = ctx.getResources().getAssets().open(configFileName);
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            String msdkDomain = properties.getProperty(domainKey, "");
+            if (msdkDomain == null || msdkDomain.length() == 0) {
+                Logger.e("No Domain Configed");
+            }
+            return msdkDomain;
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.w("Please check your msdkconfig.ini file under /assets/");
+            return "";
+        }
+    }
+
+    public static boolean isBeta(Context ctx) {
+        try {
+            InputStream inputStream = ctx.getResources().getAssets().open(configFileName);
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            String isBeta = properties.getProperty(IS_BETA_KEY, "");
+            if (isBeta == null || isBeta.length() == 0) {
+                Logger.d("Whitelist is Closed!");
+                return false;
+            }
+            if ("true".equals(isBeta.trim())) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException e) {
+            Logger.w("Please check your msdkconfig.ini file under /assets/");
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean needNotice(Context ctx) {
+        try {
+            InputStream inputStream = ctx.getResources().getAssets().open(configFileName);
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            String isBeta = properties.getProperty(NEED_NOTICE_KEY, "");
+            if (isBeta == null || isBeta.length() == 0) {
+                Logger.d("needNotice closed");
+                return false;
+            }
+            if ("true".equals(isBeta.trim())) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.w("Please check your msdkconfig.ini file under /assets/");
+            return false;
+        }
+    }
+
+    public static int getNoticeTime (Context ctx){
+    	String timeString = readValueByKey(ctx,"noticeTime");
+    	int time = 10;
+    	try {
+    		time = Integer.parseInt(timeString);
+    	} catch (NumberFormatException e) {
+    		time = 10;
+    	}
+		return 0;
+    	
+    }
+    
+    public static String readValueByKey(Context ctx, String key) {
+        try {
+            InputStream inputStream = ctx.getResources().getAssets().open(configFileName);
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            String value = properties.getProperty(key, "");
+            if (value == null || value.length() == 0) {
+                Logger.d("no key: " + key);
+                return "";
+            }
+            return value.trim();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Logger.w("Please check your msdkconfig.ini file under /assets/");
+            return "";
+        }
+    }
+
+    public static String getPushPollingDomain() {
+        String pollingReleaseUrl = "http://polling.msdk.qq.com";
+        String configedUrl = readConfigFromSdCard(sPushConfigFile, POLLING_URL_KEY, pollingReleaseUrl);
+        return configedUrl;
+    }
+
+    public static String getPushMsgDomain() {
+        String pushReleaseUrl = "http://push.msdk.qq.com";
+        String configedUrl = readConfigFromSdCard(sPushConfigFile, PUSH_URL_KEY, pushReleaseUrl);
+        return configedUrl;
+    }
+
+    /**
+     * 尝试读取sdcard中配置的测试matId
+     * @return
+     */
+    public static String getConfigedMatId() {
+        String configedUrl = readConfigFromSdCard(sPushConfigFile, MAT_ID_KEY, "");
+        return configedUrl;
+    }
+
+    public static String getConfigedPollingInterval() {
+        String testInterval = readConfigFromSdCard(sPushConfigFile, POLLING_INTERVAL_KEY, "");
+        return testInterval;
+    }
+
+    public static String getIsServerIntervalAccepted() {
+        String isServerIntervalAccepted = readConfigFromSdCard(sPushConfigFile, ACCEPT_SERVER_INTERVAL_KEY, "");
+        return isServerIntervalAccepted;
+    }
+
+    private static String readConfigFromSdCard(String fileName, String key, String defaultValue) {
+        // sdcard is not available
+        if (!Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState())) {
+            return defaultValue;
+        }
+        try {
+            InputStream inputStream = new FileInputStream(new File(PushConst.PUSH_ROOT_DIR + fileName));
+            Properties properties = new Properties();
+            properties.load(inputStream);
+            String value = properties.getProperty(key, "");
+            if (value == null || value.length() == 0) {
+                Logger.d("no key: " + key);
+            } else {
+                return value.trim();
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return defaultValue;
+    }
+}

@@ -1,0 +1,247 @@
+package com.tencent.msdk.notice;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
+import java.security.MessageDigest;
+import java.util.Locale;
+import java.util.Vector;
+
+import android.R.integer;
+import android.content.pm.ActivityInfo;
+import android.os.Environment;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.tools.DownloadThread;
+import com.tencent.msdk.tools.FileUtils;
+import com.tencent.msdk.tools.HexUtil;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/**
+ * 
+ * @author hardyshi 2014-05-26 图片公告相关
+ */
+public class NoticePic {
+	public String mNoticeId = "";
+	public String mPicUrl = "";
+	public eMSDK_SCREENDIR mScreenDir = eMSDK_SCREENDIR.eMSDK_SCREENDIR_SENSOR;
+	public String mHashValue = "";
+
+	public NoticePic(String noticeId, String picUrl, eMSDK_SCREENDIR screenOrientationLandscape,
+			String picHash) {
+		this.mNoticeId = noticeId;
+		this.mPicUrl = picUrl;
+		this.mScreenDir = screenOrientationLandscape;
+		this.mHashValue = picHash;
+	}
+
+	
+	public String getmNoticeId() {
+		return mNoticeId;
+	}
+
+
+	public void setmNoticeId(String mNoticeId) {
+		this.mNoticeId = mNoticeId;
+	}
+
+
+	public String getmPicUrl() {
+		return mPicUrl;
+	}
+
+	public void setmPicUrl(String mPicUrl) {
+		if (!T.ckIsEmpty(mPicUrl)) {
+			this.mPicUrl = mPicUrl;
+		}
+	}
+
+
+	public eMSDK_SCREENDIR getmScreenDir() {
+		return mScreenDir;
+	}
+
+
+	public void setmScreenDir(eMSDK_SCREENDIR mScreenDir) {
+		this.mScreenDir = mScreenDir;
+	}
+
+
+	public String getmHashValue() {
+		return mHashValue;
+	}
+
+
+	public void setmHashValue(String mHashValue) {
+		if (!T.ckIsEmpty(mHashValue)) {
+			this.mHashValue = mHashValue;
+		}
+	}
+
+	public static void saveNoticePics(NoticeInfo noticeInfo) {
+		if (null == noticeInfo) {
+			return;
+		}
+		// TODO 遍历下载、同时入库
+		
+		if (!T.ckIsEmpty(noticeInfo.mNoticeHImgUrl)
+				&& !T.ckIsEmpty(noticeInfo.mNoticeHImgHash)) {
+		    Logger.d("add to queue :"+noticeInfo.mNoticeId+
+                    noticeInfo.mNoticeVImgUrl+eMSDK_SCREENDIR.eMSDK_SCREENDIR_LANDSCAPE+ noticeInfo.mNoticeHImgHash);
+            NoticePic tempNoticePic = new NoticePic(noticeInfo.mNoticeId,
+					noticeInfo.mNoticeHImgUrl, eMSDK_SCREENDIR.eMSDK_SCREENDIR_LANDSCAPE, noticeInfo.mNoticeHImgHash);
+			NoticePic.downloadNoticePic(tempNoticePic);
+		}
+		if (!T.ckIsEmpty(noticeInfo.mNoticeVImgUrl)
+				&& !T.ckIsEmpty(noticeInfo.mNoticeVImgHash)) {
+		    Logger.d("add to queue :"+noticeInfo.mNoticeId+
+                    noticeInfo.mNoticeVImgUrl+eMSDK_SCREENDIR.eMSDK_SCREENDIR_PORTRAIT+ noticeInfo.mNoticeVImgHash);
+			NoticePic tempNoticePic = new NoticePic(noticeInfo.mNoticeId,
+					noticeInfo.mNoticeVImgUrl, eMSDK_SCREENDIR.eMSDK_SCREENDIR_PORTRAIT, noticeInfo.mNoticeVImgHash);
+			NoticePic.downloadNoticePic(tempNoticePic);
+		}
+	}
+
+	public static void downloadNoticePic(NoticePic tempNoticePic) {
+		if (null == tempNoticePic || T.ckIsEmpty(tempNoticePic.getmHashValue())
+				|| T.ckIsEmpty(tempNoticePic.getmPicUrl())) {
+			return;
+		}
+		try {
+			// 看本地是否存在
+			if (!NoticePic.checkNoticePicExist(tempNoticePic.getmNoticeId(),
+					tempNoticePic.getmScreenDir(), tempNoticePic.getmPicUrl(),tempNoticePic.getmHashValue())) {
+				String filePathString = NoticePic
+						.getFilePathByNoticeIdAndHashValue(
+								tempNoticePic.getmNoticeId(),
+								tempNoticePic.getmScreenDir(), tempNoticePic.getmPicUrl(),tempNoticePic.getmHashValue());
+				if (!T.ckIsEmpty(filePathString)) {
+					DownloadThread.addToDownloadQueue(new URL(
+							tempNoticePic.getmPicUrl()), filePathString, tempNoticePic.getmHashValue());
+				} else {
+					Logger.w("filePathString is empty");
+				}
+			} else {
+				Logger.w("file has exist");
+			}
+
+		} catch (MalformedURLException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public static void deleteNoticePicByNoticeId(int noticeId) {
+		File filePath = NoticePic.getExternalMSDKDir();
+		final String fileNameString = "Notice_"+noticeId;
+    	String[] myFiles = filePath.list(new FilenameFilter() {
+    	    public boolean accept(File directory, String fileName) {
+    	        return fileName.contains(fileNameString);
+    	    }
+    	});
+    	if(null != myFiles){
+    		for (String tempFileName : myFiles){
+        		File tempFile = new File(NoticePic.getExternalMSDKDir(),tempFileName);
+        		Logger.d("delete file:",tempFile.toString());
+        		tempFile.delete();
+        	}
+    	}
+	}
+
+	public static String getFilePathByNoticeIdAndHashValue(String noticeId,
+			eMSDK_SCREENDIR screenDir,String fileUrl, String hashValue) {
+		if(T.ckIsEmpty(fileUrl) || T.ckIsEmpty(noticeId) || T.ckIsEmpty(hashValue)){
+			return "";
+		}
+		String[] exName = fileUrl.split("\\.");  
+		File filePathFile = new File(getExternalMSDKDir(), "Notice_"+noticeId + "_"+ screenDir.val()+"_"+hashValue+"."+ exName[exName.length - 1]);
+		return filePathFile.toString() ;
+	}
+
+	public static String getFilePathByNoticeId(int noticeId) {
+		File filePathFile = new File(getExternalMSDKDir(), "Notice_"+noticeId);
+		return filePathFile.toString();
+	}
+
+	public static File getExternalMSDKDir(){
+		File childDir = new File(NoticeManager.NOTICR_PIC_PATH, "MSDK");
+	    if (!childDir.exists()){
+	        childDir.mkdirs();
+	    }
+	    return childDir;
+	}
+
+	//根据图片和hash值判断图片是否正确
+	public static Boolean checkNoticePicIsRight(String noticeId,
+            eMSDK_SCREENDIR screenDir, String picHash,String fileUrl, String hashValue) {
+        if (T.ckIsEmpty(picHash) || T.ckIsEmpty(noticeId)) {
+            return false;
+        }
+        File picFile = new File(NoticePic.getFilePathByNoticeIdAndHashValue(noticeId, screenDir, fileUrl, hashValue));
+        if (picFile.exists()) {
+            if (checkPicMd5(picFile, picHash)) {
+                return true;
+            } else {
+                picFile.delete();
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+	
+	// 根据公告ID和横竖屏检测公告图片是否存在
+	public static Boolean checkNoticePicExist(String noticeId,eMSDK_SCREENDIR screenDir, String fileUrl, String hashValue) {
+	    if(T.ckIsEmpty(fileUrl)){
+	        return false;
+	    }
+	    File picFile = new File(NoticePic.getFilePathByNoticeIdAndHashValue(noticeId, screenDir, fileUrl, hashValue));
+		if (picFile.exists()) {
+		    return true;
+		} else {
+			return false;
+		}
+	}
+
+	public static Boolean checkPicMd5(File picFile, String hashValue) {
+		String picMd5 = "";
+		FileInputStream in = null;
+		try {
+			in = new FileInputStream(picFile);
+			MappedByteBuffer byteBuffer = in.getChannel().map(
+					FileChannel.MapMode.READ_ONLY, 0, picFile.length());
+			MessageDigest md5 = MessageDigest.getInstance("MD5");
+			md5.update(byteBuffer);
+			byte[] bs = md5.digest();
+			picMd5 = HexUtil.bytes2HexStr(bs).toLowerCase(Locale.CHINA);
+			Logger.d("picMd5:"+picMd5+";hashValue:"+hashValue);
+			if (picMd5.equalsIgnoreCase(hashValue)) {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (FileNotFoundException e1) {
+			Logger.e("Pic File Not found");
+			return false;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return false;
+		} finally {
+			if (null != in) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}

@@ -1,0 +1,111 @@
+package com.tencent.msdk.remote.api;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.lbs.LocationInfo;
+import com.tencent.msdk.tools.Logger;
+
+class QueryNearbyPlayer extends RemoteApiBase {
+	private LocationInfo location = new LocationInfo();
+	private static final String PATH = "/relation/nearby/";
+	private static final String EVENT_NAME = "getNearbyPlayer";
+
+	public QueryNearbyPlayer(LocationInfo loc){
+		super();
+		this.location = loc;
+		try {
+			this.jsonBody.put("location", this.location);
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void onSuccess(String netContent, int statusCode, int what) {
+		Vector<PersonInfo> persons = new Vector<PersonInfo>();
+		if (what != getMyId()) {
+			Logger.d("a wrong callback");
+			return;
+		}
+		if (null == netContent) { 
+            Logger.d("getNearbyPlayer onsuccess response data is null");
+            reportEventToBeacon(EVENT_NAME, false, ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL, false);
+            return ;
+        }
+		
+		String msg = "";
+		try {
+			msg = getNetDesc(new SafeJSONObject(netContent), this.getClass().getName());
+			JSONObject jsonRtn = new SafeJSONObject(netContent);
+			int ret = jsonRtn.getInt("ret");
+			if (ret == 0) {
+			    reportEventToBeacon(EVENT_NAME, true, ErrorCodeFlag.SDK_SUCCESS, false);
+				LoginRet lr = new LoginRet();
+				WGPlatform.WGGetLoginRecord(lr);
+				if (lr.platform == WeGame.QQPLATID) {
+					persons = QQInfoFormatter.formatNearby(jsonRtn.getJSONArray("lists"));
+				} else if(lr.platform == WeGame.WXPLATID){
+					persons = WxInfoFormatter.formatNearby(jsonRtn.getJSONArray("lists"));
+				}
+	            callback(CallbackFlag.eFlag_Succ, msg, persons);
+			} else {
+			    Logger.d("getNearbyPlayer onsuccess, ret:" + ret);
+                reportEventToBeacon(EVENT_NAME, false, ret, true);
+			}
+		} catch (JSONException e) {
+		    reportEventToBeacon(EVENT_NAME, false, ErrorCodeFlag.SDK_ERROR_JSON_VALUES, false);
+			Logger.d("decode json from server failed!");
+			e.printStackTrace();
+	        callback(CallbackFlag.eFlag_Error, msg, persons);
+		}
+	}
+
+	@Override
+	public void onFailure(String errorContent, int statusCode, int what) {
+		if (what != getMyId()) {
+			Logger.d("a wrong callback");
+			return;
+		}
+
+		Logger.d("onFailure " + errorContent + " statusCode: " + statusCode);
+		callback(CallbackFlag.eFlag_Error, errorContent, null);
+		reportEventToBeacon(EVENT_NAME, false, statusCode, false);
+	}
+
+	@Override
+	protected int getMyId() {
+		return RemoteApiWhat.QueryNearbyPlayer.ordinal();
+	}
+
+	@Override
+	protected String getPath() {
+		return PATH;
+	}
+
+	private void callback(int flag, String msg, Vector<PersonInfo> persons) {
+		RelationRet rr = new RelationRet();
+		rr.flag = flag;
+		rr.desc = msg;
+		if (persons != null) {
+			rr.persons = persons;
+		} else {
+			rr.persons = new Vector<PersonInfo>();
+		}
+		
+		LoginRet lr = new LoginRet();
+		WGPlatform.WGGetLoginRecord(lr);
+		rr.platform = lr.platform;
+		WeGameNotifyGame.getInstance().OnGetNearbyPlayerCallback(rr);
+	}
+}

@@ -1,0 +1,441 @@
+package com.tencent.msdk.notice;
+
+import java.util.Vector;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.os.Handler;
+import android.util.DisplayMetrics;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.db.AppDBModel;
+import com.tencent.msdk.db.LoginInfoManager;
+import com.tencent.msdk.db.NoticeDBModel;
+import com.tencent.msdk.handle.MsdkThreadManager;
+import com.tencent.msdk.notice.NoticeHelper.MatIdCallback;
+import com.tencent.msdk.request.NoticeMsgMng;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/**
+ * 
+ * @author hardyshi 2014-03-10
+ *
+ * 公告管理基础类，对外的接口首先到这里
+ */
+public class NoticeManager {
+	// TODO MSDK 公告版本，与MSDK版本一致
+	public static int NOTICE_VERSION = 0;
+	public static String NOTICR_PIC_PATH="";		
+	public static final String ALERT_MSG_TYPE = "alertMsg";
+	public static final String SCROLL_MSG_TYPE = "rollMsg";
+	
+	// 主线程消息
+	public Handler mainHandler = null; 
+	public String mPackageName = null;
+	public Activity mActivity = null;
+	private static volatile NoticeManager instance = null;
+	private String mAppId = "";
+	private String mAppKey = "";
+	private String mOpenId = "";
+	private Vector<NoticeInfo> mAlertMsgVector = new Vector<NoticeInfo>();
+	private String mScrollMsg = "";
+	private String mMatId = "";
+
+	public String getmMatId() {
+		return mMatId;
+	}
+
+	public void setmMatId(String mMatId) {
+		this.mMatId = mMatId;
+	}
+
+	private NoticeManager(){
+		this.setAppinfo();
+		//根据MSDK版本获取对应的数字版本号
+		String msdkVersion = WeGame.getInstance().WGGetVersion();
+		//将MSDK版本号中的.和a都过滤掉，例如1.8.1a变为181
+		NOTICE_VERSION =  Integer.parseInt(Pattern.compile("\\.|a").matcher(msdkVersion).replaceAll("")); 
+		Logger.d("msdkVersion:"+msdkVersion+",noticeVersion:"+NOTICE_VERSION);
+	}
+	
+	public static NoticeManager getInstance() {
+		if (instance == null) {
+            synchronized (NoticeManager.class) {
+                if (instance == null) {
+                    instance = new NoticeManager();
+                }
+            }
+        }
+        return instance;
+	}
+
+	public Context getContext() {
+		return mActivity;
+	}
+
+	public int getWidth() {
+		android.view.WindowManager manager = (android.view.WindowManager) mActivity
+				.getSystemService(Context.WINDOW_SERVICE);
+		return manager.getDefaultDisplay().getWidth();
+	}
+
+	public int getHeight() {
+		android.view.WindowManager manager = (android.view.WindowManager) mActivity
+				.getSystemService(Context.WINDOW_SERVICE);
+		return manager.getDefaultDisplay().getHeight();
+	}
+
+	public float getDensity() {
+		android.view.WindowManager manager = (android.view.WindowManager) mActivity
+				.getSystemService(Context.WINDOW_SERVICE);
+		DisplayMetrics dm = new DisplayMetrics();
+		manager.getDefaultDisplay().getMetrics(dm);
+		return dm.density;
+	}
+
+	public Resources getResources() {
+		return mActivity.getApplicationContext().getResources();
+	}
+
+	public void init(Activity act) {
+		
+		// 如果不需要公告模块, 即使调用了这个接口也直接返回
+		if (!ConfigManager.needNotice(WeGame.getInstance().getActivity())) {
+			Logger.d("notice module is closed!");
+			return;
+		}
+		
+		Logger.d("notice module init start!");
+		this.mActivity = act;
+		// 获取游戏横竖屏设置,用于请求图片公告
+		try {
+            ActivityInfo activityInfo = act.getPackageManager().getActivityInfo(act.getComponentName(), PackageManager.GET_META_DATA);
+            PackageInfo packageInfo = act.getPackageManager().getPackageInfo(act.getPackageName(), PackageManager.GET_CONFIGURATIONS);  
+            NoticeRequestPara.SCREEN_DIR = eMSDK_SCREENDIR.getEnum(activityInfo);
+            NoticeRequestPara.GAME_VERSION = packageInfo.versionCode;
+        } catch (NameNotFoundException e) {
+        	Logger.e("getComponentName NameNotFoundException");
+        }
+		NOTICR_PIC_PATH = act.getFilesDir().getAbsolutePath();
+		// 获取屏幕 DPI 设置,用于请求图片公告
+		DisplayMetrics dm = new DisplayMetrics();  
+		dm = getResources().getDisplayMetrics();  
+		NoticeRequestPara.SCREEN_DPI = dm.densityDpi; 
+		
+		this.mPackageName = act.getPackageName();
+		NoticeHelper.reqMatid(new MatIdCallback() {
+			public void onTimeout() {
+				Logger.w("notice module get matId failed:" + mMatId);
+				getNotice();
+			}
+			public void onSuccess(String matId) {
+				mMatId = matId;
+				Logger.d("notice module matId:" + mMatId);
+				getNotice();
+			}
+		});
+		Logger.d("notice module init finish! matid:" + this.getmMatId());
+	}
+
+	/* 获取公告 */
+	public void getNotice() {
+		// 如果不需要公告模块, 即使调用了这个接口也直接返回
+		if (!ConfigManager.needNotice(WeGame.getInstance().getActivity())) {
+			Logger.d("notice module is closed!");
+			return;
+		}
+		Logger.d("getNotice");
+		this.setAppinfo();
+		NoticeRequestPara noticeRequest = new NoticeRequestPara();
+		noticeRequest.mAppId = this.mAppId;
+		noticeRequest.mAppKey = this.mAppKey;
+		noticeRequest.mOpenId = this.mOpenId;
+		Logger.d("appid："+ noticeRequest.mAppId +";openid:" + noticeRequest.mOpenId);
+		if (T.ckIsEmpty(this.getmMatId())) {
+			AppDBModel AppDB = new AppDBModel();
+			this.setmMatId(AppDB.getMatId(this.mAppId));
+		}
+		noticeRequest.mMatid = this.getmMatId();
+		Logger.d("Notice Model:mat_id may be null:"+noticeRequest.mMatid+";mMatId:"+this.getmMatId());
+		this.updateAppInfoInDB();
+		MsdkThreadManager.getInstance().getNoticeReq(noticeRequest);
+	}
+
+	public void updateAppInfoInDB() {
+		AppInfo info = new AppInfo();
+		info.appid = this.mAppId;
+		info.openid = this.mOpenId;
+		info.matid = this.getmMatId();
+		info.msdkVersion =  WeGame.getInstance().getMsdkVersion();
+		info.packageName = this.mActivity.getApplicationInfo().packageName;
+		AppDBModel AppDB = new AppDBModel();
+		AppDB.save(info);
+	}
+
+	/**
+	 * 更改获取公告的appid和key
+	 */
+	public void setAppinfo() {
+		LoginRet lr = LoginInfoManager.getInstance().getLastLoginUserInfo();
+        //这里的appid和appkey用在请求公告的url链接传给hunter，全员公告使用手Q的appID和appkey
+        if (lr.platform == WeGame.WXPLATID) {
+            mAppId = WeGame.getInstance().wx_appid;
+            mAppKey = WeGame.getInstance().wxAppKey;
+            mOpenId = lr.open_id;
+        } else if (lr.platform == WeGame.QQPLATID) {
+            mAppId = WeGame.getInstance().qq_appid;
+            mAppKey = WeGame.getInstance().qqAppKey;
+            mOpenId = lr.open_id;
+        }else {
+            mAppId = WeGame.getInstance().qq_appid+"|"+WeGame.getInstance().wx_appid;
+            mAppKey = WeGame.getInstance().qqAppKey;
+            mOpenId = "";
+        }
+        Logger.d("mAppId："+ mAppId +";mOpenId:" + mOpenId);
+	}
+	
+	/**
+	 * 获取可用的公告列表，把从DB里面读出的vector过滤一遍
+	 * @param noticeType 公告类型，弹出或者滚动
+	 * @param scene 公告场景id
+	 * @return
+	 */
+	public Vector<NoticeInfo> getNoticeBySceneAndType(eMSG_NOTICETYPE noticeType, String scene) {
+		//首先把有效期内的公告读出来
+		Vector<NoticeInfo> noticeVectorInDB = this.getNoticeFromDBBySceneAndType(noticeType, scene);
+		Vector<NoticeInfo> noticeVector = new Vector<NoticeInfo>();
+		for(NoticeInfo tempNoticeInfo : noticeVectorInDB){
+			if(tempNoticeInfo.mNoticeContentType == eMSG_CONTENTTYPE.eMSG_CONTENTTYPE_IMAGE){
+				//遍历公告，如果把符合条件的图片公告读出来，然后检查是否需要显示，如果可以显示，把公告加入列
+				if(this.ckShowDbNotice(tempNoticeInfo)){
+                    tempNoticeInfo.mNoticeHImgUrl = NoticePic.getFilePathByNoticeIdAndHashValue(tempNoticeInfo.mNoticeId, tempNoticeInfo.mNoticeHImgUrl,tempNoticeInfo.mNoticeHImgHash);
+                    tempNoticeInfo.mNoticeVImgUrl = NoticePic.getFilePathByNoticeIdAndHashValue(tempNoticeInfo.mNoticeId, tempNoticeInfo.mNoticeVImgUrl,tempNoticeInfo.mNoticeVImgHash);
+                    NoticePic tempNoticePic = new NoticePic(
+                    		tempNoticeInfo.mNoticeId, picUrl, screenOrientationLandscape, picHash)
+                    noticeVector.add(tempNoticeInfo);
+				}
+			}else if(tempNoticeInfo.mNoticeContentType == eMSG_CONTENTTYPE.eMSG_CONTENTTYPE_WEB){
+				//把符合条件的网页公告读出来，然后检查网页是否为空，不为空就添加到最终的vector
+				if(!T.ckIsEmpty(tempNoticeInfo.mNoticeContentWebUrl)){
+					noticeVector.add(tempNoticeInfo);
+                }
+			}else{
+				noticeVector.add(tempNoticeInfo);
+			}
+		}
+		
+		return noticeVector;
+	}
+	
+	//检测公告图片是否和游戏横竖屏设置一致
+	public Boolean ckShowDbNotice(NoticeInfo noticeInfo){
+		Boolean noticePicIsOK = true;
+		if(eMSDK_SCREENDIR.eMSDK_SCREENDIR_LANDSCAPE == NoticeRequestPara.SCREEN_DIR){
+			//横屏游戏
+			if(!T.ckIsEmpty(noticeInfo.mNoticeHImgUrl)){
+		    	if(!NoticePic.checkNoticePicExist(noticeInfo.mNoticeId,noticeInfo.mNoticeHImgUrl,noticeInfo.mNoticeHImgHash)){
+		    		noticePicIsOK = true;
+	        	}else{
+	    			NoticePic.downloadNoticePic(new NoticePic(noticeInfo.mNoticeId,
+	        				noticeInfo.mNoticeHImgUrl, NoticeRequestPara.SCREEN_DIR, noticeInfo.mNoticeHImgHash));
+	        		Logger.d("Notice_"+noticeInfo.mNoticeId+" himg is not exist!");
+	        		noticePicIsOK = false;
+	        	}
+		    }else{
+		        Logger.d("Notice_"+noticeInfo.mNoticeId+" himgUrl is null!");
+		        noticePicIsOK = false;
+		    }
+		}else if(eMSDK_SCREENDIR.eMSDK_SCREENDIR_PORTRAIT == NoticeRequestPara.SCREEN_DIR){
+			//竖屏游戏
+			if(!T.ckIsEmpty(noticeInfo.mNoticeVImgUrl)){
+		    	if(NoticePic.checkNoticePicExist(noticeInfo.mNoticeId,noticeInfo.mNoticeVImgUrl,noticeInfo.mNoticeVImgHash)){
+		    	    noticePicIsOK = true;
+	        	}else{
+	    			NoticePic.downloadNoticePic(new NoticePic(noticeInfo.mNoticeId,
+	        				noticeInfo.mNoticeVImgUrl, NoticeRequestPara.SCREEN_DIR, noticeInfo.mNoticeVImgHash));
+	    			noticePicIsOK = false;
+	        		Logger.d("Notice_"+noticeInfo.mNoticeId+" vimg is not exist!");
+	        	}
+	        }else{
+	            Logger.d("Notice_"+noticeInfo.mNoticeId+" vimgUrl is null!");
+                noticePicIsOK = false;
+            }
+		}else{
+		    if(!T.ckIsEmpty(noticeInfo.mNoticeHImgUrl)){
+                if(!NoticePic.checkNoticePicExist(noticeInfo.mNoticeId,noticeInfo.mNoticeHImgUrl,noticeInfo.mNoticeHImgHash)){
+                    noticePicIsOK = true;
+                }else{
+                    NoticePic.downloadNoticePic(new NoticePic(noticeInfo.mNoticeId,
+                            noticeInfo.mNoticeHImgUrl, NoticeRequestPara.SCREEN_DIR, noticeInfo.mNoticeHImgHash));
+                    Logger.d("Notice_"+noticeInfo.mNoticeId+" himg is not exist!");
+                    noticePicIsOK = false;
+                }
+            }else{
+                Logger.d("Notice_"+noticeInfo.mNoticeId+" himgUrl is null!");
+                noticePicIsOK = false;
+            }
+		    if(!T.ckIsEmpty(noticeInfo.mNoticeVImgUrl)){
+                if(NoticePic.checkNoticePicExist(noticeInfo.mNoticeId,noticeInfo.mNoticeVImgUrl,noticeInfo.mNoticeVImgHash)){
+                    noticePicIsOK = true;
+                }else{
+                    NoticePic.downloadNoticePic(new NoticePic(noticeInfo.mNoticeId,
+                            noticeInfo.mNoticeVImgUrl, NoticeRequestPara.SCREEN_DIR, noticeInfo.mNoticeVImgHash));
+                    noticePicIsOK = false;
+                    Logger.d("Notice_"+noticeInfo.mNoticeId+" vimg is not exist!");
+                }
+            }else{
+                Logger.d("Notice_"+noticeInfo.mNoticeId+" vimgUrl is null!");
+                noticePicIsOK = false;
+            }
+
+		}
+		return noticePicIsOK;
+	}
+	
+	/**
+	 * 根据场景值和公告类型从DB获取公告
+	 * @para noticeType 公告类型：滚动或弹出
+	 * 		 scene 		场景ID
+	 */
+	public Vector<NoticeInfo> getNoticeFromDBBySceneAndType(eMSG_NOTICETYPE noticeType, String scene) {
+		Vector<NoticeInfo> noticeVector = new Vector<NoticeInfo>();
+		if(null == noticeType || T.ckIsEmpty(scene)){
+			Logger.w("noticeType or scene is null");
+			return noticeVector;
+		}else if(noticeType != eMSG_NOTICETYPE.eMSG_NOTICETYPE_ALERT && noticeType != eMSG_NOTICETYPE.eMSG_NOTICETYPE_SCROLL){
+			Logger.w("bad noticeType:"+noticeType);
+			return noticeVector;
+		}
+		this.setAppinfo();
+		if(T.ckIsEmpty(this.mAppId)){
+			Logger.w("appId is null");
+			return noticeVector;
+		}else{
+			NoticeDBModel model = new NoticeDBModel();
+			noticeVector = model.getNoticeRecordBySceneAndType(this.mAppId,this.mOpenId, noticeType, scene);
+	        Logger.d("noticeVector size:" + noticeVector.size());
+	        return noticeVector;
+		}
+	}
+	
+	/**
+	 * 根据场景值和公告类型展示公告
+	 * @para noticeType 公告类型：滚动或弹出
+	 * 		 scene 		场景ID
+	 */
+	public void showNoticeByScene(eMSG_NOTICETYPE noticeType, String scene) {
+		Vector<NoticeInfo> noticeVector = this.getNoticeBySceneAndType(noticeType,scene);
+		if (0 == noticeVector.size()){
+			Logger.d("No notice");
+			return;
+		}
+		if (eMSG_NOTICETYPE.eMSG_NOTICETYPE_ALERT == noticeType || eMSG_NOTICETYPE.eMSG_NOTICETYPE_ALL == noticeType) {
+			mAlertMsgVector = noticeVector;
+			this.displayAlertNotice();
+		}else if (eMSG_NOTICETYPE.eMSG_NOTICETYPE_SCROLL == noticeType || eMSG_NOTICETYPE.eMSG_NOTICETYPE_ALL == noticeType) {
+			String ScrollMsg = "";
+			for (NoticeInfo notice : noticeVector) {
+				ScrollMsg += "     " + notice.mNoticeContent;
+				Logger.d("Add an Scroll notice id:"+notice.mNoticeId+",content:"+notice.mNoticeContent);
+			}
+			Logger.d("Scroll notice content before:" + ScrollMsg);
+			//格式化滚动公告，删除内容中所有的换行，在某些2.3的系统上，换行会显示为乱码
+			Pattern p = Pattern.compile("\r|\n");
+			Matcher m = p.matcher(ScrollMsg);
+			mScrollMsg = m.replaceAll(""); 
+			Logger.d("Scroll notice content after:" + mScrollMsg);
+			this.displayRollNotice(mScrollMsg);
+		}else{
+			Logger.e("Error notice type :"+noticeType);
+			return;
+		}
+	}
+	
+	/* 显示弹出类公告 */
+	public void displayAlertNotice() {
+		Logger.d("displayAlertNotice intent");
+		Intent alertIntent = new Intent();
+		//获取队列最前面的公告
+		NoticeInfo tempNoticeInfo = this.getAlertNoticeItemFromList();
+		alertIntent.putExtra(ALERT_MSG_TYPE, tempNoticeInfo);
+		alertIntent.setClass(this.mActivity, AlertMsgActivity.class);
+		this.mActivity.startActivity(alertIntent);
+	}
+	/* 显示滚动类公告 */
+	public void displayRollNotice(String scrollMsg) {
+		Intent scrollIntent = new Intent();
+		Logger.d("displayRollNotice intent");
+		scrollIntent.putExtra(NoticeManager.SCROLL_MSG_TYPE, scrollMsg);
+		scrollIntent.setClass(this.mActivity, RollFloatService.class);
+		this.mActivity.startService(scrollIntent);
+	}
+	/* 关闭滚动类公告 */
+	public void closeScrollNotice() {
+		// 如果不需要公告模块, 即使调用了这个接口也直接返回
+		if (!ConfigManager.needNotice(WeGame.getInstance().getActivity())) {
+			Logger.d("notice module is closed!");
+			return;
+		}
+		mScrollMsg = "";
+		Intent intent = new Intent(this.mActivity, RollFloatService.class);
+		this.mActivity.stopService(intent);
+	}
+
+	public void onPause() {
+		// 如果不需要公告模块, 即使调用了这个接口也直接返回
+		Logger.d("notice module on pause!");
+		if (!ConfigManager.needNotice(WeGame.getInstance().getActivity())) {
+			Logger.d("notice module is closed!");
+			return;
+		}
+		Logger.d("Scroll notice:"+mScrollMsg);
+		if (!T.ckIsEmpty(mScrollMsg)) {
+			Intent intent = new Intent(this.mActivity, RollFloatService.class);
+			this.mActivity.stopService(intent);
+		}
+	}
+
+	public NoticeInfo getAlertNoticeItemFromList(){
+		if(null != this.mAlertMsgVector && this.mAlertMsgVector.size() > 0){
+			NoticeInfo tempNoticeInfo = this.mAlertMsgVector.firstElement();
+			return tempNoticeInfo;
+		}else{
+			return null;
+		}
+	}
+	
+	public void deleteAlertNoticeItemFromList(){
+		if(null != this.mAlertMsgVector && this.mAlertMsgVector.size() > 0){
+			this.mAlertMsgVector.remove(0);
+		}
+	}
+	
+	public void onResume() {
+		// 如果不需要公告模块, 即使调用了这个接口也直接返回
+		if (!ConfigManager.needNotice(WeGame.getInstance().getActivity())) {
+			Logger.d("notice module is closed!");
+			return;
+		}
+		if(null != this.mAlertMsgVector && this.mAlertMsgVector.size() > 0){
+			Logger.d("onResume show alert notice!");
+			//只要弹出公告vector不为空，显示弹出公告
+			displayAlertNotice();
+		}
+		if (!T.ckIsEmpty(mScrollMsg)) {
+			Logger.d("onResume show Scroll notice!");
+			displayRollNotice(mScrollMsg);
+		}
+	}
+}

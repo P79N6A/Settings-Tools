@@ -1,0 +1,116 @@
+package com.tencent.msdk.communicator;
+
+import android.os.Handler;
+import android.os.Looper;
+import android.os.Message;
+
+import com.tencent.msdk.communicator.MHttpRequest.HttpMethod;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.tools.Logger;
+
+/**
+ * HttpRequestManager 网络请求管理模块
+ * @author turing 2013/8/14
+ */
+public class HttpRequestManager {
+    public static final String RSP_KEY = "http_rsp";
+    public static final Boolean isEncode = false;
+    public static final String WXFIRST_LOGIN_ACTION = "/auth/wxfirst_login/";
+    public static final String WXEXPIRED_LOGIN_ACTION = "/auth/wxexpired_login/";
+    public static final String QQA8LOGIN_ACTION = "/auth/qqa8_login/";
+    public static final String PFKEY_ACTION = "/auth/getlogin_info/";
+    public static final String NOTICE_ACTION = "/notice/gather_data/";//"/gather/userinfo/";
+    private IHttpRequestListener mListener;
+    private Handler mWorkerHandler;
+
+    public HttpRequestManager(IHttpRequestListener listener) {
+        mListener = listener;
+        initHandle();
+    }
+
+    private void initHandle() {
+        mWorkerHandler = new Handler(Looper.getMainLooper(), new Handler.Callback() {
+            @Override
+            public boolean handleMessage(Message msg) {
+                if (null == msg || msg.getData() == null) {
+                    Logger.e("msg || msg.getData() is null");
+                    return false;
+                }
+                int statusCode = msg.arg1;
+                switch (statusCode) {
+                case MHttpResponse.HTTP_SUCCESS: { // 返回200
+                    MHttpResponse rsp = (MHttpResponse) msg.getData().getParcelable(RSP_KEY);
+                    if (rsp == null) {
+                        Logger.d(msg.what + " HTTP_SUCCESS, response params but body is null");
+                        notifyRequestfailure(msg.what, "response no params", 
+                                ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL);
+                        return false;
+                    }
+                    if (rsp.getBody() == null) {
+                    	Logger.d(msg.what + " HTTP_SUCCESS and rsp.getStatus:" + rsp.getStatus() +
+                    	        ",response params but body is null");
+                        notifyRequestfailure(msg.what, "response params but body is null", 
+                                ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL);
+                    } else {
+                    	Logger.d(msg.what + " HTTP_SUCCESS, status:" + rsp.getStatus());
+                        notifyRequestSuccess(msg.what, rsp.getBody(), rsp.getStatus());
+                    }
+                    break;
+                }
+                default: // 非200全都是错误的
+                    MHttpResponse rsp = msg.getData().getParcelable(RSP_KEY);
+                    if (rsp == null) {
+                        notifyRequestfailure(msg.what, "http error:" + statusCode + ", response no params", 
+                                statusCode);
+                        Logger.d(msg.what + " HTTP_Failed statusCode：" + statusCode);
+                        return false;
+                    }
+
+                    if (null == rsp.getBody()) {
+                    	Logger.d("MHttpResponse.HTTP_Failed :" + rsp.getBody());
+                        if (null == rsp.getMsg()) {
+                            notifyRequestfailure(msg.what, "response params but body and msg are null", rsp.getStatus());
+                            Logger.d("MHttpResponse.HTTP_Failed 1, statusCode:" + rsp.getStatus() 
+                                    + "：response params but body and msg are null");
+                        } else {
+                            notifyRequestfailure(msg.what, rsp.getMsg(), rsp.getStatus());
+                            Logger.d("MHttpResponse.HTTP_Failed 2, statusCode:"+ rsp.getStatus()+ "："+ rsp.getMsg());
+                        }
+                    } else {
+                        notifyRequestfailure(msg.what, new String(rsp.getBody()), rsp.getStatus());
+                        Logger.d("MHttpResponse.HTTP_Failed 3, statusCode:" + rsp.getStatus());
+                    }
+                }
+                return false;
+            }
+        });
+    }
+
+    private void notifyRequestSuccess(Integer key, String jsonBody, int statusCode) {
+    	if (null != this.mListener) {
+    		mListener.onSuccess(jsonBody, statusCode, key);
+    	}
+    }
+
+    private void notifyRequestfailure(Integer key, String errorContent, int statusCode) {
+    	if (null != this.mListener) {
+    		mListener.onFailure(errorContent, statusCode, key);
+    	}
+    }
+
+    /*
+     * 异步 json
+     */
+    public synchronized void postTextAsync(String url, String body, int what) {
+        // 判断是否是Ui线程调用,此接口必须在主线程调用
+        if(null == Looper.myLooper()) {
+            Logger.w("The calling thread has not called Looper.prepare()");
+        }
+        MHttpRequest req = new MHttpRequest();
+        req.setUrl(url);
+        req.setMethod(HttpMethod.POST);
+        req.setBody(body);
+
+        new HttpTask(mWorkerHandler, what).execute(req);
+    }
+}

@@ -1,0 +1,10 @@
+
+**** Build of configuration Default for project MSDK ****
+
+E:\android-ndk-r9b\ndk-build.cmd all 
+[armeabi] Compile++ thumb: MSDK <= MSDK.cpp
+[armeabi] StaticLibrary  : libstdc++.a
+[armeabi] SharedLibrary  : libMSDK.so
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+
+**** Build Finished ****

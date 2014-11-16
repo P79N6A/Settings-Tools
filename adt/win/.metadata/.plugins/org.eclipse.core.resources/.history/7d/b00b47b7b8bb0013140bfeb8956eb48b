@@ -1,0 +1,260 @@
+package com.tencent.msdk.request;
+
+import java.util.Vector;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.TokenRet;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.communicator.HttpRequestManager;
+import com.tencent.msdk.communicator.IHttpRequestListener;
+import com.tencent.msdk.communicator.UrlManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.EPlatform;
+import com.tencent.msdk.consts.MessageNo;
+import com.tencent.msdk.consts.RequestConst;
+import com.tencent.msdk.consts.TokenType;
+import com.tencent.msdk.db.LoginInfoManager;
+import com.tencent.msdk.db.QQLoginModel;
+import com.tencent.msdk.db.WxLoginModel;
+import com.tencent.msdk.permission.PermissionManage;
+import com.tencent.msdk.pf.WGPfManager;
+import com.tencent.msdk.remote.api.SafeJSONObject;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.SharedPreferencesTool;
+import com.tencent.msdk.whitelist.WhiteListMng;
+
+/*
+ * 获得pfkey 请求管理
+ * */
+public class PfKeyRequestMng implements IHttpRequestListener {
+	public static final String PT_EXPIRED_KEY = "paytoken_expire_time";
+	private static volatile PfKeyRequestMng instance = null;
+	private int notifyState = RequestConst.notifyNone; // 通知类型, login? share?
+														// wakeup?
+	private WakeupRet currentWakeUp = new WakeupRet();
+	private String callbackMsg = "";// 回调 msg
+	private QQLoginModel tmpLoginInfoFromClient; 
+
+	public static PfKeyRequestMng getInstance() {
+		if (instance == null) {
+			synchronized (PfKeyRequestMng.class) {
+				if (instance == null) {
+					instance = new PfKeyRequestMng();
+				}
+			}
+		}
+		return instance;
+	}
+
+	public String getLocalTokenByType(int type, Vector<TokenRet> token) {
+		for (TokenRet tr : token) {
+			if (tr.type == type) {
+				return tr.value;
+			}
+		}
+		return null;
+	}
+
+	public void getPfKeyReq(int notifywakeup, WakeupRet wakeup) {
+		this.currentWakeUp = wakeup;
+		this.getPfKeyReq(notifywakeup);
+	}
+
+	public void getPfKeyReq(int notifyState) {
+    	getPfKeyReq(notifyState, MessageNo.MSG_NO_GET_PFKEY);
+    }
+
+    // 手Q登录回来以后去拿pfkey走这个请求
+	public void getQQFirstLoginPfKeyReq(QQLoginModel qlm) {
+        if (qlm == null) {
+            notify(false,"QQ Client Login Return NULL", CallbackFlag.eFlag_Error);
+            return;
+        }
+
+		this.tmpLoginInfoFromClient = qlm;
+        this.notifyState = RequestConst.notifyLogin;
+
+        PfKeyRequest loginReq = new PfKeyRequest();
+        String appId = WeGame.getInstance().qq_appid;
+        String channel = WGPfManager.getInstance().getChannelId();
+        String openId = qlm.open_id;
+        String openKey = "";
+        openKey = qlm.pay_token;
+        int loginPlatform = WeGame.QQPLATID;
+        WeGame.getInstance().setPlatId(loginPlatform);
+        String platformId = WGPfManager.getInstance().getPlatformId();
+        String offerId = WeGame.getInstance().offerId;
+
+        JSONObject json = loginReq.getReqJson(openId, openKey, appId, channel, offerId, platformId, loginPlatform);
+        HttpRequestManager.getInstance();
+        String url = UrlManager.getUrl(HttpRequestManager.PFKEY_ACTION, loginPlatform);
+        Logger.d(url);
+        HttpRequestManager.getInstance().postJsonAsync(url, json, MessageNo.MSG_NO_GET_QQ_FIRST_LOGIN_PFKEY, this);
+	}
+
+
+    public void getPfKeyReq(int notifyState, int msgNo) {
+		this.notifyState = notifyState;
+		LoginRet lr = LoginInfoManager.getInstance().getLastLoginUserInfo();
+		if (lr.platform == EPlatform.ePlatform_None.val()) {
+			Logger.d("getPfKeyReq no record in db\n");
+			notify(false, "getPfKeyReq no record in db", -1);
+			return;
+		}
+
+		PfKeyRequest loginReq = new PfKeyRequest();
+		String appId = WeGame.getInstance().qq_appid;
+		String channel = WGPfManager.getInstance().getChannelId();
+		int flag = 0;
+		String openId = lr.open_id;
+		String openKey = "";
+		if (lr.platform == WeGame.QQPLATID) {
+			flag = WeGame.QQPLATID;
+			openKey = getLocalTokenByType(TokenType.eToken_QQ_Pay,
+					lr.token);
+		} else if (lr.platform == WeGame.WXPLATID) {
+			flag = WeGame.WXPLATID;
+			openKey = getLocalTokenByType(TokenType.eToken_WX_Access,
+					lr.token);
+		} else {
+			return; // 未登录时 直接返回
+		}
+
+		WeGame.getInstance().setPlatId(flag);
+		String platformId = WGPfManager.getInstance().getPlatformId();
+		String offerId = WeGame.getInstance().offerId;
+
+		JSONObject json = loginReq.getReqJson(openId, openKey, appId,
+				channel, offerId, platformId, flag);
+		HttpRequestManager.getInstance();
+		String url = UrlManager.getUrl(HttpRequestManager.PFKEY_ACTION, flag);
+		Logger.d(url);
+        HttpRequestManager.getInstance().postJsonAsync(url, json, msgNo, this);
+	}
+
+	private void notify(boolean isOk, String content, int statusCode) {
+		callbackMsg = " content: " + content + " statusCode: " + statusCode;
+		if (this.notifyState == RequestConst.notifyLogin) {
+			notifyLogin(isOk);
+		} else if (this.notifyState == RequestConst.notifyWakeup) {
+			notifyWakup(isOk);
+		}
+	}
+
+	private void notifyLogin(boolean isOk) {
+		LoginRet loginRet = LoginInfoManager.getInstance()
+				.getLastLoginUserInfo();
+		if (true == isOk) {
+			loginRet.flag = CallbackFlag.eFlag_Succ;
+			loginRet.desc = WeGame.setDescribe(CallbackFlag.eFlag_Succ,
+					loginRet.platform);
+		} else {
+			loginRet.flag = CallbackFlag.eFlag_Error;
+			loginRet.desc = "登陆获取pf失败";
+		}
+		loginRet.desc += " cb:" + callbackMsg;
+		Logger.d("notifyLogin flag = " + loginRet.flag + " desc = "
+				+ loginRet.desc);
+		WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+	}
+
+	// 不需要判断pf是否成功, 及时更新pf失败, 还是应该要告诉游戏
+	private void notifyWakup(boolean isOk) { 
+		WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(currentWakeUp);
+	}
+
+	private void updateLoginInfo(PfKeyResponse rspFromLogin) {
+		long curTime = System.currentTimeMillis() / 1000; 
+		if (WeGame.QQPLATID == WeGame.getInstance().getPlatId()) {
+            if (null == tmpLoginInfoFromClient) {
+				Logger.d("updateLoginInfo error null == qqloginRecord !!!");
+				return;
+			}
+			
+            tmpLoginInfoFromClient.pf = rspFromLogin.pf;
+            tmpLoginInfoFromClient.pf_key = rspFromLogin.pfKey;
+            Logger.d("rspFromLogin.paytokenExpire: " + rspFromLogin.paytokenExpire);
+			if (rspFromLogin.paytokenExpire > 0) {
+				tmpLoginInfoFromClient.pay_token_expire = curTime + rspFromLogin.paytokenExpire; // 绝对时间 替换paytoken 时间
+				SharedPreferencesTool.putInt(WeGame.getInstance().getActivity(), PT_EXPIRED_KEY, (int) rspFromLogin.paytokenExpire);
+			}
+            tmpLoginInfoFromClient.save();
+            WeGame.getInstance().setOpenSdkLoginInfo(tmpLoginInfoFromClient.open_id, tmpLoginInfoFromClient.access_token,
+            		tmpLoginInfoFromClient.access_token_expire);
+		} else if (WeGame.WXPLATID == WeGame.getInstance().getPlatId()) {
+			WxLoginModel wxloginRecord = new WxLoginModel()
+					.getLastLoginUserInfo();
+			if (null == wxloginRecord) {
+				Logger.d("updateLoginInfo error null == qqloginRecord !!!");
+				return;
+			}
+
+			wxloginRecord.pf = rspFromLogin.pf;
+			wxloginRecord.pf_key = rspFromLogin.pfKey;
+			wxloginRecord.save();
+		}
+		WGPfManager.getInstance().setRegChannelId(rspFromLogin.regChannel);
+		PermissionManage.getInstance().updateDataFromNet(
+				rspFromLogin.permission);// 权限管理
+	}
+
+	@Override
+	public void onFailure(String errorContent, int statusCode, int what) {
+		if (null != errorContent)
+			Logger.d("errorContent:" + errorContent + " statusCode: "
+					+ statusCode);
+
+		notify(false, errorContent, what);
+	}
+
+	@Override
+	public void onSuccess(String netContent, int statusCode, int what) {
+		String content = "";
+        if (what == MessageNo.MSG_NO_GET_PFKEY || MessageNo.MSG_NO_GET_QQ_FIRST_LOGIN_PFKEY == what) {
+			PfKeyResponse rspFromLogin = new PfKeyResponse();
+			if (null == netContent) { /* 防止 */
+				Logger.d("onSuccess: 纳尼，参数buff 竟然为空,shit! statusCode :"
+						+ statusCode);
+				notify(false, "太坑爹了,网络返回数据竟然为null", statusCode);
+				return;
+			}
+			try {
+				JSONObject json = new SafeJSONObject(netContent);
+				rspFromLogin.parseJson(json);
+				content = rspFromLogin.msg;
+				if (rspFromLogin.ret == 0) {
+					PermissionManage.getInstance().updateDataFromNet(rspFromLogin.permission);// 权限管理
+					
+                	// 如果是QQ首次登录的，需要考虑是否查询白名单
+                    if (MessageNo.MSG_NO_GET_QQ_FIRST_LOGIN_PFKEY == what
+                    		&& WhiteListMng.gDefault.get().needQueryWhiteList()) {
+                    	if (tmpLoginInfoFromClient == null) {
+                    		notify(false, content, statusCode);
+                    		return;
+                    	}
+
+                    	tmpLoginInfoFromClient.pf = rspFromLogin.pf;
+                    	tmpLoginInfoFromClient.pf_key = rspFromLogin.pfKey;
+    					WhiteListMng.gDefault.get().setTmpQQLoginInfo(tmpLoginInfoFromClient);
+    					WhiteListMng.gDefault.get().queryUserWhiteListAsync(WeGame.QQPLATID, tmpLoginInfoFromClient.open_id, tmpLoginInfoFromClient.access_token); // 查询结果在onAuthorizedFinished里面
+    					return;
+    				} else {
+						updateLoginInfo(rspFromLogin);
+    					notify(true, content, statusCode);
+    				}
+                } else {
+                    Logger.d("onSuccess error ret:" + rspFromLogin.ret + " ret: " + rspFromLogin.msg);
+                    notify(false,content,statusCode);
+				}
+			} catch (JSONException e) {
+				e.printStackTrace();
+                notify(false,content,statusCode);
+			}
+		}
+	}
+}

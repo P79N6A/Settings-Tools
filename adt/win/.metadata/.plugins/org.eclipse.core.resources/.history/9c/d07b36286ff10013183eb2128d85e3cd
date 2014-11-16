@@ -1,0 +1,166 @@
+package com.tencent.msdk.qq;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.TokenRet;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.consts.TokenType;
+import com.tencent.msdk.db.QQLoginModel;
+import com.tencent.msdk.handle.MsdkThreadManager;
+import com.tencent.msdk.stat.BeaconHelper;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
+
+public class QQLogin {
+    private long requestStartTime = 0;
+    public void lauchQQPlatForm() {
+        Logger.d("lauchQQPlatForm");
+        Tencent tencent = WeGame.getInstance().getTencent();
+        if(tencent == null) {
+            return;
+        }
+        WeGame.getInstance().setPlatId(WeGame.QQPLATID);
+        int code = WeGame.getInstance().checkQQEnv();
+        if (code != CallbackFlag.eFlag_Succ) {
+            return;
+        }
+        requestStartTime = System.currentTimeMillis();
+        tencent.setOpenId("");
+        tencent.setAccessToken("", "0");
+        tencent.login(WeGame.getInstance().getActivity(),
+                WeGame.getInstance().mPermission, new QQLoginCallback(
+                        "loginAction"));
+    }
+    
+    private class QQLoginCallback implements IUiListener {
+        public void onCancel() {
+            Logger.d("qq login onCancel");
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("param_FailCode", "" + ErrorCodeFlag.SDK_ERROR_USER_CANCEL);
+            // 取消作为逻辑错误
+            map.put("msdk_logic_error", "1");
+            BeaconHelper.reportMSDKEvent("qqEntryFirstLogin", requestStartTime, false, map, true);
+            
+            LoginRet loginRet = new LoginRet();
+            loginRet.flag = CallbackFlag.eFlag_QQ_UserCancel;
+            loginRet.platform = WeGame.QQPLATID;
+            WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+        }
+
+        public QQLoginCallback() {
+
+        }
+
+        public QQLoginCallback(String msg) {
+            this();
+            Logger.d(msg);
+        }
+
+        public void onComplete(Object arg0) {
+            Logger.d("qq login onComplete");
+
+            if (!(arg0 instanceof JSONObject)) {
+                Logger.d("not JSONObject" + arg0);
+                return;
+            }
+
+            JSONObject json = (JSONObject) arg0;
+            try {
+                WeGame.getInstance().setPlatId(WeGame.QQPLATID);
+                // 处理拉起默认值
+                if (!json.has("pay_token")) {
+                    json.put("pay_token", "");
+                }
+
+                LoginRet loginRet = new LoginRet();
+                loginRet.platform = WeGame.QQPLATID;
+                loginRet.open_id = json.getString("openid");
+
+                String access_token = json.getString("access_token");
+
+                if (access_token == null || access_token.equals("")) {
+                    loginRet.flag = CallbackFlag.eFlag_QQ_NoAcessToken;
+                } else {
+                    loginRet.flag = CallbackFlag.eFlag_Succ;
+                }
+                TokenRet access = new TokenRet();
+                access.type = TokenType.eToken_QQ_Access;
+                access.value = access_token;
+                access.expiration = Integer.valueOf(json
+                        .getString("expires_in"));// 秒为单位
+                loginRet.token.add(access);
+
+                TokenRet pay = new TokenRet();
+                pay.type = TokenType.eToken_QQ_Pay;
+                pay.value = json.getString("pay_token");
+                pay.expiration = WeGame.DEFAULT_PATYOKEN_EXPIRATION; // 6天，秒为单位
+                loginRet.token.add(pay);
+
+                loginRet.pf = json.getString("pf");
+                Logger.d("QQEntryActivity pf: " + loginRet.pf);
+
+                loginRet.pf_key = json.getString("pfkey");
+                Logger.d("QQEntryActivity pfkey: " + loginRet.pf_key);
+                long curTime = System.currentTimeMillis() / 1000;
+
+                QQLoginModel qui = new QQLoginModel();
+                qui.open_id = loginRet.open_id;
+                qui.access_token = access.value;
+                qui.access_token_expire = curTime + access.expiration;
+                qui.pay_token = pay.value;
+                qui.pay_token_expire = curTime + pay.expiration;
+                qui.pf = loginRet.pf;
+                qui.pf_key = loginRet.pf_key;
+                // WhiteListMng.gDefault.get().setTmpQQLoginInfo(qui);
+
+                // if (WhiteListMng.gDefault.get().needQueryWhiteList()) {
+                // WhiteListMng.gDefault.get().queryUserWhiteListAsync(WeGame.QQPLATID,
+                // qui.open_id, qui.access_token);
+                // } else {
+                // qui.save();
+                // 如果不需要抢号，则清空上面保存的TmpQQLoginInfo,
+                MsdkThreadManager.getInstance().getQQFirstLoginPfKeyReq(qui);
+                BeaconHelper.reportMSDKEvent("qqEntryFirstLogin", requestStartTime, true, null, true);
+                // }
+            } catch (JSONException e) {
+                LoginRet loginRet = new LoginRet();
+                loginRet.flag = CallbackFlag.eFlag_QQ_NetworkErr;
+                WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+                e.printStackTrace();
+                
+                Map<String, String> map = new HashMap<String, String>();
+                map.put("param_FailCode", "" + ErrorCodeFlag.SDK_ERROR_JSON_VALUES);
+                // 非逻辑错误
+                map.put("msdk_logic_error", "0");
+                BeaconHelper.reportMSDKEvent("qqEntryFirstLogin", requestStartTime, false, map, true);
+                WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+            }
+        }
+
+        public void onError(UiError arg0) {
+            Logger.d("qq login onError arg0 errorCode:" + arg0.errorCode);
+            Logger.d("qq login onError arg0 errorDetail:" + arg0.errorDetail);
+            LoginRet loginRet = new LoginRet();
+            loginRet.platform = WeGame.QQPLATID;
+            loginRet.flag = CallbackFlag.eFlag_QQ_NetworkErr;
+            
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("param_FailCode", "" + ErrorCodeFlag.SDK_ERROR_QQ_NETWORK);
+            // 非逻辑错误
+            map.put("msdk_logic_error", "0");
+            BeaconHelper.reportMSDKEvent("qqEntryFirstLogin", requestStartTime, false, map, true);
+            WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+        }
+    }
+}

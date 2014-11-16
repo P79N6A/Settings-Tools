@@ -1,0 +1,75 @@
+package com.tencent.msdk.notice;
+
+/**
+ * 
+ * @author hardyshi 2014-03-14 前后台交传递参数的默认值
+ */
+public class JsonKeyConst {
+	public static final String PLATFORM_ID = "plat";
+	// 平台给应用分配的唯一id，登陆前如果双平台则使用手Q｜微信组合的appid字符串
+	public static final String APP_ID = "appid";
+	// 用户在应用的唯一帐号，没有获取到为空
+	public static final String OPEN_ID = "openid";
+	// QUID，设备的唯一id，从灯塔SDK获取，最长32位,ios使用客户端生成的GUID
+	public static final String MAT_ID = "matid";
+	// 游戏的版本 versionCode
+	public static final String GAME_VERSION = "gameVersion";
+	// 操作系统1:android，2:ios
+	public static final String OS = "os";
+	// 操作系统版本号
+	public static final String OS_V = "osVersion";
+	// 手机品牌,如HTC
+	public static final String TRADEMARK = "tradeMark";
+	// 手机分辨率，如960*480
+	public static final String RESOLUTION = "resolution";
+	// 网络类型0:2G; 1:3G; 2:wifi
+	public static final String APN = "apn";
+	// msdk版本号
+	public static final String MSDK_V = "msdkVersion";
+	// ios deviceToken
+	public static final String DEVICE_TOKEN = "";
+	// 前端使用的协议版本
+	public static final String PROTOCOL_V = "protocolVer";
+	// 上次成功获取公告的时间，使用标准时间戳格式，如果没有为空.lastTime为后台返回，sendTime为请求参数
+	public static final String LAST_TIME = "lastTime";
+	public static final String SEND_TIME = "sendTime";
+	// 消息id, 不可重复
+	public static final String NOTICE_ID = "msgid";
+	// 公告标题
+	public static final String NOTICE_TITLE = "title";
+	// 消息内容
+	public static final String NOTICE_CONTENT = "msgContent";
+	// 公告场景，所属公告栏，有开始游戏公告栏等
+	public static final String NOTICE_SCENE = "scene";
+	// 公告类型 0:弹出公告;1:滚动公告;其它无效
+	public static final String NOTICE_TYPE = "noticeType";
+	//公告内容类型，0:文本内容；1:图片内容；2:网页内容，不填写的话默认为文本内容
+	public static final String NOTICE_CONTENT_TYPE = "contentType";
+	// 有效开始时间，使用标准时间戳格式
+	public static final String NOTICE_START_TIME = "beginTime";
+	// 有效结束时间，使用标准时间戳格式
+	public static final String NOTICE_END_TIME = "endTime";
+	// 公告详情跳转URL
+	public static final String NOTICE_URL = "msgUrl";
+	// 公告list
+	public static final String NOTICE_LIST = "list";
+	// 0为成功，1为没有要下发的公告，其它失败
+	public static final String RET = "ret";
+	// 无效msgid，终端收到后直接删除 list为vertor，id为具体id
+	public static final String NOTICE_INVALID_LIST = "invalidMsgid";
+	public static final String NOTICE_INVALID_ID = "invalidMsgid";
+	// 用以兼容1.7.0版本时间戳及按平台下发，值大于等于180为新版本
+	public static final String NOTICE_VERSION = "noticeVersion";
+	// 游戏支持屏幕类型，1:横屏；2:竖屏；0:横屏竖屏均支持
+	public static final String SCREEN_DIR = "screenDir";
+	// 屏幕密度DPI, 120 160 240
+	public static final String SCREEN_DPI = "screenDpi";
+	// 公告图片Vector
+	public static final String NOTICE_PIC_LIST = "picUrlList";
+	// 公告图片URL
+	public static final String NOTICE_PIC_URL = "picUrl";
+	// 公告图片hash值
+	public static final String NOTICE_PIC_HASH = "hashValue";
+	//网页公告的URL
+	public static final String NOTICE_CONTENT_WEB_URL = "contentUrl";
+}

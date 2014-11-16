@@ -1,0 +1,11 @@
+
+**** Build of configuration Default for project MSDKLibrary ****
+
+make all 
+
+Cannot run program "make": Launching failed
+Error: Program "make" is not found in PATH
+
+PATH=[C:/Program Files/Java/jre7/bin/client;C:/Program Files/Java/jre7/bin;C:/Program Files/Java/jre7/lib/i386;C:\Program Files\NVIDIA Corporation\PhysX\Common;C:\windows\system32;C:\windows;C:\windows\System32\Wbem;C:\windows\System32\WindowsPowerShell\v1.0\;C:\Program Files\TortoiseSVN\bin;D:\android-sdk\platform-tools;D:\android-sdk\tools;D:\Download\android-ndk-r9b;D:\Program Files\adt-bundle-windows-x86-20131030\sdk\platform-tools;D:\Program Files\adt-bundle-windows-x86-20131030\sdk\tools;D:\Program Files\Java\jdk1.7.0\bin;;D:\Program Files\adt-bundle-windows-x86-20131030\eclipse;]
+
+**** Build Finished ****

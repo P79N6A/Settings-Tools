@@ -1,0 +1,13 @@
+package com.tencent.msdk.stat;
+
+
+/**
+ * @author hardyshi 2014-03-11
+ * 公告类型宏
+ */
+public class eEVENT_MODEL {
+	//事件上报，公告的模块名称
+	public static final String NOTICE = "NOTICE";
+	//事件上报，基本事件的模块名称
+	public static final String BASIC = "NOTICE";
+}

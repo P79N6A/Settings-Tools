@@ -1,0 +1,102 @@
+package com.tencent.msdk.remote.api;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.tools.Logger;
+
+class QueryWXFriends extends RemoteApiBase {
+    private static final String PATH = "/relation/wxfriends_profile/";
+    private static final String EVENT_NAME = "queryWXGameFriendsInfo";
+    
+	public QueryWXFriends() {
+		super();
+        try {
+            this.jsonBody.put("openid", this.openId);
+            this.jsonBody.put("accessToken", this.accessToken);
+        } catch (JSONException e) {
+            Logger.d("JSONException");
+            e.printStackTrace();
+        }
+	}
+    // 发出回调, 回调到全局回调的OnBackendRelationCallback
+    private void callback(int flag, String msg, Vector<PersonInfo> persons) {
+        RelationRet rr = new RelationRet();
+        rr.flag = flag;
+        rr.desc = msg;
+        if (persons != null) {
+            rr.persons = persons;
+        } else {
+            rr.persons = new Vector<PersonInfo>();
+        }
+        rr.platform = WeGame.WXPLATID;
+        WeGameNotifyGame.getInstance().OnBackendRelationCallback(rr);
+    }
+    
+    @Override
+    public void onSuccess(String netContent, int statusCode, int what)  {
+        Vector<PersonInfo> persons = null;
+        int flag = CallbackFlag.eFlag_Error;
+        String msg = " unknow error onSuccess";
+        if (what != getMyId()) {
+            Logger.d("a wrong callback");
+            return;
+        }
+        
+        if (null == netContent) { 
+            Logger.d("queryWXGameFriendsInfo onsuccess response data is null");
+            reportEventToBeacon(EVENT_NAME, false, ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL, false);
+            return ;
+        }
+        
+        try {
+            JSONObject jsonRtn = new SafeJSONObject(netContent);
+            msg = getNetDesc(jsonRtn,this.getClass().getName());
+            int ret = jsonRtn.getInt("ret");
+            if (ret == 0) {
+                reportEventToBeacon(EVENT_NAME, true, ErrorCodeFlag.SDK_SUCCESS, false);
+                persons = WxInfoFormatter.formatFriends(jsonRtn.getJSONArray("lists"));
+                flag = CallbackFlag.eFlag_Succ;
+            } else {
+                Logger.d("queryWXGameFriendsInfo onsuccess, ret:" + ret);
+                reportEventToBeacon(EVENT_NAME, false, ret, true);
+            }
+        } catch (JSONException e) {
+            Logger.d("decode json from server failed!");
+            reportEventToBeacon(EVENT_NAME, false, ErrorCodeFlag.SDK_ERROR_JSON_VALUES, false);
+        }finally{
+            callback(flag, msg, persons);
+        }
+    }
+
+    @Override
+    public void onFailure(String errorContent, int statusCode, int what) {
+        if (what != getMyId()) {
+            Logger.d("a wrong callback");
+            return;
+        }
+
+        Logger.d("onFailure " + errorContent + " statusCode: " + statusCode);
+        callback(CallbackFlag.eFlag_Error, errorContent, null);
+        reportEventToBeacon(EVENT_NAME, false, statusCode, false);
+    }
+
+    @Override
+    protected String getPath() {
+        return PATH;
+    }
+
+    @Override
+    protected int getMyId() {
+        return RemoteApiWhat.QueryWXFriends.ordinal();
+    }
+}

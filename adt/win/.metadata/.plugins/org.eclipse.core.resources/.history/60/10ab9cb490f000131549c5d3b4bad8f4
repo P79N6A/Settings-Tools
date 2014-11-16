@@ -1,0 +1,38 @@
+package com.tencent.msdk.stat;
+
+import java.util.HashMap;
+
+import com.tencent.feedback.ua.UserAction;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.db.LoginInfoManager;
+import com.tencent.msdk.notice.JsonKeyConst;
+import com.tencent.msdk.notice.NoticeManager;
+import com.tencent.msdk.notice.NoticeRequestPara;
+import com.tencent.msdk.tools.Logger;
+
+public class ReportEvent {
+
+	public static String EVENT_HEAD = "MSDK";
+	
+	public static void ReportClickEvent(String eventModel, eEVENT_TYPE eventType, HashMap<String, String> tempPara){
+		String name = "MSDK_"+eventModel+"_"+eventType.val();
+		Logger.d("Stat reportEvent name:" + name);
+    	boolean isOk = true;// 事件是否成功，统计用
+        long size = -1; // 事件网络消耗，统计用，byte
+        UserAction.onUserAction(name, isOk, 0, size, tempPara, true);
+	}
+	
+	public static void ReportNoticeClickEvent(eEVENT_TYPE eventType, int notice_id){
+		HashMap<String, String> params = new HashMap<String, String>();
+		NoticeRequestPara tempNoticeRequestPara = new NoticeRequestPara();
+		LoginRet lr = LoginInfoManager.getInstance().getLastLoginUserInfo();
+		params.put(JsonKeyConst.NOTICE_ID,String.valueOf(notice_id));
+		params.put(JsonKeyConst.OS,tempNoticeRequestPara.mOs);
+		params.put(JsonKeyConst.PLAT_ID,String.valueOf(lr.platform));
+		params.put(JsonKeyConst.OPEN_ID,tempNoticeRequestPara.mOpenId);
+		params.put(JsonKeyConst.MAT_ID,NoticeManager.getInstance().getmMatId());
+		params.put(JsonKeyConst.GAME_VERSION,String.valueOf(NoticeRequestPara.GAME_VERSION));
+		params.put(JsonKeyConst.TRADEMARK,tempNoticeRequestPara.mTradeMark);
+        ReportClickEvent("NOTICE",eventType,params);
+	}
+}

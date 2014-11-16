@@ -1,0 +1,273 @@
+package com.tencent.msdk.request;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.R.integer;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.communicator.HttpRequestManager;
+import com.tencent.msdk.communicator.IHttpRequestListener;
+import com.tencent.msdk.communicator.UrlManager;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.consts.MessageNo;
+import com.tencent.msdk.db.AppDBModel;
+import com.tencent.msdk.db.NoticeDBModel;
+import com.tencent.msdk.notice.JsonKeyConst;
+import com.tencent.msdk.notice.NoticeInfo;
+import com.tencent.msdk.notice.NoticeMsgFromNet;
+import com.tencent.msdk.notice.NoticePic;
+import com.tencent.msdk.notice.NoticeRequestPara;
+import com.tencent.msdk.notice.eMSG_CONTENTTYPE;
+import com.tencent.msdk.notice.eMSG_NOTICETYPE;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/*
+ * Copyright (C) 2005-2013 TENCENT Inc.All Rights Reserved.
+ * NoticeMsgMng.java
+ * 1.0 turingkuang 2013-10-24 Create
+ * Desc:公告管理类管理
+ */
+public class NoticeMsgMng implements IHttpRequestListener {
+	private long refreshStartTime = 0;
+
+    /*
+     * 保存弹出类公告信息到DB
+     */
+    private void saveNotice(ArrayList<NoticeInfo> msgList) {
+        if (null == msgList || msgList.isEmpty() )
+            return;
+        for (NoticeInfo t : msgList) {
+            this.addOneNotice(t);
+        }
+    }
+
+    private void addOneNotice(NoticeInfo noticeInfo) {
+    	NoticeInfo info = noticeInfo;
+    	if(eMSG_CONTENTTYPE.eMSG_CONTENTTYPE_IMAGE == noticeInfo.mNoticeContentType){
+    		NoticePic.downloadNoticePics(noticeInfo);
+    	}
+        NoticeDBModel model = new NoticeDBModel();
+        model.save(info);
+    }
+
+
+    public void decodeNoticeJson(JSONObject noticeJson, NoticeMsgFromNet noticeMsg) {
+    	if(null == noticeJson || null == noticeMsg){
+    		Logger.w("noticeJson or noticeMsg is null!");
+            return;
+    	}
+        try {
+            if (!noticeJson.has(JsonKeyConst.RET)) {// 必有的信息都木有
+                Logger.e("ret lost in the response!");
+                return;
+            }
+            if(noticeJson.has(JsonKeyConst.SEND_TIME)){
+            	noticeMsg.mUpdateTime = noticeJson.getString(JsonKeyConst.SEND_TIME);
+            }else{
+            	 Logger.e("mUpdateTime lost in the response!");
+            }
+            String requestAppid = "";
+            if(noticeJson.has(JsonKeyConst.APP_ID)){
+            	requestAppid = noticeJson.getString(JsonKeyConst.APP_ID);
+            }else{
+            	Logger.e("appid lost in the response!");
+            }
+            Logger.d("requestAppid:"+requestAppid + ";mUpdateTime:"+noticeMsg.mUpdateTime);
+            //遍历获取无效公告列表
+            if (noticeJson.has(JsonKeyConst.NOTICE_INVALID_LIST)) {
+            	//获取无效公告list
+                JSONArray array = noticeJson.getJSONArray(JsonKeyConst.NOTICE_INVALID_LIST);
+                for (int i = 0; i < array.length(); i++) {
+                	//如果是图片公告，增加到队列，如果是其他公告，直接增加到删除列表
+                    JSONObject subJson = array.getJSONObject(i);
+                    if (subJson.has(JsonKeyConst.NOTICE_INVALID_ID)) {
+                    	//如果本地有图片，删除图片
+                    	String msgId = subJson.getString(JsonKeyConst.NOTICE_INVALID_ID);
+                    	NoticePic.deleteNoticePicByNoticeId(Integer.parseInt(msgId));
+                    	noticeMsg.invalidMsgIdList = noticeMsg.invalidMsgIdList + msgId +", ";
+                    }
+                }
+            	Logger.d("invalidMsgIdList:"+noticeMsg.invalidMsgIdList);
+            }else{
+            	Logger.d("notice response INVALID_LIST is empty");
+            }
+            //获取返回的公告列表
+            if (noticeJson.has(JsonKeyConst.NOTICE_LIST)) { //
+                JSONArray array = noticeJson.getJSONArray(JsonKeyConst.NOTICE_LIST);
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject subJson = array.getJSONObject(i);
+                    if (subJson.has(JsonKeyConst.NOTICE_TYPE)) {
+                    	NoticeInfo noticeItem = new NoticeInfo();
+                        noticeItem.getBaseInfoFromJson(subJson);
+                        if(T.ckIsEmpty(noticeItem.mAppId)) {
+                        	noticeItem.mAppId = requestAppid;
+                        	Logger.w("notice do not have its own appid");
+                        }
+                        noticeMsg.noticeList.add(noticeItem);
+                        Logger.d("add a notice to list. msg_id:"+noticeItem.mNoticeId +",msg_type: "+noticeItem.mNoticeType+",contentType:"+noticeItem.mNoticeContentType);
+                    }
+                }
+            }else{
+            	Logger.d("notice response NOTICE_MSG is empty");
+            }
+        } catch (JSONException e) {
+        	Logger.e("decodeNoticeJson JSONException");
+            e.printStackTrace();
+        }
+    }
+
+    public void processNoticeMsgRsp(JSONObject json) {
+        NoticeMsgFromNet noticeMsg = new NoticeMsgFromNet();
+        this.decodeNoticeJson(json, noticeMsg);
+        this.saveNotice(noticeMsg.noticeList);
+        this.delRedundancyNotice();
+        this.deleteNoticeByMsgList(noticeMsg.invalidMsgIdList);
+    }
+    
+    /*
+     * 删除过期的公告
+     */
+    public void delRedundancyNotice() {
+    	String currentTime = String.valueOf(System.currentTimeMillis() / 1000);
+        if (!T.ckIsEmpty(currentTime)){
+        	NoticeDBModel model = new NoticeDBModel();
+        	//获取过期的公告的msglist
+        	String msgList = model.getRedundancyNoticeListByTime(currentTime);
+        	this.deleteNoticeByMsgList(msgList);
+        }else{
+        	Logger.w("currentTime is null");
+        }
+    }
+    
+    private void deleteNoticeByMsgList(String msgList) {
+        if (T.ckIsEmpty(msgList)){
+        	Logger.d("msgList is null");
+        	return ;
+        }
+        NoticeDBModel model = new NoticeDBModel();
+    	int tempNum = model.deleteNoticeInDBByMsgList(msgList);
+    	Logger.d("Num of notice has been deleted："+tempNum);
+    	
+    }
+    
+    public String getAppIdByJson(JSONObject noticeJson) {
+    	String appid = "";
+    	try {
+			appid = noticeJson.getString(JsonKeyConst.APP_ID);
+		} catch (JSONException e) {
+			Logger.e("getAppIdByJson JSONException");
+			e.printStackTrace();
+		}
+    	return appid;
+    }
+    
+    public String getLastUpdateTime(String appid) {
+    	AppDBModel model = new AppDBModel();
+        return model.getUpdateTimeByAppId(appid);
+    }
+    
+    public JSONObject getNoticeJsonPacket(NoticeRequestPara noticeRequestPara, String updateTime) {
+        JSONObject noticeJson = new JSONObject();
+        if (null == noticeRequestPara){
+            return noticeJson;
+        }
+        JSONObject json = new JSONObject();
+		try {
+			json.put(JsonKeyConst.APP_ID, noticeRequestPara.mAppId);
+			json.put(JsonKeyConst.MAT_ID, noticeRequestPara.mMatid);
+			json.put(JsonKeyConst.OPEN_ID, noticeRequestPara.mOpenId);
+			json.put(JsonKeyConst.OS, noticeRequestPara.mOs);
+			json.put(JsonKeyConst.OS_V,noticeRequestPara.mOsVersion);
+			json.put(JsonKeyConst.TRADEMARK,noticeRequestPara.mTradeMark);
+			json.put(JsonKeyConst.RESOLUTION, noticeRequestPara.mResolution);
+			json.put(JsonKeyConst.APN, noticeRequestPara.mApn);
+			json.put(JsonKeyConst.MSDK_V, noticeRequestPara.mMsdkVersion);
+			json.put(JsonKeyConst.PROTOCOL_V, noticeRequestPara.mProtocolVer);
+			//json.put(JsonKeyConst.LAST_TIME, updateTime);
+			// TODO 暂时不上传时间戳
+			json.put(JsonKeyConst.LAST_TIME, 0);
+			json.put(JsonKeyConst.NOTICE_VERSION, noticeRequestPara.mNoticeVersion);
+			json.put(JsonKeyConst.SCREEN_DIR, noticeRequestPara.mScreenDir);
+			json.put(JsonKeyConst.SCREEN_DPI, noticeRequestPara.mScreenDpi);
+			return json;
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+		return json;
+    }
+    
+    /**
+     * 根据提供的信息构造公告请求
+     * 
+     */
+    public void getNoticeReq(NoticeRequestPara noticeRequestPara) {
+        refreshStartTime = System.currentTimeMillis();
+        JSONObject json = null;
+        String updateTime = getLastUpdateTime(noticeRequestPara.mAppId);
+        if (T.ckIsEmpty(updateTime)) {
+            updateTime = "0";
+        }
+        json = getNoticeJsonPacket(noticeRequestPara, updateTime);
+        //用于构造请求公告的链接发送给hunter，全员公告使用手Q的appid和appkey
+        String urlAppId = "";
+        String urlAppIdKey = "";
+        if(noticeRequestPara.mAppId.indexOf("|") > 0){
+        	urlAppId = (String) noticeRequestPara.mAppId.subSequence(0,noticeRequestPara.mAppId.indexOf("|"));
+        }else{
+        	urlAppId = noticeRequestPara.mAppId;
+        }
+        urlAppIdKey = noticeRequestPara.mAppKey;
+        String domain = ConfigManager.getApiDomain(WeGame.getInstance().getActivity());
+        String url = UrlManager.getUrl(HttpRequestManager.NOTICE_ACTION,domain,urlAppId,
+        		urlAppIdKey, noticeRequestPara.mMsdkVersion);
+        new HttpRequestManager(this).postTextAsync(url, json.toString(), MessageNo.MSG_GET_NOTICE);
+    }
+
+    private void reportEventToBeacon(boolean success, int errCode, boolean isLogicError) {
+        if(success) {
+            WGPlatform.reportMSDKEvent("MSDK_getNotice", refreshStartTime, true, null, true);
+        } else {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("param_FailCode", "" + errCode);
+            map.put("msdk_logic_error", "" + (isLogicError ? 1 : 0));
+            WGPlatform.reportMSDKEvent("MSDK_getNotice", refreshStartTime, false, map, true);
+        }
+    }
+    
+    @Override
+    public void onSuccess(String netContent, int statusCode, int what) {
+        try {
+            Logger.d("onSuccess" + netContent);
+            if (null == netContent) {
+                Logger.d("getNotice onSuccess,but content is null!"); 
+                reportEventToBeacon(false, ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL, false);
+                return;
+            }
+            JSONObject json = new JSONObject(netContent);
+
+            if (null != json && json.has(JsonKeyConst.SEND_TIME)) {// 有公告消息 来啦
+                this.processNoticeMsgRsp(json);
+            }
+			reportEventToBeacon(true, ErrorCodeFlag.SDK_SUCCESS, false);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            reportEventToBeacon(false, ErrorCodeFlag.SDK_ERROR_JSON_VALUES, false);
+        }
+    }
+
+    @Override
+    public void onFailure(String errorContent, int statusCode, int what) {
+        Logger.d("onFailure" + errorContent);
+        reportEventToBeacon(false, statusCode, false);
+    }
+}

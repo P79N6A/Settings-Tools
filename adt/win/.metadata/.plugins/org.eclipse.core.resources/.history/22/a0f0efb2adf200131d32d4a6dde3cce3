@@ -1,0 +1,123 @@
+package com.tencent.msdk.remote.api;
+
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.ShareRet;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.tools.Logger;
+
+class ShareToWX extends RemoteApiBase {
+    private static final String PATH = "/share/wx/";
+    private static final String EVENT_NAME = "shareToWx";
+    private String mMsdkExtInfo = "";
+
+	public ShareToWX(String fopenid, String title, String description,
+			String extinfo, String media_tag_name, String thumbMediaId, String msdkExtInfo) {
+		super();
+		try {
+			this.jsonBody.put("fopenid", fopenid);
+			this.jsonBody.put("title", title);
+			this.jsonBody.put("description", description);
+			this.jsonBody.put("extinfo", extinfo);
+			this.jsonBody.put("media_tag_name", media_tag_name);
+			this.jsonBody.put("thumb_media_id", thumbMediaId);
+			this.jsonBody.put("msdkExtInfo", msdkExtInfo);
+			this.mMsdkExtInfo = msdkExtInfo;
+			
+            Logger.d(this.mMsdkExtInfo);
+			this.jsonBody.put("openid", this.openId);
+			this.jsonBody.put("access_token", this.accessToken);
+		} catch (JSONException e) {
+			Logger.d("JSONException ShareToWx<init>");
+			e.printStackTrace();
+		}
+	}
+    
+    protected String getExtUrlParams() {
+        return "msdkExtInfo=" + URLEncoder.encode(mMsdkExtInfo);
+    }
+    
+	// 发出回调, 回调到全局回调的OnShareCallback
+	private void callback(int flag, String msg, String msdkExtInfo) {
+		ShareRet rr = new ShareRet();
+		rr.flag = flag;
+		rr.desc = msg;
+		rr.platform = WeGame.WXPLATID;
+		rr.extInfo = msdkExtInfo;
+        Logger.d(this.mMsdkExtInfo);
+
+		WeGameNotifyGame.getInstance().OnBackendShareCallback(rr);
+	}
+
+	@Override
+	public void onSuccess(String netContent, int statusCode, int what) {
+		int flag = CallbackFlag.eFlag_Error;
+		String msg = "unknows onSuccess";
+		String extInfo = "";
+		if (what != getMyId()) {
+			Logger.d("a wrong callback");
+			return;
+		}
+		if (null == netContent) { 
+            Logger.d("shareToWX onsuccess response data is null");
+            reportEventToBeacon(EVENT_NAME, false, ErrorCodeFlag.SDK_ERROR_NETWORK_RETURN_NULL, false);
+            return ;
+        }
+		Logger.d("onSuccess " + netContent);
+		try {
+			JSONObject json = new SafeJSONObject(netContent);
+			if (null != json) {
+			    int ret = json.getInt("ret");
+				if (ret == 0) {
+					flag = CallbackFlag.eFlag_Succ;
+					reportEventToBeacon(EVENT_NAME, true, ErrorCodeFlag.SDK_SUCCESS, false);
+				} else {
+				    Logger.d("shareToWx onsuccess, ret:" + ret);
+				    reportEventToBeacon(EVENT_NAME, false, ret, true);
+				}
+				extInfo = json.getString("msdkExtInfo");
+				if(extInfo != null) {
+                    extInfo = URLDecoder.decode(extInfo);
+                }
+				Logger.d("extInfo: " + extInfo);
+				msg = getNetDesc(json, this.getClass().getName());
+			}
+		} catch (JSONException e) {
+		    reportEventToBeacon(EVENT_NAME, false, ErrorCodeFlag.SDK_ERROR_JSON_VALUES, false);
+			e.printStackTrace();
+			Logger.d("json error(ShareToWX): " + netContent + " statusCode: "
+					+ statusCode);
+		} finally {
+			callback(flag, msg, extInfo);
+		}
+	}
+
+	@Override
+	public void onFailure(String errorContent, int statusCode, int what) {
+		if (what != getMyId()) {
+			Logger.d("a wrong callback");
+			return;
+		}
+
+		Logger.d("onFailure " + errorContent + " statusCode: " + statusCode);
+		callback(CallbackFlag.eFlag_Error, errorContent, this.mMsdkExtInfo);
+		reportEventToBeacon(EVENT_NAME, false, statusCode, false);
+	}
+
+	@Override
+	protected String getPath() {
+		return PATH;
+	}
+
+	@Override
+	protected int getMyId() {
+		return RemoteApiWhat.ShareToWx.ordinal();
+	}
+}

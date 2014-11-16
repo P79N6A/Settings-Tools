@@ -1,0 +1,322 @@
+package com.tencent.msdk.db;
+
+import java.util.Vector;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteStatement;
+
+import com.tencent.msdk.notice.NoticeInfo;
+import com.tencent.msdk.notice.eMSG_CONTENTTYPE;
+import com.tencent.msdk.notice.eMSG_NOTICETYPE;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/**
+ * @author hardyshi	2014-03-18
+ * Desc:公告 DB
+ */
+public class NoticeDBModel extends BaseDBModel {
+	
+	private static String NOTICE_SQL_LIMIT = "20";
+	// 表的列名
+	public static String col_msg_id = "msg_id"; // 主键
+	public static String col_app_id = "app_id";
+	public static String col_open_id = "open_id";
+	public static String col_msg_url = "msg_url";
+	public static String col_msg_type = "msg_type"; // 滚动 还是 弹出类型
+	public static String col_msg_scene = "msg_scene"; // 公告弹出的场景
+	public static String col_start_time = "start_time";
+	public static String col_end_time = "end_time";
+	public static String col_content_type = "content_type"; // 文本、图片、网页
+	
+	public static String col_msg_content = "msg_content";
+	public static String col_msg_title = "msg_title";
+	
+	public static String col_horizontal_img_url = "h_img_url";
+	public static String col_horizontal_img_hash = "h_img_hash";
+	public static String col_vertical_img_url = "v_img_url";
+	public static String col_vertical_img_hash = "v_img_hash";
+	
+	public static String col_web_url = "web_url"; 
+	
+	public final static String TBL_NAME = "notice_info";
+	private DbManager helper = DbManager.gDefault.get();
+
+	public NoticeDBModel() {
+		super();
+	}
+
+	public static String getCreateTableSql() {
+		String createTblSql = "";
+		createTblSql += "CREATE TABLE IF NOT EXISTS [" + TBL_NAME + "] (";
+		createTblSql += "[" + col_msg_id
+				+ "] NVARCHAR(32)  PRIMARY KEY NOT NULL,";
+		createTblSql += "[" + col_app_id + "] VARCHAR(256)  NULL,";
+		createTblSql += "[" + col_open_id + "] VARCHAR(256)  NULL,";
+		createTblSql += "[" + col_msg_url + "] TEXT  NULL,";
+		createTblSql += "[" + col_msg_type + "] VARCHAR(16)  NULL,";
+		createTblSql += "[" + col_msg_scene + "] VARCHAR(16)  NULL,";
+		createTblSql += "[" + col_start_time + "] TIMESTAMP  NULL,";
+		createTblSql += "[" + col_end_time + "] TIMESTAMP  NULL,";
+		createTblSql += "[" + col_content_type + "] VARCHAR(16)  NULL,";
+		
+		createTblSql += "[" + col_msg_content + "] TEXT  NULL,";
+		createTblSql += "[" + col_msg_title + "] VARCHAR(256)  NULL,";
+		
+		
+		createTblSql += "[" + col_horizontal_img_url + "] VARCHAR(256)  NULL,";
+		createTblSql += "[" + col_horizontal_img_hash + "] VARCHAR(64)  NULL,";
+		createTblSql += "[" + col_vertical_img_url + "] VARCHAR(256)  NULL,";
+		createTblSql += "[" + col_vertical_img_hash + "] VARCHAR(64)  NULL,";
+		createTblSql += "[" + col_web_url + "] VARCHAR(256)  NULL";
+		createTblSql += ")";
+		return createTblSql;
+	}
+
+	public static String getDropTableSql() {
+		return "DROP TABLE IF EXISTS " + TBL_NAME;
+	}
+
+	public String getTableName() {
+		return TBL_NAME;
+	}
+
+	public boolean insert(NoticeInfo noticeInfo) {
+		if(null == noticeInfo){
+			Logger.w("noticeInfo is null");
+			return false;
+		}
+		synchronized (helper) {
+			try {
+				ContentValues cv = noticeInfo.getUsableContentValues(this);
+				Logger.d("insert, cv = " + cv);
+				SQLiteDatabase db = helper.getWritableDatabase();
+				db.insert(TBL_NAME, null, cv);
+				return true;
+			} catch (Exception e) {
+				e.printStackTrace();
+				Logger.d("Insert into notice_info error");
+				return false;
+			} finally {
+				helper.close();
+			}
+		}
+	}
+
+	/**
+	 * 根据时间戳删除相对改时间过期的公告
+	 * @param currentTime
+	 * @return 删除公告数量
+	 */
+	public int deleteNoticeByTime(String currentTime) {
+		if(T.ckIsEmpty(currentTime)){
+			Logger.w("currentTime is null");
+			return 0;
+		}
+		synchronized (helper) {
+			Logger.d("deleteNoticeByTime, currentTime= " + currentTime);
+			String whereClause = " `" + col_end_time + "` < ? ";
+			String[] whereArgs = new String[] { currentTime };
+			SQLiteDatabase db = helper.getWritableDatabase();
+			int howManyDeleted = db
+					.delete(TBL_NAME, whereClause, whereArgs);
+			return howManyDeleted;
+		}
+	}
+
+	public String getRedundancyNoticeListByTime(String currentTime){
+		String msgListString = "";
+		if(T.ckIsEmpty(currentTime)){
+			Logger.w("currentTime maybe null");
+			return "";
+		}
+		synchronized (helper) {
+			String selection = " " +col_end_time	+ " < ? ";
+			String[] selectionArgs = { currentTime};
+			Logger.d("currentTimeStamp:"+currentTime);
+			SQLiteDatabase rDb = helper.getReadableDatabase();
+			Cursor c = rDb.query(TBL_NAME, null, selection, selectionArgs,
+					col_msg_id, null, null, NOTICE_SQL_LIMIT);
+			Logger.d("query result:"+c.getCount());
+			for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+				NoticeInfo info = getColumnData(c);
+				msgListString = msgListString + " "+info.mNoticeId + " ,";
+			}
+			c.close();
+			return msgListString;
+		}
+	}
+	
+	/**
+	 * 删除公告id列表删除公告
+	 * @param msgList 无效公告Msgid拼接的SQL参数（145,146,147）
+	 * @return 删除公告数量
+	 */
+	public int deleteNoticeInDBByMsgList(String msgList) {
+		if (T.ckIsEmpty(msgList)){
+        	Logger.d("msgList is null");
+        	return 0;
+        }else {
+        	msgList = msgList.replaceAll(" ",""); 
+        	if(msgList.endsWith(",")){
+            	Logger.d("sql para is end with ,msgList:"+msgList);
+            	msgList = msgList.substring(0, msgList.length()-1);
+            	Logger.d("sql para after check ,msgList:"+msgList);
+            }else{
+            	Logger.d("msgList:"+msgList);
+            }
+        }
+		synchronized (helper) {
+			Logger.d("msgList: " + msgList);
+			String whereClause = " `" + col_msg_id + "` in ( ? ) ";
+			String[] whereArgs = new String[] { msgList };
+			SQLiteDatabase db = helper.getWritableDatabase();
+			int howManyDeleted = db
+					.delete(TBL_NAME, whereClause, whereArgs);
+			return howManyDeleted;
+		}
+	}
+	
+	/**
+	 * 根据公告id删除公告
+	 * @param msg_id
+	 * @return
+	 */
+	public int deleteNoticeByMsgId(String msg_id) {
+		if(T.ckIsEmpty(msg_id)){
+			Logger.w("msg_id is null");
+			return 0;
+		}
+		synchronized (helper) {
+			Logger.d("deleteNoticeByMsgId, msg_id= " + msg_id);
+			String whereClause = " `" + col_msg_id + "` = ? ";
+			String[] whereArgs = new String[] { msg_id };
+			SQLiteDatabase db = helper.getWritableDatabase();
+			int howManyDeleted = db
+					.delete(TBL_NAME, whereClause, whereArgs);
+			return howManyDeleted;
+		}
+	}
+
+	public boolean save(NoticeInfo noticeInfo) {
+		if(null == noticeInfo){
+			Logger.w("noticeInfo is null");
+			return false;
+		}
+		synchronized (helper) {
+			if (this.isExisted(noticeInfo)) {
+				Logger.d("notice has exit!");
+				String whereClause = " " + col_msg_id + " = ? ";
+	            String[] whereArgs = new String[] { String.valueOf(noticeInfo.mNoticeId)};
+				ContentValues cv = noticeInfo.getUsableContentValues(this);
+				Logger.d("update, cv = " + cv);
+				SQLiteDatabase db = helper.getWritableDatabase();
+				db.update(TBL_NAME, cv, whereClause, whereArgs);
+				return true;
+				
+			}else{
+				return this.insert(noticeInfo);
+			}
+		}
+	}
+
+	public boolean isExisted(NoticeInfo noticeInfo) {
+		if(null == noticeInfo){
+			Logger.w("noticeInfo is null");
+			return false;
+		}
+		synchronized (helper) {
+			String[] columns = null;
+			String whereClause = " " + col_msg_id + " = ? ";
+			String[] whereArgs = { String.valueOf(noticeInfo.mNoticeId) };
+			String groupBy = null;
+			String having = null;
+			String orderBy = null;
+			String limit = null;
+			SQLiteDatabase rDb = helper.getReadableDatabase();
+			Cursor cursor = rDb.query(TBL_NAME, columns, whereClause,
+					whereArgs, groupBy, having, orderBy, limit);
+			if (cursor.getCount() > 0) {
+				cursor.close();
+				return true;
+			} else {
+				cursor.close();
+				return false;
+			}
+		}
+	}
+
+	private NoticeInfo getColumnData(Cursor c) {
+		NoticeInfo info = new NoticeInfo();
+		info.mNoticeId = this.getStringByName(c, NoticeDBModel.col_msg_id);
+		info.mAppId = this.getStringByName(c, NoticeDBModel.col_app_id);
+		info.mOpenId = this.getStringByName(c,  NoticeDBModel.col_open_id);
+		info.mNoticeUrl = this.getStringByName(c, NoticeDBModel.col_msg_url);
+		info.mNoticeType = eMSG_NOTICETYPE.getEnum(this.getIntByName(c, NoticeDBModel.col_msg_type));
+		info.mNoticeScene = this.getStringByName(c, NoticeDBModel.col_msg_scene);
+		info.mNoticeStartTime = this.getStringByName(c, NoticeDBModel.col_start_time);
+		info.mNoticeEndTime = this.getStringByName(c, NoticeDBModel.col_end_time);
+		info.mNoticeContentType = eMSG_CONTENTTYPE.getEnum(this.getIntByName(c, NoticeDBModel.col_content_type));
+		info.mNoticeTitle = this.getStringByName(c, NoticeDBModel.col_msg_title);
+		info.mNoticeContent = this.getStringByName(c, NoticeDBModel.col_msg_content);
+		info.mNoticeHImgUrl = this.getStringByName(c, NoticeDBModel.col_horizontal_img_url);
+		info.mNoticeHImgHash = this.getStringByName(c, NoticeDBModel.col_horizontal_img_hash);
+		info.mNoticeVImgUrl = this.getStringByName(c, NoticeDBModel.col_vertical_img_url);
+		info.mNoticeVImgHash = this.getStringByName(c, NoticeDBModel.col_vertical_img_hash);
+		info.mNoticeContentWebUrl = this.getStringByName(c, NoticeDBModel.col_web_url);
+		return info;
+	}
+
+
+	public Vector<NoticeInfo> getNoticeRecordBySceneAndType(
+			String appId, String openId, eMSG_NOTICETYPE noticeType, String scene) {
+		String currentTime = String.valueOf(System.currentTimeMillis()/1000);
+		Vector<NoticeInfo> noticeVector = new Vector<NoticeInfo>();
+		if(T.ckIsEmpty(appId) || T.ckIsEmpty(scene) || T.ckIsEmpty(currentTime)){
+			Logger.w("appId,scene,currentTime maybe null");
+			return noticeVector;
+		}
+		if(!eMSG_NOTICETYPE.checkIsValidType(noticeType)){
+			Logger.w("bad noticeType:"+noticeType);
+			return noticeVector;
+		}
+		synchronized (helper) {
+			String selection = " " 
+			        + col_app_id + " like ? and " 
+			        + col_open_id + " in('', ? )and "
+			        + col_msg_scene + " = ? and " 
+			        + col_start_time + " < ? and " 
+			        + col_end_time	+ " > ? and "; 
+			        
+			if(eMSG_NOTICETYPE.eMSG_NOTICETYPE_ALL == noticeType){
+				selection = selection + col_msg_type + " in (0,1,?)";
+			}else{
+				selection = selection + col_msg_type + " = ?";
+			}
+			
+			String[] selectionArgs = { 
+			        "%"+appId+"%", 
+			        openId, 
+			        scene, 
+			        currentTime, 
+			        currentTime, 
+			        String.valueOf(noticeType.val())
+			};
+			
+			Logger.d("appId:"+appId+",openid:"+openId+",scene:"+scene+",noticetype:"+noticeType+",currentTimeStamp:"+currentTime);
+			SQLiteDatabase rDb = helper.getReadableDatabase();
+			Cursor c = rDb.query(TBL_NAME, null, selection, selectionArgs,
+					null, null,col_msg_id,NOTICE_SQL_LIMIT);
+			Logger.d("query result:"+c.getCount());
+			for (c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+				NoticeInfo info = getColumnData(c);
+				noticeVector.add(info);
+				Logger.d("query result info:"+info.mNoticeId);
+			}
+			c.close();
+			return noticeVector;
+		}
+	}
+}
