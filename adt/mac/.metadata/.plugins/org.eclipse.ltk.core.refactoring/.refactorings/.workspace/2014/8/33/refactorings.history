@@ -1,4 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<session version="1.0">
-<refactoring comment="Delete 8 resources" deleteContents="false" description="Delete 8 resources" element1="/AndroidPayLibrary" element2="/AndroidPaySample" element3="/MSDK" element4="/MSDKLibrary" element5="/MSDKSample" element6="/MSDKSampleTest" element7="/QmiSdk" element8="/TenpayPlugin4Game" flags="7" id="org.eclipse.ltk.core.refactoring.delete.resources" resources="8" stamp="1408090022396"/>
-</session>
