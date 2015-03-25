@@ -1,0 +1,596 @@
+
+**** Clean-only build of configuration Default for project AGSDKDemo ****
+
+ndk-build clean 
+
+Cannot run program "ndk-build": Unknown reason
+Error: Program "ndk-build" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project AGSDKDemo ****
+
+ndk-build all 
+
+Cannot run program "ndk-build": Unknown reason
+Error: Program "ndk-build" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project AGSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : AGSDKDemo [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : AGSDKDemo [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : AGSDKDemo [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : AGSDKDemo [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project AGSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: AGSDKDemo <= AGSDKApi.cpp
+[armeabi] Compile++ thumb: AGSDKDemo <= com_tencent_agsdk_api_AGSDKListenerForSO.cpp
+[armeabi] Compile++ thumb: AGSDKDemo <= com_example_agsdkapi_JNITest.cpp
+[armeabi] SharedLibrary  : libAGSDKDemo.so
+[armeabi] Install        : libAGSDKDemo.so => libs/armeabi/libAGSDKDemo.so
+[armeabi-v7a] Compile++ thumb: AGSDKDemo <= AGSDKApi.cpp
+[armeabi-v7a] Compile++ thumb: AGSDKDemo <= com_tencent_agsdk_api_AGSDKListenerForSO.cpp
+[armeabi-v7a] Compile++ thumb: AGSDKDemo <= com_example_agsdkapi_JNITest.cpp
+[armeabi-v7a] SharedLibrary  : libAGSDKDemo.so
+[armeabi-v7a] Install        : libAGSDKDemo.so => libs/armeabi-v7a/libAGSDKDemo.so
+[x86] Compile++      : AGSDKDemo <= AGSDKApi.cpp
+[x86] Compile++      : AGSDKDemo <= com_tencent_agsdk_api_AGSDKListenerForSO.cpp
+[x86] Compile++      : AGSDKDemo <= com_example_agsdkapi_JNITest.cpp
+[x86] SharedLibrary  : libAGSDKDemo.so
+[x86] Install        : libAGSDKDemo.so => libs/x86/libAGSDKDemo.so
+[mips] Compile++      : AGSDKDemo <= AGSDKApi.cpp
+[mips] Compile++      : AGSDKDemo <= com_tencent_agsdk_api_AGSDKListenerForSO.cpp
+[mips] Compile++      : AGSDKDemo <= com_example_agsdkapi_JNITest.cpp
+[mips] SharedLibrary  : libAGSDKDemo.so
+[mips] Install        : libAGSDKDemo.so => libs/mips/libAGSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project AGSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libAGSDKDemo.so => libs/armeabi/libAGSDKDemo.so
+[armeabi-v7a] Install        : libAGSDKDemo.so => libs/armeabi-v7a/libAGSDKDemo.so
+[x86] Install        : libAGSDKDemo.so => libs/x86/libAGSDKDemo.so
+[mips] Install        : libAGSDKDemo.so => libs/mips/libAGSDKDemo.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd clean 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd all 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd all 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd all 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd all 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd all 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd clean 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build.cmd all 
+
+Cannot run program "/usr/local/android-ndk-r9c/ndk-build.cmd": Unknown reason
+Error: Program "ndk-build.cmd" is not found in PATH
+
+PATH=[/usr/bin:/bin:/usr/sbin:/sbin]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi] SharedLibrary  : libMSDKDemo.so
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi-v7a] SharedLibrary  : libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Compile++      : MSDKDemo <= MSDKApi.cpp
+[x86] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[x86] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[x86] SharedLibrary  : libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Compile++      : MSDKDemo <= MSDKApi.cpp
+[mips] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[mips] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[mips] SharedLibrary  : libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDKDemo [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : MSDKDemo [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : MSDKDemo [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : MSDKDemo [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi] SharedLibrary  : libMSDKDemo.so
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi-v7a] SharedLibrary  : libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Compile++      : MSDKDemo <= MSDKApi.cpp
+[x86] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[x86] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[x86] SharedLibrary  : libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Compile++      : MSDKDemo <= MSDKApi.cpp
+[mips] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[mips] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[mips] SharedLibrary  : libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDKDemo [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : MSDKDemo [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : MSDKDemo [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : MSDKDemo [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi] SharedLibrary  : libMSDKDemo.so
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi-v7a] SharedLibrary  : libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Compile++      : MSDKDemo <= MSDKApi.cpp
+[x86] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[x86] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[x86] SharedLibrary  : libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Compile++      : MSDKDemo <= MSDKApi.cpp
+[mips] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[mips] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[mips] SharedLibrary  : libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDKDemo [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : MSDKDemo [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : MSDKDemo [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : MSDKDemo [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi] SharedLibrary  : libMSDKDemo.so
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi-v7a] SharedLibrary  : libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Compile++      : MSDKDemo <= MSDKApi.cpp
+[x86] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[x86] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[x86] SharedLibrary  : libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Compile++      : MSDKDemo <= MSDKApi.cpp
+[mips] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[mips] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[mips] SharedLibrary  : libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Clean-only build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build clean 
+[armeabi] Clean          : MSDKDemo [armeabi]
+[armeabi] Clean          : gnustl_shared [armeabi]
+[armeabi] Clean          : gnustl_static [armeabi]
+[armeabi-v7a] Clean          : MSDKDemo [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_shared [armeabi-v7a]
+[armeabi-v7a] Clean          : gnustl_static [armeabi-v7a]
+[x86] Clean          : MSDKDemo [x86]
+[x86] Clean          : gnustl_shared [x86]
+[x86] Clean          : gnustl_static [x86]
+[mips] Clean          : MSDKDemo [mips]
+[mips] Clean          : gnustl_shared [mips]
+[mips] Clean          : gnustl_static [mips]
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi] SharedLibrary  : libMSDKDemo.so
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= MSDKApi.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[armeabi-v7a] Compile++ thumb: MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[armeabi-v7a] SharedLibrary  : libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Compile++      : MSDKDemo <= MSDKApi.cpp
+[x86] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[x86] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[x86] SharedLibrary  : libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Compile++      : MSDKDemo <= MSDKApi.cpp
+[mips] Compile++      : MSDKDemo <= com_tencent_msdk_api_MSDKListenerForSO.cpp
+[mips] Compile++      : MSDKDemo <= com_example_msdkapi_JNITest.cpp
+[mips] SharedLibrary  : libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****

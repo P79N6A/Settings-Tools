@@ -1,0 +1,10 @@
+
+**** Build of configuration Default for project MSDKDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
+[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
+[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
+[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+
+**** Build Finished ****
