@@ -1,6 +1,7 @@
 alias cls='clear'
 alias open='open -n'
-alias apk='cd ~/temp & java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
+alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
+alias apk='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
 alias ll='ls -l'
 alias la='ls -a'
