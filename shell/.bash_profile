@@ -1,10 +1,10 @@
-ANDROID_HOME=/Users/hardyshi/Documents/Library/SDK
+ANDROID_HOME=/usr/local/android-sdk
 export ANDROID_HOME
 
-ANDROIDNDK_LINUX_R9C=/Users/hardyshi/Documents/Library/android-ndk-r9c
+ANDROIDNDK_LINUX_R9C=/usr/local/android-ndk-r9c
 export ANDROIDNDK_LINUX_R9C
 
-ANDROID_NDK_CMD=/Users/hardyshi/Documents/Library/android-ndk-r9c/ndk-build
+ANDROID_NDK_CMD=/usr/local/android-ndk-r9c/ndk-build
 export ANDROID_NDK_CMD
 
-export PATH=${PATH}:/Users/hardyshi/Documents/Library/SDK/platform-tools:$ANDROID_HOME:$ANDROIDNDK_LINUX_R9C:$ANDROID_NDK_CMD
+export PATH=${PATH}:/usr/local/android-sdk/platform-tools:$ANDROID_HOME:$ANDROIDNDK_LINUX_R9C:$ANDROID_NDK_CMD
