@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bookmarks>
+   <site url="http://subclipse.tigris.org/update_1.8.x" selected="true" name="svn"/>
+   <site url="http://download.eclipse.org/releases/luna" selected="true" name="Luna"/>
+   <site url="http://download.eclipse.org/mylyn/releases/luna" selected="true" name="Mylyn for Eclipse Luna"/>
+   <site url="http://download.eclipse.org/eclipse/updates/4.4" selected="true" name="The Eclipse Project Updates"/>
+   <site url="http://download.eclipse.org/mylyn/releases/3.12" selected="false" name=""/>
+   <site url="http://eclipse.tmatesoft.com/svnkit/1.7.x/" selected="false" name=""/>
+</bookmarks>
