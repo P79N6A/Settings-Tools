@@ -74,6 +74,11 @@ endif
 set complete=.,w,b,k,t,i
 set completeopt=longest,menu
 
+
+" 代码自动补全
+
+
+
 " 代码折叠
 set foldmethod=marker
 
