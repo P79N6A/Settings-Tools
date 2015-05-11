@@ -93,8 +93,9 @@ alias grep="grep --color=auto"
 
 #mac
 alias open='open -n'
-zshback='cp ~/.zshrc ~/Documents/github/Settings-Tools/shell'
-zshrestore='cp ~/Documents/github/Settings-Tools/shell/.zshrc ~/'
+alias zshback='cp ~/.zshrc ~/Documents/github/Settings-Tools/shell' 
+alias zshrestore='cp ~/Documents/github/Settings-Tools/shell/.zshrc ~/ && source ~/zshrc'
+alias his='history'
 
 #ide
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
