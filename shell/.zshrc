@@ -1,5 +1,5 @@
 # Path to your oh-my-zsh installation.
-export ZSH=/Users/hardyshi/.oh-my-zsh
+export ZSH=~/.oh-my-zsh
 
 # Set name of the theme to load.
 # Look in ~/.oh-my-zsh/themes/
@@ -80,29 +80,36 @@ source $ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+alias -s gz='tar -xzvf'
+alias -s tgz='tar -xzvf'
+alias -s zip='unzip'
+alias -s bz2='tar -xjvf'
 alias cls='clear'
-alias open='open -n'
-alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
-alias apk='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
-alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
-alias adbscreen='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
 alias ll='ls -l'
 alias la='ls -a'
 alias vi='vim'
 alias javac="javac -J-Dfile.encoding=utf8"
 alias grep="grep --color=auto"
-alias -s html=mate   # 在命令行直接输入后缀为 html 的文件名，会在 TextMate 中打开
-alias -s rb=mate     # 在命令行直接输入 ruby 文件，会在 TextMate 中打开
-alias -s py=vi       # 在命令行直接输入 python 文件，会用 vim 中打开，以下类似
-alias -s js=vi
-alias -s c=vi
-alias -s java=vi
-alias -s txt=vi
-alias -s gz='tar -xzvf'
-alias -s tgz='tar -xzvf'
-alias -s zip='unzip'
-alias -s bz2='tar -xjvf'
 
+#mac
+alias open='open -n'
+zshback='cp ~/.zshrc ~/Documents/github/Settings-Tools/shell'
+zshrestore='cp ~/Documents/github/Settings-Tools/shell/.zshrc ~/'
+
+#ide
+alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
+alias apk='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
+alias adbscreen='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
+
+#agsdk &msdk
+alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
+alias msdkwiki='cd ~/msdk/document/Wiki/'
+alias msdknew='cd ~/msdk/trunk/android/TMGS'
+
+
+
+
+#PATH
 ANDROID_HOME=/usr/local/android-sdk
 export ANDROID_HOME
 
