@@ -4,6 +4,7 @@
    <site url="http://download.eclipse.org/releases/luna" selected="true" name="Luna"/>
    <site url="http://download.eclipse.org/mylyn/releases/luna" selected="true" name="Mylyn for Eclipse Luna"/>
    <site url="http://download.eclipse.org/eclipse/updates/4.4" selected="true" name="The Eclipse Project Updates"/>
+   <site url="http://pydev.org/updates/" selected="true" name="pydev"/>
    <site url="http://download.eclipse.org/mylyn/releases/3.12" selected="false" name=""/>
    <site url="http://eclipse.tmatesoft.com/svnkit/1.7.x/" selected="false" name=""/>
 </bookmarks>

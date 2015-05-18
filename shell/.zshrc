@@ -106,6 +106,7 @@ alias adbscreen='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/s
 
 #agsdk &msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
+alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame'
 alias msdkwiki='cd ~/msdk/document/Wiki/'
 alias msdknew='cd ~/msdk/trunk/android/TMGS'
 alias msdktrunk='cd ~/msdk/trunk/android/OpenID'
