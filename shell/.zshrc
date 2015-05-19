@@ -93,7 +93,7 @@ alias grep="grep --color=auto"
 
 #mac
 alias open='open -n'
-alias his='history'
+alias his='history | grep '
 alias zshback='cp ~/.zshrc ~/Documents/github/Settings-Tools/shell' 
 alias zshrestore='cp ~/Documents/github/Settings-Tools/shell/.zshrc ~/ && source ~/.zshrc'
 alias viback='cp ~/.vimrc ~/Documents/github/Settings-Tools/shell' 
