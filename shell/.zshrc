@@ -82,7 +82,8 @@ source $ZSH/oh-my-zsh.sh
 # alias ohmyzsh="mate ~/.oh-my-zsh"
 alias -s gz='tar -xzvf'
 alias -s tgz='tar -xzvf'
-alias -s zip='unzip'
+alias -s zip='zip -r'
+alias -s unzip='unzip'
 alias -s bz2='tar -xjvf'
 alias cls='clear'
 alias ll='ls -l'
@@ -90,6 +91,7 @@ alias la='ls -a'
 alias vi='vim'
 alias javac="javac -J-Dfile.encoding=utf8"
 alias grep="grep --color=auto"
+alias ping="ping -c 10 -i 0.5" #ping 十次，每次间隔0.5秒
 
 #mac
 alias open='open -n'
