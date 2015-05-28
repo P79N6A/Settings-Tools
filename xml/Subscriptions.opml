@@ -4,6 +4,9 @@
 		<title>Subscriptions - RSS</title>
 	</head>
 	<body>
+		<outline text="专业订阅" title="专业订阅">
+			<outline htmlUrl="http://www.wooyun.org" title="wooyun.org 最新公开漏洞" xmlUrl="http://www.wooyun.org/feeds/public" type="rss" text="wooyun.org 最新公开漏洞"/>
+		</outline>
 		<outline text="技术博客" title="技术博客">
 			<outline htmlUrl="http://blog.csdn.net/caoshuangxiaodouya" title="Android应用开发小demo" xmlUrl="http://blog.csdn.net/caoshuangxiaodouya/rss/list" type="rss" text="Android应用开发小demo"/>
 			<outline htmlUrl="http://blog.csdn.net/andy_android" title="andy_android的专栏" xmlUrl="http://blog.csdn.net/andy_android/rss/list" type="rss" text="andy_android的专栏"/>
