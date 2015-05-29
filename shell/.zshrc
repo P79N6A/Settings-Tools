@@ -103,8 +103,11 @@ alias virestore='cp ~/Documents/github/Settings-Tools/shell/.vimrc ~/'
 
 #ide
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
+
+#android
 alias apk='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
 alias adbscreen='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
+alias aapt='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
 
 #agsdk &msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'

@@ -10,7 +10,7 @@
 		<outline text="技术博客" title="技术博客">
 			<outline htmlUrl="http://blog.csdn.net/caoshuangxiaodouya" title="Android应用开发小demo" xmlUrl="http://blog.csdn.net/caoshuangxiaodouya/rss/list" type="rss" text="Android应用开发小demo"/>
 			<outline htmlUrl="http://blog.csdn.net/andy_android" title="andy_android的专栏" xmlUrl="http://blog.csdn.net/andy_android/rss/list" type="rss" text="andy_android的专栏"/>
-			<outline htmlUrl="http://blog.csdn.net" title="CSDN博客推荐文章" xmlUrl="http://blog.csdn.net/rss.html?type=column&amp;column=robotium" type="rss" text="CSDN博客推荐文章"/>
+			<outline htmlUrl="http://blog.csdn.net/oldmtn" title="oldmtn的专栏" xmlUrl="http://blog.csdn.net/oldmtn/rss/list" type="rss" text="oldmtn的专栏"/>
 			<outline htmlUrl="http://blog.csdn.net/qinjuning" title="qinjuning、lets go" xmlUrl="http://blog.csdn.net/qinjuning/rss/list" type="rss" text="qinjuning、lets go"/>
 			<outline title="博客园_Milo的游戏开发" xmlUrl="http://feed.cnblogs.com/blog/u/66551/rss" type="rss" text="博客园_Milo的游戏开发"/>
 			<outline title="博客园_youxiachai" xmlUrl="http://feed.cnblogs.com/blog/u/92891/rss" type="rss" text="博客园_youxiachai"/>
