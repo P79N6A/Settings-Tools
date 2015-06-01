@@ -124,12 +124,18 @@ alias pakpay='echo com.tencent.midas.sample'
 ANDROID_HOME=/usr/local/android-sdk
 export ANDROID_HOME
 
+ANDROID_TOOLS=$ANDROID_HOME/tools
+export ANDROID_TOOLS
+
+ANDROID_PLATFORM_TOOLS=$ANDROID_HOME/platform-tools
+export ANDROID_PLATFORM_TOOLS
+
 ANDROIDNDK_LINUX_R9C=/usr/local/android-ndk-r9c
 export ANDROIDNDK_LINUX_R9C
 
 ANDROID_NDK_CMD=/usr/local/android-ndk-r9c/ndk-build
 export ANDROID_NDK_CMD
 
-export PATH=${PATH}:/usr/local/android-sdk/platform-tools:$ANDROID_HOME:$ANDROIDNDK_LINUX_R9C:$ANDROID_NDK_CMD
+export PATH=${PATH}:/usr/local/android-sdk/platform-tools:$ANDROID_HOME:$ANDROIDNDK_LINUX_R9C:$ANDROID_NDK_CMD:$ANDROID_TOOLS:$ANDROID_PLATFORM_TOOLS
 
 
