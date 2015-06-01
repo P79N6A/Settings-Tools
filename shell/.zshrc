@@ -100,6 +100,7 @@ alias zshback='cp ~/.zshrc ~/Documents/github/Settings-Tools/shell'
 alias zshrestore='cp ~/Documents/github/Settings-Tools/shell/.zshrc ~/ && source ~/.zshrc'
 alias viback='cp ~/.vimrc ~/Documents/github/Settings-Tools/shell' 
 alias virestore='cp ~/Documents/github/Settings-Tools/shell/.vimrc ~/'
+alias temp='cd ~/temp'
 
 #ide
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
