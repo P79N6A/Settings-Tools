@@ -100,7 +100,7 @@ alias zshback='cp ~/.zshrc ~/Documents/github/Settings-Tools/shell'
 alias zshrestore='cp ~/Documents/github/Settings-Tools/shell/.zshrc ~/ && source ~/.zshrc'
 alias viback='cp ~/.vimrc ~/Documents/github/Settings-Tools/shell' 
 alias virestore='cp ~/Documents/github/Settings-Tools/shell/.vimrc ~/'
-alias temp='cd ~/temp'
+alias temp='cd ~/temp && pwd'
 
 #ide
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
@@ -112,10 +112,10 @@ alias aapt='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
 
 #agsdk &msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
-alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame'
-alias msdkwiki='cd ~/msdk/document/Wiki/'
-alias msdknew='cd ~/msdk/trunk/android/TMGS'
-alias msdktrunk='cd ~/msdk/trunk/android/OpenID'
+alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame && pwd'
+alias msdkwiki='cd ~/msdk/document/Wiki  && pwd'
+alias msdknew='cd ~/msdk/trunk/android/TMGS  && pwd'
+alias msdktrunk='cd ~/msdk/trunk/android/OpenID  && pwd'
 alias pakmsdk='echo com.example.wegame'
 alias pakagsdk='echo com.example.agsdkdemo'
 alias pakpay='echo com.tencent.midas.sample'
@@ -139,4 +139,6 @@ export ANDROID_NDK_CMD
 
 export PATH=${PATH}:/usr/local/android-sdk/platform-tools:$ANDROID_HOME:$ANDROIDNDK_LINUX_R9C:$ANDROID_NDK_CMD:$ANDROID_TOOLS:$ANDROID_PLATFORM_TOOLS
 
+#其余常量
+export SVN_EDITOR=vim
 
