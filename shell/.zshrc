@@ -127,7 +127,8 @@ alias msdktrunk='cd ~/msdk/trunk/android/OpenID  && pwd'
 alias pakmsdk='echo com.example.wegame'
 alias pakagsdk='echo com.example.agsdkdemo'
 alias pakpay='echo com.tencent.midas.sample'
-
+alias msdkdemo='adb uninstall com.example.wegame'
+alias msdkdatabase='cd ~/temp && pwd && rm -fr ~/temp/WEGAMEDB2 && adb pull /storage/sdcard0/WEGAMEDB2 && sqlite3 WEGAMEDB2'
 
 #PATH
 ANDROID_HOME=/usr/local/android-sdk
