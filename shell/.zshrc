@@ -92,6 +92,8 @@ alias vi='vim'
 alias javac="javac -J-Dfile.encoding=utf8"
 alias grep="grep --color=auto"
 alias ping="ping -c 10 -i 0.5" #ping 十次，每次间隔0.5秒
+alias nowTime="date +%s && date +'%Y-%m-%d %H:%M:%S %W'"
+alias tsGet="date +%s -d"
 
 #mac
 alias open='open -n'
@@ -124,6 +126,7 @@ alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame && pwd'
 alias msdkwiki='cd ~/msdk/document/Wiki  && pwd'
 alias msdknew='cd ~/msdk/trunk/android/TMGS  && pwd'
 alias msdktrunk='cd ~/msdk/trunk/android/OpenID  && pwd'
+alias msdkbranches='cd ~/msdk/branches/android/OpenId  && pwd'
 alias pakmsdk='echo com.example.wegame'
 alias pakagsdk='echo com.example.agsdkdemo'
 alias pakpay='echo com.tencent.midas.sample'
