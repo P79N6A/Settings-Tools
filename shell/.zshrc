@@ -92,8 +92,8 @@ alias vi='vim'
 alias javac="javac -J-Dfile.encoding=utf8"
 alias grep="grep --color=auto"
 alias ping="ping -c 10 -i 0.5" #ping 十次，每次间隔0.5秒
-alias nowTime="date +%s && date +'%Y-%m-%d %H:%M:%S %W'"
-alias tsGet="date +%s -d"
+alias dates="date +%s && date +'%Y-%m-%d %H:%M:%S %W'"
+alias datesd="date +%s -d"
 
 #mac
 alias open='open -n'
