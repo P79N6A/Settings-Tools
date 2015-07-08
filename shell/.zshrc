@@ -121,6 +121,11 @@ alias adbinputhome='adb shell input keyevent 2'
 alias adbinputback='adb shell input keyevent 3'
 alias adbinputtext='adb shell input text'
 
+#web
+alias webroot='cd ~/Documents/web && pwd'
+alias zhuoyoutest='cd ~/Documents/web/zhuoyouzhushou/2 && pwd'
+alias zhuoyourelease='cd ~/Documents/web/zhuoyouzhushou/10 && pwd'
+
 #agsdk & msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
 alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame && pwd'
