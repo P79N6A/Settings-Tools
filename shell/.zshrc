@@ -108,9 +108,10 @@ alias temp='cd ~/temp && pwd'
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
 
 #android
-alias apk='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
+alias apktoold='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
 alias adbscreen='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
-alias aapt='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
+alias adbActivity='adb shell dumpsys activity'
+alias aaptd='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
 alias adbinputspace='adb shell input keyevent 62'
 alias adbinputdel='adb shell input keyevent 67'
 alias adbinputleft='adb shell input keyevent 21'
@@ -120,7 +121,7 @@ alias adbinputhome='adb shell input keyevent 2'
 alias adbinputback='adb shell input keyevent 3'
 alias adbinputtext='adb shell input text'
 
-#agsdk &msdk
+#agsdk & msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
 alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame && pwd'
 alias msdkwiki='cd ~/msdk/document/Wiki  && pwd'
