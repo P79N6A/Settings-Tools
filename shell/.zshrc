@@ -127,6 +127,10 @@ alias zhuoyoutest='cd ~/Documents/web/zhuoyouzhushou/2 && pwd'
 alias zhuoyourelease='cd ~/Documents/web/zhuoyouzhushou/10 && pwd'
 alias mysqlLocal='/Applications/MAMP/Library/bin/mysql -uroot -proot'
 
+#svn
+alias svnignore='svn propedit svn:ignore .'
+alias svndel='svn --force del'
+
 #agsdk & msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
 alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame && pwd'
