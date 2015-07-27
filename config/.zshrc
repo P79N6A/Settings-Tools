@@ -99,13 +99,21 @@ alias datesd="date +%s -d"
 #mac
 alias open='open -n'
 alias his='history | grep '
-alias zshback='cp ~/.zshrc ~/Documents/github/Settings-Tools/config' 
-alias zshrestore='cp ~/Documents/github/Settings-Tools/config/.zshrc ~/ && source ~/.zshrc'
-alias viback='cp ~/.vimrc ~/Documents/github/Settings-Tools/config' 
-alias virestore='cp ~/Documents/github/Settings-Tools/config/.vimrc ~/'
-alias gitback='cp ~/.gitconfig ~/Documents/github/Settings-Tools/config' 
-alias gitrestore='cp ~/Documents/github/Settings-Tools/config/.gitconfig ~/'
-alias temp='cd ~/Documents/temp && pwd'
+alias zshback='cp ~/.zshrc ~/zixie/github/Settings-Tools/config' 
+alias zshrestore='cp ~/zixie/github/Settings-Tools/config/.zshrc ~/ && source ~/.zshrc'
+alias viback='cp ~/.vimrc ~/zixie/github/Settings-Tools/config' 
+alias virestore='cp ~/zixie/github/Settings-Tools/config/.vimrc ~/'
+alias gitback='cp ~/.gitconfig ~/zixie/github/Settings-Tools/config' 
+alias gitrestore='cp ~/zixie/github/Settings-Tools/config/.gitconfig ~/'
+alias temp='cd ~/zixie/temp && pwd'
+
+#mac ln
+alias lnBlog='ln -s ~/zixie/github/bihe0832.github.io/_posts ~/zixie/blog'
+alias lnConfig='ln -s ~/zixie/github/Settings-Tools/config ~/zixie/config'
+
+#blog
+alias blogStart='cd ~/zixie/github/bihe0832.github.io/ && echo jekyll server &&  jekyll server'
+
 
 #ide
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
@@ -128,12 +136,12 @@ alias adbinputback='adb shell input keyevent 3'
 alias adbinputtext='adb shell input text'
 
 #web
-alias webroot='cd ~/Documents/web && pwd'
-alias zhuoyoutest='cd ~/Documents/web/zhuoyouzhushou/2 && pwd'
-alias zhuoyourelease='cd ~/Documents/web/zhuoyouzhushou/10 && pwd'
+alias webroot='cd ~/zixie/web && pwd'
+alias zhuoyoutest='cd ~/zixie/web/zhuoyouzhushou/2 && pwd'
+alias zhuoyourelease='cd ~/zixie/web/zhuoyouzhushou/10 && pwd'
 alias mysqlLocal='/Applications/MAMP/Library/bin/mysql -uroot -proot'
 
-#svn
+#svnßß
 alias svnignore='svn propedit svn:ignore .'
 alias svndel='svn --force del'
 
