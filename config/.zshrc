@@ -99,21 +99,24 @@ alias datesd="date +%s -d"
 #mac
 alias open='open -n'
 alias his='history | grep '
-alias zshback='cp ~/.zshrc ~/zixie/github/Settings-Tools/config' 
-alias zshrestore='cp ~/zixie/github/Settings-Tools/config/.zshrc ~/ && source ~/.zshrc'
-alias viback='cp ~/.vimrc ~/zixie/github/Settings-Tools/config' 
-alias virestore='cp ~/zixie/github/Settings-Tools/config/.vimrc ~/'
-alias gitback='cp ~/.gitconfig ~/zixie/github/Settings-Tools/config' 
-alias gitrestore='cp ~/zixie/github/Settings-Tools/config/.gitconfig ~/'
 alias temp='cd ~/zixie/temp && pwd'
 
-#mac ln
-alias lnBlog='ln -s ~/zixie/github/bihe0832.github.io/_posts ~/zixie/blog'
-alias lnConfig='ln -s ~/zixie/github/Settings-Tools/config ~/zixie/config'
+#zsh
+alias zshback='cp ~/.zshrc ~/zixie/github/Settings-Tools/config' 
+alias zshrestore='cp ~/zixie/github/Settings-Tools/config/.zshrc ~/ && source ~/.zshrc'
+alias configLn='ln -s ~/zixie/github/Settings-Tools/config ~/zixie/config'
+
+#vi
+alias viback='cp ~/.vimrc ~/zixie/github/Settings-Tools/config' 
+alias virestore='cp ~/zixie/github/Settings-Tools/config/.vimrc ~/'
+
+#git
+alias gitback='cp ~/.gitconfig ~/zixie/github/Settings-Tools/config' 
+alias gitrestore='cp ~/zixie/github/Settings-Tools/config/.gitconfig ~/'
 
 #blog
 alias blogStart='cd ~/zixie/github/bihe0832.github.io/ && echo jekyll server &&  jekyll server'
-
+alias blogln='ln -s ~/zixie/github/bihe0832.github.io/_posts ~/zixie/blog'
 
 #ide
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
@@ -147,6 +150,8 @@ alias svndel='svn --force del'
 
 #shakeba
 alias shakebaRoot='cd ~/zixie/osc/shakeba && pwd'
+
+
 #agsdk & msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
 alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame && pwd'
@@ -180,4 +185,5 @@ export PATH=${PATH}:/usr/local/android-sdk/platform-tools:$ANDROID_HOME:$ANDROID
 
 #其余常量
 export SVN_EDITOR=vim
+#export http_proxy="http://proxy.tencent.com:8080/"  
 
