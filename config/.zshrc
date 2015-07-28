@@ -145,6 +145,8 @@ alias mysqlLocal='/Applications/MAMP/Library/bin/mysql -uroot -proot'
 alias svnignore='svn propedit svn:ignore .'
 alias svndel='svn --force del'
 
+#shakeba
+alias shakebaRoot='cd ~/zixie/osc/shakeba && pwd'
 #agsdk & msdk
 alias agsdktest='adb shell am instrument -w com.example.agsdkdemo.test/android.test.InstrumentationTestRunner'
 alias agsdktrunk='cd ~/msdk/trunk/android/ConsoleGame && pwd'
