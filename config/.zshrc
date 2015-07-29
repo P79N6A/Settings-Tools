@@ -185,5 +185,4 @@ export PATH=${PATH}:/usr/local/android-sdk/platform-tools:$ANDROID_HOME:$ANDROID
 
 #其余常量
 export SVN_EDITOR=vim
-#export http_proxy="http://proxy.tencent.com:8080/"  
 

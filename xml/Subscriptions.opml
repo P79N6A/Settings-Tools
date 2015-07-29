@@ -12,11 +12,14 @@
 			<outline htmlUrl="http://blog.csdn.net/andy_android" title="andy_android的专栏" xmlUrl="http://blog.csdn.net/andy_android/rss/list" type="rss" text="andy_android的专栏"/>
 			<outline htmlUrl="http://blog.csdn.net/oldmtn" title="oldmtn的专栏" xmlUrl="http://blog.csdn.net/oldmtn/rss/list" type="rss" text="oldmtn的专栏"/>
 			<outline htmlUrl="http://blog.csdn.net/qinjuning" title="qinjuning、lets go" xmlUrl="http://blog.csdn.net/qinjuning/rss/list" type="rss" text="qinjuning、lets go"/>
+			<outline htmlUrl="http://blog.csdn.net/roger_ge" title="Roger Ge 的专栏" xmlUrl="http://blog.csdn.net/roger_ge/rss/list" type="rss" text="Roger Ge 的专栏"/>
+			<outline htmlUrl="stormzhang.com" title="做好现在的事儿" xmlUrl="http://stormzhang.com/rss.xml" type="rss" text="做好现在的事儿"/>
 			<outline title="博客园_Milo的游戏开发" xmlUrl="http://feed.cnblogs.com/blog/u/66551/rss" type="rss" text="博客园_Milo的游戏开发"/>
 			<outline title="博客园_youxiachai" xmlUrl="http://feed.cnblogs.com/blog/u/92891/rss" type="rss" text="博客园_youxiachai"/>
 			<outline title="博客园_启程去旅行" xmlUrl="http://feed.cnblogs.com/blog/u/94424/rss" type="rss" text="博客园_启程去旅行"/>
 			<outline title="博客园_雨知" xmlUrl="http://feed.cnblogs.com/blog/u/113140/rss" type="rss" text="博客园_雨知"/>
 			<outline htmlUrl="http://blog.bihe0832.com" title="子勰的博客" xmlUrl="http://blog.bihe0832.com/pages/atom.xml" type="rss" text="子勰的博客"/>
+			<outline htmlUrl="http://blog.csdn.net/u013308121" title="浮游大虾" xmlUrl="http://blog.csdn.net/u013308121/rss/list" type="rss" text="浮游大虾"/>
 			<outline htmlUrl="http://blog.csdn.net/luoshengyang" title="老罗的Android之旅" xmlUrl="http://blog.csdn.net/luoshengyang/rss/list" type="rss" text="老罗的Android之旅"/>
 			<outline htmlUrl="http://hukai.me/" title="胡凯" xmlUrl="http://hukai.me/atom.xml" type="rss" text="胡凯"/>
 		</outline>
