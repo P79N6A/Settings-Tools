@@ -9,7 +9,7 @@
 	smudge = git hawser smudge %f
 	required = true
 [http]
-	proxy = https://proxy.tencent.com:8080
+    proxy = http://web-proxyhk.oa.com:8080
 [filter "lfs"]
 	clean = git lfs clean %f
 	smudge = git lfs smudge %f
