@@ -100,6 +100,9 @@ alias datesd="date +%s -d"
 alias open='open -n'
 alias his='history | grep '
 alias temp='cd ~/zixie/temp && pwd'
+alias proxyHKon="export http_proxy='http://web-proxyhk.oa.com:8080';export https_proxy='https://web-proxyhk.oa.com:8080'"
+alias proxyON="export http_proxy='http://proxy.tencent.com:8080';export https_proxy='https://proxy.tencent.com:8080'"
+alias proxyoff="export http_proxy='';export https_proxy=''"
 
 #zsh
 alias zshback='cp ~/.zshrc ~/zixie/github/Settings-Tools/config' 
