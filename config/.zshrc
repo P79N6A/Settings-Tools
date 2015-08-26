@@ -125,13 +125,15 @@ alias blogln='ln -s ~/zixie/github/bihe0832.github.io/_posts ~/zixie/blog'
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
 
 #android
-alias apktoold='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
-alias adbscreen='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
-alias adbunlock='adb shell input keyevent 26 && adb shell input swipe 250 250 800 800'
-alias adbGetProduct='adb shell getprop | grep product'
-alias adbStop＝'adb shell am force-stop'
+alias androidApktoold='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
+alias androidAdbScreenshots='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
+alias androidAdbunlock='adb shell input keyevent 26 && adb shell input swipe 250 250 800 800'
+alias androidAdbStop＝'adb shell am force-stop'
+alias androidAaptd='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
+alias androidRemoteShare='java -jar ~/zixie/Library/asm.jar $ANDROID_HOME'
+#android adb 
 alias adbActivity='adb shell dumpsys activity'
-alias aaptd='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
+alias adbGetProduct='adb shell getprop | grep product'
 alias adbinputspace='adb shell input keyevent 62'
 alias adbinputdel='adb shell input keyevent 67'
 alias adbinputleft='adb shell input keyevent 21'
@@ -140,6 +142,7 @@ alias adbinputmenu='adb shell input keyevent 1'
 alias adbinputhome='adb shell input keyevent 2'
 alias adbinputback='adb shell input keyevent 3'
 alias adbinputtext='adb shell input text'
+
 
 #web
 alias webroot='cd ~/zixie/web && pwd'
