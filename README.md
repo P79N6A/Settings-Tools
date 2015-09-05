@@ -10,13 +10,23 @@ Settings&Tools
 
 个人adt开发环境的workspace设置，分mac和windows。以及adt-bundle-windows-x86-20140702对应的ndk模块jar
 
+## adt:
+
+个人android studio对应的配置文件。
+
+## config:
+
+个人Mac通用的一些bash或者zsh的配置文件，目前包括bash、zsh、vi、git。
+
 ## eclipse:
 
 个人mac下，使用eclipse开发Android的开发环境的workspace设置。
 
-## shell:
 
-个人通用的一些bash或者zsh的配置文件。
+## config:
+
+个人Mac通用的svn相关的配置文件。
+
 
 ## webInit
 
@@ -24,7 +34,7 @@ Settings&Tools
 
 ## xml:
 
-个人的一些开发环境或者订阅等的配置文件
+个人的一些开发环境或者博客订阅的配置文件。
 
 ## zend:
 
