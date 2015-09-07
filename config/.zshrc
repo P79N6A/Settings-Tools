@@ -105,16 +105,16 @@ alias proxyON="export http_proxy='http://proxy.tencent.com:8080';export https_pr
 alias proxyoff="export http_proxy='';export https_proxy=''"
 
 #zsh
-alias zshback='cp ~/.zshrc ~/zixie/github/Settings-Tools/config' 
+alias zshback='cp ~/.zshrc ~/zixie/github/Settings-Tools/config'
 alias zshrestore='cp ~/zixie/github/Settings-Tools/config/.zshrc ~/ && source ~/.zshrc'
 alias configLn='ln -s ~/zixie/github/Settings-Tools/config ~/zixie/config'
 
 #vi
-alias viback='cp ~/.vimrc ~/zixie/github/Settings-Tools/config' 
+alias viback='cp ~/.vimrc ~/zixie/github/Settings-Tools/config'
 alias virestore='cp ~/zixie/github/Settings-Tools/config/.vimrc ~/'
 
 #git
-alias gitback='cp ~/.gitconfig ~/zixie/github/Settings-Tools/config' 
+alias gitback='cp ~/.gitconfig ~/zixie/github/Settings-Tools/config'
 alias gitrestore='cp ~/zixie/github/Settings-Tools/config/.gitconfig ~/'
 
 #blog
@@ -125,15 +125,15 @@ alias blogln='ln -s ~/zixie/github/bihe0832.github.io/_posts ~/zixie/blog'
 alias eclipse='open -n /Applications/eclipse/Eclipse.app/'
 
 #android
-alias androidApktoold='java -jar ~/lib/apktool_2.0.0rc2.jar d -f '
-alias androidAdbScreenshots='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
-alias androidAdbunlock='adb shell input keyevent 26 && adb shell input swipe 250 250 800 800'
-alias androidAdbStop＝'adb shell am force-stop'
-alias androidAaptd='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
-alias androidRemoteShare='java -jar ~/zixie/Library/asm.jar $ANDROID_HOME'
-#android adb 
-alias adbActivity='adb shell dumpsys activity'
-alias adbGetProduct='adb shell getprop | grep product'
+alias androidapktoold='java -jar ~/zixie/Library/apktool_2.0.0rc2.jar d -f '
+alias androidadbscreenshots='adb shell screencap -p /sdcard/screen.png && adb pull /sdcard/screen.png /tmp/ && adb shell rm /sdcard/screen.png && open file:/tmp/screen.png'
+alias androidadbunlock='adb shell input keyevent 26 && adb shell input swipe 250 250 800 800'
+alias androidadbstop＝'adb shell am force-stop'
+alias androidaaptd='$ANDROID_HOME/build-tools/android-4.4/aapt d badging'
+alias androidremoteshare='java -jar ~/zixie/Library/asm.jar $ANDROID_HOME'
+#android adb
+alias adbactivity='adb shell dumpsys activity'
+alias adbgetproduct='adb shell getprop | grep product'
 alias adbinputspace='adb shell input keyevent 62'
 alias adbinputdel='adb shell input keyevent 67'
 alias adbinputleft='adb shell input keyevent 21'
@@ -169,7 +169,7 @@ alias pakmsdk='echo com.example.wegame'
 alias pakagsdk='echo com.example.agsdkdemo'
 alias pakpay='echo com.tencent.midas.sample'
 alias msdkdemo='adb uninstall com.example.wegame'
-alias msdkdatabase='cd ~/temp && pwd && rm -fr ~/temp/WEGAMEDB2 && adb pull /storage/sdcard0/WEGAMEDB2 && sqlite3 WEGAMEDB2'
+alias msdkdatabase='cd ~/zixie/temp && pwd && rm -fr ~/zixie/temp/WEGAMEDB2 && adb pull /storage/sdcard0/WEGAMEDB2 && sqlite3 WEGAMEDB2'
 
 #PATH
 ANDROID_HOME=/usr/local/android-sdk
@@ -191,4 +191,3 @@ export PATH=${PATH}:/usr/local/android-sdk/platform-tools:$ANDROID_HOME:$ANDROID
 
 #其余常量
 export SVN_EDITOR=vim
-
