@@ -170,6 +170,8 @@ alias pakagsdk='echo com.example.agsdkdemo'
 alias pakpay='echo com.tencent.midas.sample'
 alias msdkdemo='adb uninstall com.example.wegame'
 alias msdkdatabase='cd ~/zixie/temp && pwd && rm -fr ~/zixie/temp/WEGAMEDB2 && adb pull /storage/sdcard0/WEGAMEDB2 && sqlite3 WEGAMEDB2'
+alias msdklog='cd ~/zixie/temp && pwd && rm -fr ~/zixie/temp/msdk.log && adb pull /storage/sdcard0/MSDK/msdk.log'
+
 
 #PATH
 ANDROID_HOME=/usr/local/android-sdk
