@@ -1,0 +1,303 @@
+
+package com.tencent.msdk.webview;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import android.app.Activity;
+import android.content.ActivityNotFoundException;
+import android.content.Intent;
+import android.content.pm.ActivityInfo;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.a.A;
+import com.tencent.msdk.a.e;
+import com.tencent.msdk.ad.ADManager;
+import com.tencent.msdk.ad.ADPosInfo;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.communicator.HttpRequestManager;
+import com.tencent.msdk.consts.TokenType;
+import com.tencent.msdk.login.LoginUtils;
+import com.tencent.msdk.notice.NoticeManager;
+import com.tencent.msdk.notice.eMSDK_SCREENDIR;
+import com.tencent.msdk.permission.PermissionManage;
+import com.tencent.msdk.tools.HexUtil;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.MsdkSig;
+import com.tencent.msdk.tools.T;
+
+public class WebViewManager {
+    private String url = "";
+
+    public String getCurrentUrl() {
+        return url;
+    }
+
+    private static WebViewManager instance = null;
+    private Activity act = null;
+    private Boolean isInit = false;
+    public String qqAppId = null;
+
+    public static WebViewManager getInstance() {
+        // findBug提示的 Possible doublecheck可以忽略, 这里这样写是为了尽量避免加锁
+        if (instance == null) {
+            synchronized (WebViewManager.class) {
+                if (instance == null) {
+                    instance = new WebViewManager();
+                }
+            }
+        }
+        return instance;
+    }
+
+    public void init(Activity cnt, String appId) {
+        if (false == isInit) {
+            isInit = true;
+            this.act = cnt;
+            qqAppId = appId;
+        }
+    }
+   
+    public void openUrl(String openUrl) {
+    	openUrl(openUrl, null);
+    }
+    /**
+     * @param openUrl
+     * @param eMSDK_SCREENDIR
+     */
+    public void openUrl(String openUrl,eMSDK_SCREENDIR SCREEN_ORIENTATION) {
+        Logger.d(openUrl);
+        LoginRet ret = new LoginRet();
+        LoginUtils.getLocalLoginRet(ret);
+
+        // sig=&appid=***&openid=***&msdkEncodeParam=***
+        if (openUrl == null) {
+            Logger.w("this api need a valid url start with http:// or https:// or file:// or ftp://");
+            return;
+            
+        }
+        
+        if(!openUrl.startsWith("http://") && !openUrl.startsWith("https://") && !openUrl.startsWith("file://")
+                && !openUrl.startsWith("ftp://")) {
+            Logger.w("you had better use a valid url start with http:// or https:// or ftp:// or file://");
+            openUrl = "http://" + openUrl;
+        }
+        String shareUrl = openUrl;
+        
+        try {
+            if (T.ckIsEmpty(new URL(openUrl).getQuery())) {
+                // 没有参数则添加参数
+                openUrl += "?";
+            } else {
+                // 有参数则检查是否已经以&结尾
+                if (!openUrl.endsWith("&")) {
+                    openUrl += "&";
+                }
+            }
+        } catch (MalformedURLException e) {
+            Logger.w("this api need a valid url start with http:// or https:// ");
+            e.printStackTrace();
+            return ;
+        }
+        
+        // v1使用的是URL encode传递加密数据
+        // v2使用的是16进制编码传递加密数据
+        openUrl += "algorithm=v2";
+        openUrl += "&version=" + WGPlatform.WGGetVersion();
+        
+        String timestamp = "" + System.currentTimeMillis();
+        openUrl += "&timestamp=" + timestamp;
+        String body = "";
+        if (ret.platform == WeGame.QQPLATID) {
+            String appId = WeGame.getInstance().qq_appid;
+            String openId = ret.open_id;
+
+            openUrl += "&appid=" + appId;
+            openUrl += "&openid=" + openId;
+            openUrl += "&sig="
+                    + MsdkSig.make("" + timestamp, WeGame.getInstance().getMSDKKey());
+            openUrl += "&encode="+ HttpRequestManager.msdkEncodeType;
+
+            body += "acctype=" + "qq";
+            body += "&appid=" + appId;
+            body += "&openid=" + openId;
+            body += "&access_token=" + ret.getTokenByType(TokenType.eToken_QQ_Access);
+            body += "&platid=1";
+        } else if (ret.platform == WeGame.WXPLATID) {
+            String appId = WeGame.getInstance().wx_appid;
+            String openId = ret.open_id;
+
+            openUrl += "&appid=" + appId;
+            openUrl += "&openid=" + openId;
+            openUrl += "&sig="
+                    + MsdkSig.make("" + timestamp, WeGame.getInstance().getMSDKKey());
+            openUrl += "&encode="+ HttpRequestManager.msdkEncodeType;
+
+            body += "acctype=" + "weixin";
+            body += "&appid=" + appId;
+            body += "&openid=" + openId;
+            body += "&access_token=" + ret.getTokenByType(TokenType.eToken_WX_Access);
+            body += "&platid=1";
+        }
+
+        // 加密数据
+        e test = new e(A.f4(null));
+        try {
+            byte[] bytes = test.f1(body.getBytes("ISO-8859-1"));
+            String hexEncry = HexUtil.bytes2HexStr(bytes);
+            Logger.d("hexEncry: " + hexEncry);
+            openUrl += "&msdkEncodeParam=" + hexEncry;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        // 设置当前打开的页面URL, 分享的时候会使用此URL
+        this.url = openUrl;
+        Logger.d("open url = " + openUrl);
+        NoticeManager.getInstance().onPause();
+        int ORIENTATION = -1;
+        if (SCREEN_ORIENTATION != null) {
+            switch(SCREEN_ORIENTATION){
+            case eMSDK_SCREENDIR_SENSOR:
+                ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_SENSOR;
+                break;
+            case eMSDK_SCREENDIR_PORTRAIT:
+                ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT;
+                break;
+            case eMSDK_SCREENDIR_LANDSCAPE:
+                ORIENTATION = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE;
+                break;
+            }
+        }
+        loadUrlInWnd(url, shareUrl, ORIENTATION);
+    }
+    
+    public String getEncodeUrl(String openUrl) {
+        Logger.d(openUrl);
+        LoginRet ret = new LoginRet();
+        LoginUtils.getLocalLoginRet(ret);
+        // sig=***&appid=***&openid=***&msdkEncodeParam=***
+        if (openUrl == null) {
+            Logger.w("this url is null");
+            return null;
+        }
+        
+        try {
+            if (T.ckIsEmpty(new URL(openUrl).getQuery())) {
+                // 没有参数则添加参数
+                openUrl += "?";
+            } else {
+                // 有参数则检查是否已经以&结尾
+                if (!openUrl.endsWith("&")) {
+                    openUrl += "&";
+                }
+            }
+        } catch (MalformedURLException e) {
+            Logger.w("you had better use a valid url start with http:// or https:// ");
+            e.printStackTrace();
+            return null;
+        }
+        
+        // v1使用的是URL encode传递加密数据
+        // v2使用的是16进制编码传递加密数据
+        openUrl += "algorithm=v2";
+        openUrl += "&version=" + WGPlatform.WGGetVersion();
+        
+        String timestamp = "" + System.currentTimeMillis();
+        openUrl += "&timestamp=" + timestamp;
+        String body = "";
+        if (ret.platform == WeGame.QQPLATID) {
+            String appId = WeGame.getInstance().qq_appid;
+            String openId = ret.open_id;
+
+            openUrl += "&appid=" + appId;
+            openUrl += "&openid=" + openId;
+            openUrl += "&sig="
+                    + MsdkSig.make("" + timestamp, WeGame.getInstance().getMSDKKey());
+            openUrl += "&encode="+ HttpRequestManager.msdkEncodeType;
+
+            body += "acctype=" + "qq";
+            body += "&appid=" + appId;
+            body += "&openid=" + openId;
+            body += "&access_token=" + ret.getTokenByType(TokenType.eToken_QQ_Access);
+            body += "&platid=1";
+        } else if (ret.platform == WeGame.WXPLATID) {
+            String appId = WeGame.getInstance().wx_appid;
+            String openId = ret.open_id;
+
+            openUrl += "&appid=" + appId;
+            openUrl += "&openid=" + openId;
+            openUrl += "&sig="
+                    + MsdkSig.make("" + timestamp, WeGame.getInstance().getMSDKKey());
+            openUrl += "&encode="+ HttpRequestManager.msdkEncodeType;
+
+            body += "acctype=" + "weixin";
+            body += "&appid=" + appId;
+            body += "&openid=" + openId;
+            body += "&access_token=" + ret.getTokenByType(TokenType.eToken_WX_Access);
+            body += "&platid=1";
+        }
+
+        // 加密数据
+        e test = new e(A.f4());
+        try {
+            byte[] bytes = test.f1(body.getBytes("ISO-8859-1"));
+            String hexEncry = HexUtil.bytes2HexStr(bytes);
+            Logger.d("hexEncry: " + hexEncry);
+            openUrl += "&msdkEncodeParam=" + hexEncry;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        Logger.d("open url = " + openUrl);
+        return openUrl;
+    }
+
+    private boolean isWXInstall() {
+        if (null != WeGame.getInstance().api && WeGame.getInstance().api.isWXAppInstalled()) {
+            return true;
+        }
+        return false;
+    }
+    
+    private void loadUrlInWnd(String url, String shareUrl,int SCREEN_ORIENTATION){
+        Intent webviewIntent = new Intent();
+        webviewIntent.putExtra("url", url);
+        // sharedUrl用于分享时的url，分享时的url是不应该带参数的
+        webviewIntent.putExtra("sharedUrl", shareUrl);
+        
+        // 获取导航栏广告，这样子实现的话，可能存在广告有延迟的情况
+        ADPosInfo info = ADManager.getInstance().getPosInfoById(ADPosInfo.POS_WEBVIEW_ID);
+        String favUrlStr = "";
+        String adIdStr = "";
+        if (info != null && !T.ckIsEmpty(info.mADPosUrl)) {
+            favUrlStr = info.mADPosUrl;
+            adIdStr = info.mADIds;
+        } else {
+            favUrlStr = "";
+            adIdStr = "";
+        }
+        webviewIntent.putExtra("favUrl", favUrlStr);
+        webviewIntent.putExtra("adIds", adIdStr);
+        
+        // 是否能通过QQ和微信分享的权限
+        boolean sendToQQ = PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToQQ);
+        boolean sendToWX = PermissionManage.getInstance().isHavePermission(PermissionManage.wgSendToWeixin);
+        webviewIntent.putExtra("sendToQQ", sendToQQ);
+        webviewIntent.putExtra("sendToWX", sendToWX);
+        webviewIntent.putExtra("isWXInstall", isWXInstall());
+        if(SCREEN_ORIENTATION == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT ||
+           SCREEN_ORIENTATION == ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE || 
+           SCREEN_ORIENTATION == ActivityInfo.SCREEN_ORIENTATION_SENSOR ){
+        	webviewIntent.putExtra("screen_orientation", SCREEN_ORIENTATION);
+        }
+        webviewIntent.setClass(this.act, WebViewActivity.class);
+        try{
+            act.startActivity(webviewIntent);
+        } catch(ActivityNotFoundException e) {
+            Logger.w("cann't start WVMActivity，Are you sure to register activity?");
+            NoticeManager.getInstance().onResume();
+        }
+    }
+}

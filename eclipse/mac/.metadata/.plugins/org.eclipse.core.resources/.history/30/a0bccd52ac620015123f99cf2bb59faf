@@ -1,0 +1,204 @@
+package com.tencent.msdk.api;
+
+public class LocalMessage {
+	
+	private int type = 1;
+	private int action_type = -1;
+	private int icon_type = -1;
+	private int lights = -1;
+	private int ring = -1;
+	private int vibrate = -1;
+	private int style_id = -1;
+	private long builderId = -1;
+	private String content = "";
+	private String custom_content = "";
+	private String activity = "";
+	private String packageDownloadUrl = "";
+	private String packageName = "";
+	private String icon_res;
+	private String date;
+	private String hour;
+	private String intent = "";
+	private String min;
+	private String title;
+	private String url = "";
+	private String ring_raw = "";
+	private String small_icon = "";
+	
+	public int getAction_type(){
+		return action_type;
+	}
+	public String getActivity(){
+		return activity;
+	}
+	public long getBuilderId(){
+		return builderId;
+	}
+	public String getCustom_content(){
+		return custom_content;
+	}
+	public String getIcon_res(){
+		return icon_res;
+	}
+	public int getIcon_type(){
+		return icon_type;
+	}
+	public int getLights(){
+		return lights;
+	}
+	public String getPackageDownloadUrl(){
+		return packageDownloadUrl;
+	}
+	public String getPackageName(){
+		return packageName;
+	}
+	public int getRing(){
+		return ring;
+	}
+	public String getRing_raw(){
+		return ring_raw;
+	}
+	public String getSmall_icon(){
+		return small_icon;
+	}
+	public int getStyle_id(){
+		return style_id;
+	}
+	public int getVibrate(){
+		return vibrate;
+	}
+	
+	
+	public int getType() {
+		return type;
+	}
+
+	public String getContent() {
+		return content;
+	}
+
+	public String getDate() {
+		return date;
+	}
+
+	public String getHour() {
+		return hour;
+	}
+
+	public String getIntent() {
+		return intent;
+	}
+
+	public String getMin() {
+		return min;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	
+	
+	public void setAction_type(int action_type) {
+		this.action_type = action_type;
+	}
+	public void setIcon_type(int icon_type) {
+		this.icon_type = icon_type;
+	}
+	public void setLights(int lights) {
+		this.lights = lights;
+	}
+	public void setRing(int ring) {
+		this.ring = ring;
+	}
+	public void setVibrate(int vibrate) {
+		this.vibrate = vibrate;
+	}
+	public void setStyle_id(int style_id) {
+		this.style_id = style_id;
+	}
+	public void setBuilderId(long builderId) {
+		this.builderId = builderId;
+	}
+	public void setCustom_content(String custom_content) {
+		this.custom_content = custom_content;
+	}
+	public void setActivity(String activity) {
+		this.activity = activity;
+	}
+	public void setPackageDownloadUrl(String packageDownloadUrl) {
+		this.packageDownloadUrl = packageDownloadUrl;
+	}
+	public void setPackageName(String packageName) {
+		this.packageName = packageName;
+	}
+	public void setIcon_res(String icon_res) {
+		this.icon_res = icon_res;
+	}
+	public void setRing_raw(String ring_raw) {
+		this.ring_raw = ring_raw;
+	}
+	public void setSmall_icon(String small_icon) {
+		this.small_icon = small_icon;
+	}
+	
+	public void setType(int type){
+		this.type = type;
+	};
+	
+	public void setContent(String content){
+		this.content = content;
+	};
+	
+	public void setDate(String date){
+		this.date = date;
+	};
+	public void setHour(String hour){
+		this.hour = hour;
+	};
+	public void setIntent(String intent){
+		this.intent = intent;
+	};
+	public void setMin(String min){
+		this.min = min;
+	};
+	public void setTitle(String title){
+		this.title= title;
+	};
+	public void setUrl(String url){
+		this.url = url;
+	};
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		sb.append("content:"+content+"\n");
+		sb.append("title:"+title+"\n");
+		sb.append("type:"+type+"\n");
+		sb.append("date:"+date+"\n");
+		sb.append("hour:"+hour+"\n");
+		sb.append("min:"+min+"\n");
+		sb.append("action_type:"+action_type+"\n");
+		sb.append("custom_content:"+custom_content+"\n");
+		sb.append("icon_type:"+icon_type+"\n");
+		sb.append("lights:"+lights+"\n");
+		sb.append("ring:"+ring+"\n");
+		sb.append("vibrate:"+vibrate+"\n");
+		sb.append("style_id:"+style_id+"\n");
+		sb.append("builderId:"+builderId+"\n");
+		sb.append("activity:"+activity+"\n");
+		sb.append("packageDownloadUrl:"+packageDownloadUrl+"\n");
+		sb.append("packageName:"+packageName+"\n");
+		sb.append("icon_res:"+icon_res+"\n");
+		sb.append("packageName:"+packageName+"\n");
+		sb.append("intent:"+intent+"\n");
+		sb.append("url:"+url+"\n");
+		sb.append("ring_raw:"+ring_raw+"\n");
+		sb.append("small_icon:"+small_icon+"\n");
+		return sb.toString();
+	}
+}

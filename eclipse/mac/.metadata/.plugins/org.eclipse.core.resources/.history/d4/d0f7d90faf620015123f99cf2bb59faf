@@ -1,0 +1,333 @@
+package com.tencent.msdk.db;
+
+import java.util.ArrayList;
+
+import android.content.ContentValues;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
+
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.a.T1;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.TokenRet;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.consts.TokenType;
+import com.tencent.msdk.login.LoginManager;
+import com.tencent.msdk.tools.CommonUtil;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+public class WxLoginModel extends BaseUserInfo implements ITbl {
+	public WxLoginModel(String openId) {
+		super(openId);
+	}
+
+	public WxLoginModel() {
+		super();
+	}
+
+	public String refresh_token = "";
+	public long refresh_token_expire = 0;
+	public String wechat_uin = "";
+
+	private static String col_open_id = "open_id";
+	private static String col_access_token_expire = "access_token_expire";
+	private static String col_access_token = "access_token";
+	private static String col_refresh_token = "refresh_token";
+	private static String col_refresh_token_expire = "refresh_token_expire";
+	private static String col_pf = "pf";
+	private static String col_pf_key = "pf_key";
+	private static String col_wechat_uin = "wechat_uin";
+	private static String col_nickname = "nickname";
+	private static String col_age = "age";
+	private static String col_avatar = "avatar";
+	private static String col_gender = "gender";
+	private static String col_is_active = "is_active";
+	private static String col_create_at = "create_at";
+	private static String col_update_at = "update_at";
+
+	public volatile static WxLoginModel instance;
+	final static String TBL_NAME = "wx_login_info";
+	private DbManager helper = DbManager.gDefault.get();
+	private WakeupRet mWakeupRet = null;
+
+	@Override
+	public int delete() {
+		int howManyDeleted = 0;
+		synchronized (helper) {
+			SQLiteDatabase db = helper.getWritableDatabase();
+			String whereClause = " `" + col_open_id + "` = ? ";
+			String[] whereArgs = new String[] { this.open_id };
+			try {
+				howManyDeleted = db.delete(TBL_NAME, whereClause, whereArgs);
+			} catch (Exception e) {
+				howManyDeleted = 0;
+				helper.close();
+				e.printStackTrace();
+				Logger.d("delete error,, Selection: " + whereClause + whereArgs);
+			}
+		}
+		// 更新内存缓存
+		LoginManager.getInstance().resetLastWxLoginModel();
+		return howManyDeleted;
+	}
+
+	public static String getCreateTblSql() {
+		String createTblSql = "";
+		createTblSql += "CREATE TABLE IF NOT EXISTS [" + TBL_NAME + "] (";
+		createTblSql += "[" + col_open_id + "] NVARCHAR(128)  UNIQUE NOT NULL,";
+		createTblSql += "[" + col_access_token_expire + "] REAL  NULL,";
+		createTblSql += "[" + col_access_token + "] VARCHAR(256)  NULL,";
+		createTblSql += "[" + col_refresh_token + "] VARCHAR(256)  NULL,";
+		createTblSql += "[" + col_refresh_token_expire + "] REAL  NULL,";
+		createTblSql += "[" + col_pf + "] NVARCHAR(64)  NULL,";
+		createTblSql += "[" + col_pf_key + "] NVARCHAR(128)  NULL,";
+		createTblSql += "[" + col_wechat_uin + "] NVARCHAR(64)  NULL,";
+		createTblSql += "[" + col_nickname + "] NVARCHAR(64)  NULL,";
+		createTblSql += "[" + col_age + "] INTEGER  NULL,";
+		createTblSql += "[" + col_avatar + "] VARCHAR(256)  NULL,";
+		createTblSql += "[" + col_gender + "] INTEGER DEFAULT -1 NULL,";
+		createTblSql += "[" + col_is_active + "] BOOLEAN  NULL,";
+		createTblSql += "[" + col_create_at + "] TIMESTAMP  NULL,";
+		createTblSql += "[" + col_update_at
+				+ "] TIMESTAMP DEFAULT CURRENT_TIMESTAMP NULL";
+		createTblSql += ")";
+		return createTblSql;
+	}
+
+	public static String getDropTblSql() {
+		return "DROP TABLE IF EXISTS " + TBL_NAME;
+	}
+
+	public WxLoginModel getLastWxLoginUserinfo() {
+		synchronized (helper) {
+
+			WxLoginModel lastUserInfo = new WxLoginModel();
+			try {
+				String[] columns = null;
+				String selection = null;
+				String[] selectionArgs = null;
+				String groupBy = null;
+				String having = null;
+				String orderBy = " `" + col_create_at + "` DESC ";
+				String limit = "1";
+				Cursor rows = helper.getReadableDatabase().query(TBL_NAME,
+						columns, selection, selectionArgs, groupBy, having,
+						orderBy, limit);
+				if (rows.getCount() == 0) { // 没有记录
+					rows.close();
+					return null;
+				} else {
+					rows.moveToFirst();
+					T1 t = new T1(gk());
+					String open_id = getStringByName(rows, col_open_id);
+					lastUserInfo.open_id = (open_id == null ? "" : open_id);
+					
+					byte[] a = t.func4_2(getStringByName(rows,col_access_token));
+					if(null != a){
+						access_token = new String(a);
+					}
+					a = t.func4_2(getStringByName(rows,col_refresh_token));
+					if(null != a){
+						refresh_token = new String(a);
+					}
+					a = t.func4_2(getStringByName(rows,col_pf));
+					if(null != a){
+						pf =  new String(a);
+					}
+					a = t.func4_2(getStringByName(rows,col_pf_key));
+					if(null != a){
+						pf_key =  new String(a);
+					}
+					
+					if(!T.ckNonEmpty(access_token,refresh_token,pf,pf_key)){
+						lastUserInfo.access_token = (access_token == null ? ""
+								: access_token);
+						lastUserInfo.refresh_token = (refresh_token == null ? ""
+								: refresh_token);
+						lastUserInfo.pf = (pf == null ? "" : pf);
+						lastUserInfo.pf_key = (pf_key == null ? "" : pf_key);
+					}
+					
+					lastUserInfo.access_token_expire = getLongByName(rows,col_access_token_expire);
+					lastUserInfo.refresh_token_expire = getLongByName(rows,col_refresh_token_expire);
+					lastUserInfo.create_at = getLongByName(rows, col_create_at);
+					// 其他信息暂时不返回
+				}
+				rows.close();
+			} catch (Exception e) {
+				Logger.w("getLastWxLoginUserinfo cause exception");
+				helper.close();
+				e.printStackTrace();
+			}
+			return lastUserInfo;
+		}
+	}
+
+	private ContentValues getUsableContentValues() {
+		ContentValues cv = new ContentValues();
+		cv.put(col_open_id, this.open_id);
+
+		T1 t = new T1(gk());
+		if (!CommonUtil.ckIsEmpty(this.access_token)) {
+			cv.put(col_access_token, t.func3(this.access_token.getBytes()));
+			cv.put(col_access_token_expire, this.access_token_expire);
+		}
+
+		if (!CommonUtil.ckIsEmpty(this.refresh_token)) {
+			cv.put(col_refresh_token, t.func3(this.refresh_token.getBytes()));
+			cv.put(col_refresh_token_expire, this.refresh_token_expire);
+		}
+
+		if (!CommonUtil.ckIsEmpty(this.pf)) {
+			cv.put(col_pf, t.func3(this.pf.getBytes()));
+		}
+
+		if (!CommonUtil.ckIsEmpty(this.pf_key)) {
+			cv.put(col_pf_key, t.func3(this.pf_key.getBytes()));
+		}
+		long curTime = System.currentTimeMillis();
+		cv.put(col_create_at, curTime);
+		return cv;
+	}
+
+	@Override
+	public String getTableName() {
+		return TBL_NAME;
+	}
+
+	@Override
+	public ArrayList<BaseUserInfo> findAll() {
+		return null;
+	}
+
+	@Override
+	public boolean create() {
+		synchronized (helper) {
+
+			SQLiteDatabase db = helper.getWritableDatabase();
+			try {
+				long insertResult = db.insert(TBL_NAME, null,
+						getUsableContentValues());
+				Logger.d("" + insertResult);
+				return true;
+			} catch (Exception e) {
+				helper.close();
+				e.printStackTrace();
+				Logger.d("WXLoginModel create error");
+				return false;
+			}
+		}
+	}
+
+	@Override
+	public BaseUserInfo find() {
+		return null;
+	}
+
+	@Override
+	public int update() {
+		synchronized (helper) {
+			SQLiteDatabase db = helper.getWritableDatabase();
+			ContentValues values = this.getUsableContentValues();
+			String whereClause = " `" + col_open_id + "` = ? ";
+			String[] whereArgs = new String[] { this.open_id };
+			try {
+				return db.update(TBL_NAME, values, whereClause, whereArgs);
+			} catch (Exception e) {
+				helper.close();
+				Logger.d("WxLoginModel update error, Selection: " + whereClause
+						+ whereArgs);
+				return 0;
+			}
+		}
+	}
+
+	@Override
+	public boolean save() {
+		deleteAll();// 保存之前先删除表中所有记录
+		boolean flag = false;
+		if (isExisted()) {
+			flag = this.update() > 0 ? true : false;
+		} else {
+			flag = this.create();
+		}
+		// 更新内存缓存
+		LoginManager.getInstance().resetLastWxLoginModel();
+		return flag;
+	}
+
+	@Override
+	public boolean isExisted() {
+		synchronized (helper) {
+
+			SQLiteDatabase db = helper.getReadableDatabase();
+			String[] columns = null;
+			String selection = " " + col_open_id + " = ? ";
+			String[] selectionArgs = { this.open_id };
+			String groupBy = null;
+			String having = null;
+			String orderBy = null;
+			String limit = null;
+
+			try {
+				Cursor cursor = db.query(TBL_NAME, columns, selection,
+						selectionArgs, groupBy, having, orderBy, limit);
+				if (cursor.getCount() > 0) {
+					cursor.close();
+					return true;
+				} else {
+					cursor.close();
+					return false;
+				}
+			} catch (Exception e) {
+				helper.close();
+				Logger.d("WxLoginModel isExisted error, Selection: " + selection
+						+ selectionArgs);
+				return true; // 发生异常返回true, 避免在此种情况下造成重复数据插入
+			}
+		}
+	}
+
+	public LoginRet convertToLoginRet() {
+		LoginRet lr = new LoginRet();
+		lr.open_id = this.open_id;
+		lr.pf = this.pf;
+		lr.pf_key = this.pf_key;
+
+		lr.platform = WeGame.WXPLATID;
+		lr.token.add(new TokenRet(TokenType.eToken_WX_Access,
+				this.access_token, this.access_token_expire));
+		lr.token.add(new TokenRet(TokenType.eToken_WX_Refresh,
+				this.refresh_token, this.refresh_token_expire));
+		return lr;
+	}
+
+	@Override
+	public int deleteAll() {
+		int howManyDeleted = 0;
+		synchronized (helper) {
+			SQLiteDatabase db = helper.getWritableDatabase();
+			try {
+				howManyDeleted = db.delete(TBL_NAME, null, null);
+			} catch (Exception e) {
+				e.printStackTrace();
+				howManyDeleted = 0;
+				helper.close();
+				Logger.d("WxLoginModel deleteAll error.");
+			}
+		}
+		// 更新内存缓存
+		LoginManager.getInstance().resetLastWxLoginModel();
+		return howManyDeleted;
+	}
+
+	public void setWakeUpRet(WakeupRet ret) {
+		mWakeupRet = ret;
+	}
+
+	public WakeupRet getWakeupRet() {
+		return mWakeupRet;
+	}
+
+}

@@ -1,0 +1,313 @@
+package com.tencent.msdk.stat;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+import android.app.Activity;
+
+import com.tencent.beacon.event.UserAction;
+import com.tencent.beacon.upload.InitHandleListener;
+import com.tencent.bugly.msdk.crashreport.CrashReport;
+import com.tencent.bugly.msdk.crashreport.CrashReport.CrashHandleCallback;
+import com.tencent.bugly.msdk.crashreport.CrashReport.UserStrategy;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.WGPlatform;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.consts.Consts;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.consts.JsonKeyConst;
+import com.tencent.msdk.consts.eGameTime;
+import com.tencent.msdk.login.LoginManager;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/**
+ * 
+ * @author kevinhao
+ * 接入文档 http://bugly.qq.com/androidsdk
+ * 查看平台 http://bugly.qq.com/issueIndex?app=100703379&pid=1
+ */
+public class BeaconHelper {
+    private final static String MSDK_EVENT_HEADER = "MSDK_";
+    private boolean isBeaconInitFinish = false;
+    private long startGameTime = 0;
+    // 如果灯塔还未初始化完成，先将要上报的信息进行保存，之后再调用灯塔进行上报，否则上报会失败的。
+    private ArrayList<GameTimeInfo> gameTimePedding = new ArrayList<GameTimeInfo>();
+    
+    public void init(Activity context, String qqAppId, String channelId, boolean isDebug) {  
+        isBeaconInitFinish = false;
+    	try {
+    		UserAction.setAppKey(context, qqAppId);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        UserAction.setLogAble(isDebug, false);
+        String appVersion = getAppVersion(context);
+        Logger.d("appVersion:" + appVersion);
+        UserAction.setAPPVersion(appVersion);
+        UserAction.initUserAction(context, true, 0, new InitHandleListener() {
+            
+            @Override
+            public void onStrategyQuerySuccess() {}
+            
+            @Override
+            public void onInitEnd() {
+                Logger.d("Start reportEvent onInitEnd;size:" + gameTimePedding.size());
+                isBeaconInitFinish = true;
+                for(int i=0; i<gameTimePedding.size();i++) {
+                    GameTimeInfo info = gameTimePedding.get(i);
+                    ReportGameTime(info);
+                }
+            }
+        });
+        UserAction.setChannelID(channelId);
+        if(!ConfigManager.needCloseBuglyReport(context)) {
+            UserStrategy strategy = new UserStrategy(context.getApplicationContext());
+            strategy.setAppChannel(channelId);
+            strategy.setAppReportDelay(5000);
+            strategy.setAppVersion(appVersion);
+            try {
+                String qImei = UserAction.getQIMEI();
+                Logger.d("app qImei:" + qImei);
+                strategy.setDeviceID(qImei);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            
+            strategy.setCrashHandleCallback(new CrashHandleCallback()
+            {
+                @Override
+                public synchronized Map<String, String> onCrashHandleStart(int crashType, String errorType, String errorMessage, String errorStack)
+                {
+                    String crashTypeName = null;
+                    switch (crashType)
+                    {
+                        case CrashHandleCallback.CRASHTYPE_JAVA_CATCH:
+                            crashTypeName = "JAVA_CATCH";
+                            break;
+                        case CrashHandleCallback.CRASHTYPE_JAVA_CRASH:
+                            crashTypeName = "JAVA_CRASH";
+                            break;
+                        case CrashHandleCallback.CRASHTYPE_NATIVE:
+                            crashTypeName = "JAVA_NATIVE";
+                            break;
+                        case CrashHandleCallback.CRASHTYPE_U3D:
+                            crashTypeName = "JAVA_U3D";
+                            break;
+                        default:{
+                            crashTypeName = "unknown";
+                        }
+                    }
+
+                    Logger.w("Crash Happen Type:" + crashType + " TypeName:" + crashTypeName);
+                    Logger.w("errorType:" + errorType);
+                    Logger.w("errorMessage:" + errorMessage);
+                    Logger.w("errorStack:" + errorStack);
+
+                    Map<String, String> userDatas = super.onCrashHandleStart(crashType, errorType, errorMessage, errorStack);
+                    if (userDatas == null) {
+                        userDatas = new HashMap<String, String>();
+                    }
+                    // key 100个， value 10K
+                    userDatas.put("msdkver", WGPlatform.WGGetVersion());
+                    String extMessage = WeGameNotifyGame.getInstance().OnCrashExtMessageNotify(0, 
+                            "upload extra crash message");
+                    Logger.d("extMsg:" + extMessage);
+                    if(!T.ckIsEmpty(extMessage)) {
+                        userDatas.put("extmsg", extMessage);
+                    }
+                    return userDatas;
+                }
+            });
+            CrashReport.initCrashReport(context.getApplicationContext(), qqAppId, isDebug, strategy);
+        } else {
+            Logger.d("close bugly report, fail to init");
+        }
+    }
+
+    private String getAppVersion(Activity context){
+        DeviceInfo deviceInfo = new DeviceInfo(context);
+        String versionName = deviceInfo.getVersionName();
+        int versionCode = deviceInfo.getVersionCode();
+        if(versionCode >= 0) {
+            return versionName + "." + String.valueOf(versionCode);
+        } else {
+            return versionName;
+        }
+    }
+
+    
+    public void onLogin(String openId, int platId) {
+        long start = System.currentTimeMillis();
+        HashMap<String, String> p = new HashMap<String, String>();
+        p.put("loginType", this.getCurrentLoginPlatform(platId));
+        p.put("msdkVersion", WGPlatform.WGGetVersion()); // A80表示SDK版本号
+        p.put("regChannel", WGPlatform.WGGetRegisterChannelId()); // A81表示注册渠道号
+        p.put("openId", openId); // A8 是openid
+
+        long end = System.currentTimeMillis();
+
+        String name = Consts.LOGIN_EVENT_NAME; // 事件名称
+        boolean isOk = true;// 事件是否成功，统计用
+        long elapse = end - start; // 事件耗时，统计用，ms
+        long size = 1000; // 事件网络消耗，统计用，byte
+        boolean isRealTime = true; // 实时事件
+
+        Logger.d("onLogin and set beacon userid:" + openId);
+        UserAction.setUserID(openId);
+        if(!ConfigManager.needCloseBuglyReport(WeGame.getInstance().getActivity())) {
+            CrashReport.setUserId(openId);
+        } else {
+            Logger.d("close bugly report, fail to setUserid");
+        }
+        UserAction.onUserAction(name, isOk, elapse, size, p, isRealTime);
+    }
+
+    private String getCurrentLoginPlatform(int platId) {
+        if (platId == WeGame.WXPLATID) {
+            return Consts.LOGIN_TYPE_WX;
+        } else if (platId == WeGame.QQPLATID) {
+            return Consts.LOGIN_TYPE_QQ;
+        }
+        return "";
+    }
+
+    public void enableCrashReport(boolean flag) {
+        Logger.d("flag: " + flag);
+    }
+
+    public void reportEvent(String name, String body, int platId, boolean isRealTime) {
+        HashMap<String, String> extraMap = new HashMap<String, String>();
+        if (body == null) {
+            body = "";
+        }
+        extraMap.put("evtBody", body);
+        extraMap.put("loginType", getCurrentLoginPlatform(platId));
+
+        Logger.d("Stat reportEvent name:" + name + "; body: " + body);
+        boolean isOk = true;// 事件是否成功，统计用
+        long size = -1; // 事件网络消耗，统计用，byte
+        UserAction.onUserAction(name, isOk, 0, size, extraMap, isRealTime);
+    }
+
+	public void reportEvent(String name, HashMap<String, String> params, int platId, boolean isRealTime) {
+    	Logger.d("Stat reportEvent name:" + name + "; body: " + params.toString());
+    	params.put("loginType", getCurrentLoginPlatform(platId));
+    	boolean isOk = true;// 事件是否成功，统计用
+        long size = -1; // 事件网络消耗，统计用，byte
+        UserAction.onUserAction(name, isOk, 0, size, params, isRealTime);
+    }
+	
+    public void reportEvent(String event, long startTime, boolean flag, Map<String, String> map,
+            boolean isRealTime) {
+        long currentTime = System.currentTimeMillis();
+        long wattingTime = currentTime - startTime;
+        Logger.d(">>>event:" + event + ",wattingTime:" + wattingTime + ", flag:" + flag);
+        UserAction.onUserAction(event, flag, wattingTime, -1, map, isRealTime);
+    }
+	
+    public static int getXGErrCode(int errCode){
+        return errCode + ErrorCodeFlag.SDK_ERROR_BASIC_XG;
+    }
+    /**
+     * @param event 事件名称
+     * @param startTime 事件开始时间
+     * @param flag 事件成功或失败
+     * @param map 需要额外引入的字段
+     * @param isRealTime 标识本次事件是普通事件还是实时事件
+     */
+    public static void reportMSDKEvent(String event, long startTime, boolean flag, Map<String, String> map,
+            boolean isRealTime) {
+        if(null == event || event.trim().equals("")) {
+            return;
+        }
+        
+        event = MSDK_EVENT_HEADER + event;
+        long currentTime = System.currentTimeMillis();
+        long wattingTime = currentTime - startTime;
+        if(map == null) {
+            map = new HashMap<String, String>();
+        } 
+        // 只需要清晰的版本号
+        map.put("msdkVersion", WeGame.getInstance().getMSDKVersion());
+        if(flag) {
+            Logger.d(">>>event:" + event + ",wattingTime:" + wattingTime + ",flag:" + flag);
+        } else {
+            Logger.d(">>>event:" + event + ",wattingTime:" + wattingTime + ",flag:" + flag + ",logic_error:" 
+                + map.get("msdk_logic_error") + ",errcode:" + map.get("param_FailCode"));
+        }
+        UserAction.onUserAction(event, flag, wattingTime, -1, map, isRealTime);
+    }
+    
+    public void speedTest(ArrayList<String> addrList) {
+        ArrayList<String> ipList = new ArrayList<String>();
+        ArrayList<String> domainList = new ArrayList<String>();
+
+        for (String addr : addrList) {
+            if (addr != null && addr.matches("(\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}):(\\d{1,5})")) {
+                Logger.d("IP: " + addr);
+                ipList.add(addr);
+            } else {
+                Logger.d("Domain: " + addr);
+                domainList.add(addr);
+            }
+        }
+
+        if (ipList.size() > 0) {
+            UserAction.testSpeedIp(ipList);
+        } else if (domainList.size() > 0) {
+            UserAction.testSpeedDomain(domainList);
+        }
+    }
+    
+    // 灯塔需要初始化成功后才允许上报，一启动即会上报GameTime统计，因此暂时将该功能移到这里面
+    public void reportGameTimeEvent(int eventType) {
+        long gametime = 0;
+        if(eventType == eGameTime.StartFromOnCreate || eventType == eGameTime.StartFromOnRestart) {
+            startGameTime = System.currentTimeMillis();
+        } else {
+            gametime = (System.currentTimeMillis() - startGameTime) / 1000;
+        }
+        GameTimeInfo info = new GameTimeInfo();
+        String openid = LoginManager.getInstance().getCurrentOpenid();
+        int platformId = LoginManager.getInstance().getCurrentPlatform();
+        if(!T.ckIsEmpty(openid)){
+            if(platformId == WeGame.QQPLATID) {
+                info.appid = WeGame.getInstance().qq_appid;
+            } else if(platformId == WeGame.WXPLATID){
+                info.appid = WeGame.getInstance().wx_appid;
+            } else {
+                info.appid = "";
+            }
+        } 
+        info.openid = openid;
+        info.eventType = String.valueOf(eventType);
+        info.devid = DeviceInfo.getImei();
+        info.localGameTime = String.valueOf(gametime);
+        long currentTime = System.currentTimeMillis() / 1000;
+        info.localTime = String.valueOf(currentTime);
+        if(isBeaconInitFinish) {
+            ReportGameTime(info);
+        } else {
+            // 如果没有init的标识，先试一下能不能上报成功，如果上报成功则不用添加到待上报队列
+            if(!ReportGameTime(info)){
+                Logger.d("Start reportEvent, add info to array");
+                gameTimePedding.add(info);
+            } 
+        }
+    }
+    
+    private static boolean ReportGameTime(GameTimeInfo info){
+        HashMap<String, String> params = new HashMap<String, String>();
+        params.put(JsonKeyConst.Event_TYPE, info.eventType);
+        params.put(JsonKeyConst.GAMETIME_DEV_ID, info.devid);
+        params.put(JsonKeyConst.LOCAL_GAME_TIME, info.localGameTime);
+        params.put(JsonKeyConst.LOCAL_TIME, info.localTime);
+        params.put(JsonKeyConst.APP_ID, info.appid);
+        params.put(JsonKeyConst.GAMETIME_OPEN_ID, info.openid);
+        return ReportEvent.BaseReportEvent(eEVENT_MODEL.GAMETIME,eEVENT_TYPE.eEVENT_GAME_TIME,params);
+    }
+
+}

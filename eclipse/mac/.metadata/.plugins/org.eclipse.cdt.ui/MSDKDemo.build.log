@@ -1,10 +1,9 @@
-
-**** Build of configuration Default for project MSDKDemo ****
-
+09:53:58 **** Build of configuration Default for project MSDKDemo ****
 /usr/local/android-ndk-r9c/ndk-build all 
-[armeabi] Install        : libMSDKDemo.so => libs/armeabi/libMSDKDemo.so
-[armeabi-v7a] Install        : libMSDKDemo.so => libs/armeabi-v7a/libMSDKDemo.so
-[x86] Install        : libMSDKDemo.so => libs/x86/libMSDKDemo.so
-[mips] Install        : libMSDKDemo.so => libs/mips/libMSDKDemo.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
 
-**** Build Finished ****
+09:53:58 Build Finished (took 186ms)
+

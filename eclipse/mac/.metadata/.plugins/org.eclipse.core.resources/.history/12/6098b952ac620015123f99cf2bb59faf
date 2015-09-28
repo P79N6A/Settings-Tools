@@ -1,0 +1,230 @@
+
+package com.tencent.msdk.push;
+
+import java.util.List;
+
+import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningServiceInfo;
+import android.content.Context;
+import android.content.Intent;
+
+import com.tencent.msdk.SimpleCallback;
+import com.tencent.msdk.Singleton;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.push.db.PushClientDbModel;
+import com.tencent.msdk.push.req.ClientRegReq;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.SharedPreferencesTool;
+import com.tencent.msdk.tools.T;
+
+/**
+ * 包含PUSH相关的主要接口, 注册App/注册用户/启动等
+ * 
+ * @date Aug 1, 2014
+ * @author erichua
+ */
+public class PushManager {
+    public static final Singleton<PushManager> gDefault = new Singleton<PushManager>() {
+        protected PushManager create() {
+            return new PushManager();
+        }
+    };
+
+    private PushManager() {
+    }
+
+    public static boolean needRegiste() {
+        // 如果本地没有MatKey则需要注册
+        if (T.ckIsEmpty(PushClientDbModel.getMatKey())) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 注册应用, 每个游戏启动的时候需要调用注册应用, 本身保证了不重复注册, 如果注册过则不会再次注册
+     * @param ctx
+     * @param qqAppId
+     * @param wxAppid
+     * @date Aug 1, 2014
+     * @author erichua
+     */
+    public void registerAppOnce(Context ctx, String qqAppId, String wxAppid) {
+        // 如果当前应用还没有注册过, 则注册
+
+        String appId = qqAppId + "|" + wxAppid;
+        if (!isAppRegistered(ctx, appId)) {
+            ClientRegReq req = new ClientRegReq(appId);
+            req.setmCallback(new SimpleCallback() {
+                @Override
+                public void onSuccess() {
+                    Logger.d("called");
+                    // 注册完成以后, 设置注册的标记位, 保证不会重复注册
+                    setAppRegistered(WeGame.getInstance().getActivity(),
+                            WeGame.getInstance().qq_appid,
+                            WeGame.getInstance().wx_appid);
+                    startPushPoll(WeGame.getInstance().getActivity(), 
+                            WeGame.getInstance().qq_appid, 
+                            WeGame.getInstance().wx_appid);
+                }
+
+                @Override
+                public void onFail() {
+                    Logger.d("AppUser Reg Fail, qqAppId: " + WeGame.getInstance().qq_appid
+                            + "; wxAppId:" + WeGame.getInstance().wx_appid);
+                }
+            });
+            req.send();
+        } else {
+            Logger.d("AppId " + appId + " registered");
+            startPushPoll(WeGame.getInstance().getActivity(), 
+                    WeGame.getInstance().qq_appid, 
+                    WeGame.getInstance().wx_appid);
+        }
+    }
+
+    /**
+     * 注册用户, 每个游戏启动的时候需要调用注册应用, 本身保证了不重复注册, 如果注册过则不会再次注册
+     * @param ctx
+     * @param qqAppId
+     * @param wxAppid
+     * @date Aug 1, 2014
+     * @author erichua
+     */
+    public void registerAppUserOnce(Activity ctx, final String appId, final String openId) {
+        // 如果当前应用还没有注册过, 则注册
+        if (!isAppUserRegistered(ctx, appId, openId)) {
+            ClientRegReq req = new ClientRegReq(appId, openId);
+            req.setmCallback(new SimpleCallback() {
+
+                @Override
+                public void onSuccess() {
+                    // 注册成功以后设置被应用对应此用户的注册状态, 避免下次重复注册
+                    setAppUserRegistered(WeGame.getInstance().getActivity(), appId, openId);
+                    
+                    startPushPoll(WeGame.getInstance().getActivity(), 
+                            WeGame.getInstance().qq_appid, 
+                            WeGame.getInstance().wx_appid);
+                }
+
+                @Override
+                public void onFail() {
+                    Logger.d("AppUser Reg Fail, AppId: " + appId + "; OpenId" + openId);
+                }
+            });
+            req.send();
+        } else {
+            Logger.d("AppId " + appId + "; OpenID: " + openId + " registered");
+            startPushPoll(WeGame.getInstance().getActivity(), 
+                    WeGame.getInstance().qq_appid, 
+                    WeGame.getInstance().wx_appid);
+        }
+    }
+
+    /**
+     * 开始PUSH轮询
+     * @param ctx
+     * @param qqAppId
+     * @param wxAppId
+     * @date Aug 1, 2014
+     * @author erichua
+     */
+    public void startPushPoll(Activity ctx, String qqAppId, String wxAppId) {
+        Logger.d("called");
+        if (needRegiste()) {
+            // 需要注册则注册
+            Logger.d("matKey not existed, need register");
+            // 开始轮询时如果没有注册也不去注册, 注册统一通过游戏启动和登录完成去注册
+            // registerAppOnce(ctx, qqAppId, wxAppId);
+        } else {
+            Logger.d("called");
+            startPushService();
+        }
+    }
+
+    /**
+     * 判断此时是否有PushService已经启动, 如果已经启动则不再启动Service,
+     * 此方法会用到WeGame.getInstance().getActivity, 必须有游戏Activity上下文
+     */
+    public void startPushService() {
+        Logger.d("called");
+        // 通过判断系统中是否有PUSH Service来判断轮询是否已经启动
+        if (!ckContainsService(HttpPushService.class.getName())) {
+            Intent i = new Intent(WeGame.getInstance().getActivity(), HttpPushService.class);
+            WeGame.getInstance().getActivity().startService(i);
+        }
+    }
+
+    /**
+     * 检查系统中当前是否有 MSDK的推送Service
+     * @param serviceName
+     * @return
+     */
+    private boolean ckContainsService(String serviceName) {
+        if (!T.ckIsEmpty(serviceName)) {
+            ActivityManager am = (ActivityManager)
+                    WeGame.getInstance().getActivity().getSystemService(Context.ACTIVITY_SERVICE);
+            List<RunningServiceInfo> services = am.getRunningServices(400);
+            Logger.d("services number: " + services.size());
+            for (RunningServiceInfo ri : services) {
+                if (serviceName.equals(ri.service.getClassName())
+                        && HttpPushService.PUSH_SERVICE_PROC_NAME.equals(ri.process)) {
+                    Logger.d("service existed!");
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 检查App是否已经注册过
+     * 
+     * @param ctx
+     * @param appId
+     * @return
+     */
+    public boolean isAppRegistered(Context ctx, String appId) {
+        // 如果此时没有本地matkey, 则算作没有注册
+        if (T.ckIsEmpty(PushClientDbModel.getMatKey())) {
+            Logger.d("isAppRegistered no matKey");
+            return false;
+        }
+
+        // 用appId作为key, 每次注册完以后设置此值, 保证一个app只注册一次
+        return SharedPreferencesTool.getBoolean(ctx, appId, false);
+    }
+
+    /**
+     * @param ctx
+     * @param appId 可能是微信的appid或者手Q的appid
+     * @param openId 和appId对应的openId
+     * @return
+     */
+    public boolean isAppUserRegistered(Context ctx, String appId, String openId) {
+        // 如果此时没有本地matkey, 则算作没有注册
+        if (T.ckIsEmpty(PushClientDbModel.getMatKey())) {
+            Logger.d("isAppUserRegistered no matKey");
+            return false;
+        }
+
+        return SharedPreferencesTool.getBoolean(ctx, appId + ":" + openId, false);
+    }
+
+    public void setAppRegistered(Context ctx, String qqAppId, String wxAppid) {
+        // 用appId作为key, 每次注册完以后设置此值, 保证一个app只注册一次
+        SharedPreferencesTool.putBoolean(ctx, qqAppId + "|" + wxAppid, true);
+    }
+
+    /**
+     * @param ctx
+     * @param appId 可能是微信的appid或者手Q的appid
+     * @param openId 和appId对应的openId
+     */
+    public void setAppUserRegistered(Context ctx, String appId, String openId) {
+        SharedPreferencesTool.putBoolean(ctx, appId + ":" + openId, true);
+    }
+    
+    
+}

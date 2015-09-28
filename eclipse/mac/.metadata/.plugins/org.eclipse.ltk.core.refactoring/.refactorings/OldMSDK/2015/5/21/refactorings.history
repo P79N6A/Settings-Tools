@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Copy element &apos;WGQQGroupObserver.java&apos; to &apos;MSDK/src/com.tencent.msdk.module.user.qq.group&apos;&#x0A;- Original project: &apos;OldMSDK&apos;&#x0A;- Destination element: &apos;MSDK/src/com.tencent.msdk.module.user.qq.group&apos;&#x0A;- Original element: &apos;com.tencent.msdk.api.WGQQGroupObserver.java&apos;" description="Copy compilation unit" destination="=MSDK/src&lt;com.tencent.msdk.module.user.qq.group" element1="/src&lt;com.tencent.msdk.api{WGQQGroupObserver.java" files="0" flags="589830" folders="0" id="org.eclipse.jdt.ui.copy" policy="org.eclipse.jdt.ui.copyResources" stamp="1432200113749" units="1" version="1.0"/>
+</session>

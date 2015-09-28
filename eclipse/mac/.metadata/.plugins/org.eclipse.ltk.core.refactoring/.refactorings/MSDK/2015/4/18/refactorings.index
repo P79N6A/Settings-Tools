@@ -1,0 +1,25 @@
+1430133376843	Rename method 'loginWithLoginRecord'
+1430135650045	Rename method 'loginWithLoginRecord'
+1430136621984	Rename field 'NeedLogin'
+1430136626004	Rename field 'UrlLogin'
+1430136630831	Rename field 'NeedSelectAccount'
+1430136635613	Rename field 'LocalLogin'
+1430138124561	Rename local variable 'loginRet'
+1430187924656	Rename local variable 'localVaild'
+1430187933946	Rename local variable 'launchvaild'
+1430189297537	Rename method 'loginWithLoginRecord'
+1430189390144	Rename field 'mLauncherWXUserLoginRet'
+1430198945840	Rename field 'MSG_UI_WX_LOGIN'
+1430198972760	Rename method 'autoLoginAsync'
+1430204860888	Copy compilation units
+1430204904755	Copy compilation units
+1430205725231	Copy compilation unit
+1430205753995	Delete element
+1430209882149	Rename local variable 'wxFirstLoginResponse'
+1430209899245	Rename local variable 'wxFirstLoginResponse'
+1430278294468	Rename type 'WXRelationRequest'
+1430278600892	Rename field 'openId'
+1430287738726	Copy compilation unit
+1430288692911	Rename type 'RelationRet'
+1430290531629	Rename method 'QueryUserInfo'
+1430290537218	Rename method 'QueryRelationInfo'

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename local variable &apos;ret&apos; in &apos;com.example.module.submodule.MSDKUserListener.OnLoginNotify(...)&apos; to &apos;loginRet&apos;&#x0A;- Original project: &apos;MSDKDemo&apos;&#x0A;- Original element: &apos;com.example.module.submodule.MSDKUserListener.OnLoginNotify(UserLoginRet).ret&apos;&#x0A;- Renamed element: &apos;ret&apos;&#x0A;- Update references to refactored element" description="Rename local variable &apos;ret&apos;" id="org.eclipse.jdt.ui.rename.local.variable" input="/src&lt;com.example.module.submodule{MSDKUserListener.java[MSDKUserListener~OnLoginNotify~QUserLoginRet;@ret!328!343!341!343!QUserLoginRet;!0!true" name="loginRet" references="true" stamp="1429690716710" version="1.0"/>
+</session>

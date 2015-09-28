@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 如果需要在本地打包, 需要将MSDKDemo/env.xml中的sdk目录以及NDK目录均改为本地对应环境的地址, 目前MSDKDemo/env.xmlz中地址为erichua的本地环境 -->
+<project name="MSDKEncrypt" default="package_msdk" basedir=".">
+	<import file="./env.xml" optional="true" />
+	<import file="./custom_rules.xml" optional="true" />
+	<property file="./ant.properties" />
+	<loadproperties srcFile="project.properties" />
+	<import file="${sdk.dir}/tools/ant/build.xml" />
+	 
+    <target name="package_msdk" depends="clean,release">
+        <property environment="env" />
+        <property name="msdk_jar_name" value="MSDK_Encrypt.jar"/>
+        <echo message="msdk_jar_name:${msdk_jar_name}" />
+
+        <delete dir="./temp"/>
+        <mkdir dir="./temp"/>
+		
+        <zip destfile="./temp/${msdk_jar_name}">
+            <zipfileset dir="./bin/classes">
+                <exclude name="com/tencent/msdk/BuildConfig.class"/>
+            </zipfileset>
+        </zip>
+        
+        <copy todir="./libs/">
+            <fileset dir="./temp">
+            </fileset>
+        </copy>
+    </target>
+
+</project>

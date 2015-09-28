@@ -1,0 +1,780 @@
+package com.tencent.msdk.login;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.os.Message;
+
+import com.tencent.mm.sdk.modelbase.BaseResp;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.CardRet;
+import com.tencent.msdk.api.GroupRet;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.api.ShareRet;
+import com.tencent.msdk.api.TokenRet;
+import com.tencent.msdk.api.WakeupRet;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.EPlatform;
+import com.tencent.msdk.consts.ErrorCodeFlag;
+import com.tencent.msdk.consts.RequestConst;
+import com.tencent.msdk.consts.TokenType;
+import com.tencent.msdk.db.QQLoginModel;
+import com.tencent.msdk.db.WxLoginModel;
+import com.tencent.msdk.handle.MsdkThread;
+import com.tencent.msdk.handle.MsdkThreadManager;
+import com.tencent.msdk.locallog.SaveLogHelper;
+import com.tencent.msdk.pf.WGPfManager;
+import com.tencent.msdk.stat.BeaconHelper;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+import com.tencent.msdk.weixin.qrcode.WXQrCodeLogin;
+
+public class LoginManager {
+    private static volatile LoginManager mInstance;
+    //临时保存拉起平台携带的票据信息，当切换异账号使用拉起平台登录时使用这里保存的票据登陆
+    private LoginRet mCallbackRet = null;
+    // checking token
+    private Object lock = new Object();
+    private boolean isCheckingToken = false;
+    private boolean getIsCheckingToken(){
+        synchronized (lock) {
+            return isCheckingToken;
+        }
+    }
+    public void setIsCheckingToken(boolean flag) {
+        synchronized (lock) {
+            isCheckingToken = flag;
+        }
+    }
+    // end checking token
+    // 游戏主动调用
+    private Object gameReqLock = new Object();
+    private boolean isGameRequest = false;
+    public boolean getIsGameRequest(){
+        synchronized (gameReqLock) {
+            return isGameRequest;
+        }
+    }
+    public void setIsGameRequest(boolean flag) {
+        synchronized (gameReqLock) {
+            isGameRequest = flag;
+        }
+    }
+    
+    private String openid = "";
+    private int platform = 0;
+    // 如果Model有变动则将其置为空
+    private Object lockLastQQModel = new Object();
+    private Object lockLastWXModel = new Object();
+    private QQLoginModel mLastQQModel = null;
+    private WxLoginModel mLastWXModel = null;
+    private long mLastExecuteTime = 0;
+    // 1分钟，即60秒
+    private long mBackgroundPeriod = 60;
+    private LoginManager(){}
+    public static LoginManager getInstance() {
+        if (mInstance == null) {
+            synchronized (LoginManager.class) {
+                if (mInstance == null) {
+                    mInstance = new LoginManager();
+                }
+            }
+        }
+        return mInstance;
+    }
+    
+    public void init(Activity activity){
+        setIsCheckingToken(false);
+        mLastQQModel = null;
+        mLastWXModel = null;
+        openid = "";
+        platform = 0;
+        mLastExecuteTime = 0;
+        int configTime = ConfigManager.getCheckBackgroundTime(activity);
+        if(configTime > 0){
+            mBackgroundPeriod = configTime * 60;
+        } 
+        Logger.d("newLogin backgroundPeriod:" + mBackgroundPeriod);
+    }
+    
+    public void wxFirstLoginReq(String wxCode, int notifyState) {
+        Logger.d("newLogin wxFirstLoginReq, isCheckingToken:" + isCheckingToken);
+        Message msg = new Message();
+        msg.what = MsdkThread.wxFirstLoginReq;
+        WxFirstLoginInfo info = new WxFirstLoginInfo();
+        info.wxCode = wxCode;
+        info.notifyState = notifyState;
+        msg.obj = info;
+        MsdkThreadManager.getInstance().sendHandlerMessage(msg);
+    }
+
+    // 验票据流程，给予控制
+    public void getQQFirstLoginPfKeyReq(QQLoginModel qlm) {
+        Logger.d("newLogin getQQFirstLoginPfKeyReq, isCheckingToken:" + isCheckingToken);
+        if(null != qlm.getWakeupRet()){
+            // 说明是唤醒拉起,因此需要checkingtoken
+            setIsCheckingToken(true);
+        }
+        Message msg = new Message();
+        msg.what = MsdkThread.getQQFirstLoginPfKeyReq;
+        msg.obj = qlm;
+        MsdkThreadManager.getInstance().sendHandlerMessage(msg);
+    }
+
+    private void verifyLocalQQToken(QQLoginModel qlm) {
+        Logger.d("newLogin verifyLocalQQToken, isCheckingToken:" + isCheckingToken);
+        setIsCheckingToken(true);
+        Message msg = new Message();
+        msg.what = MsdkThread.verifyLocalQQToken;
+        msg.obj = qlm;
+        MsdkThreadManager.getInstance().sendHandlerMessage(msg);
+    }
+
+    /**
+     * 
+     * @param qui
+     * @param needVarify 如果设为true则说明需要varify，如果还有效则获取到45分钟的时间，如果设为false则说明直接refreshtoken，成功得到新的token
+     */
+    private void verifyLocalAndRefreshWxToken(WxLoginModel qui, boolean needVarify) {
+        Logger.d("newLogin verifyLocalAndRefreshWxToken, isCheckingToken:" + isCheckingToken + ",needvarify:" + needVarify);
+        setIsCheckingToken(true);
+        Message msg = new Message();
+        msg.what = MsdkThread.verifyLocalAndRefreshWxToken;
+        msg.obj = qui;
+        if(needVarify) {
+            msg.arg1 = 1;
+        } else {
+            msg.arg1 = 0;
+        }
+        MsdkThreadManager.getInstance().sendHandlerMessage(msg);
+    }
+
+    public void wxExpiredLoginReq(int notifyState, boolean isTimerRefresh) {
+        Logger.d("wxExpiredLoginReq");
+        Message msg = new Message();
+        msg.what = MsdkThread.wxExpiredLoginReq;
+        msg.arg1 = notifyState;
+        msg.obj = isTimerRefresh;
+        MsdkThreadManager.getInstance().sendHandlerMessage(msg);
+    }
+    
+    private void getPfKeyReqWithWakeup(int notifyState, WakeupRet wakeup) {
+        Logger.d("newLogin getPfKeyReqWithWakeup, isCheckingToken:" + isCheckingToken);
+        setIsCheckingToken(true);
+        Message msg = new Message();
+        msg.what = MsdkThread.getPfKeyReqWithWakeup;
+        msg.arg1 = notifyState;
+        msg.obj = wakeup;
+        MsdkThreadManager.getInstance().sendHandlerMessage(msg);
+    }
+    // 主要是以上这四个函数
+    
+    public void handleCallback(Bundle extras) {
+        // 设置拉起平台
+        String platformId = LoginUtils.getPlatformFromCallbackInfo(extras);
+        Logger.d("checkTokenFlag platformId:" + platformId);
+        WGPfManager.getInstance().setPlatformId(platformId);
+        
+        mCallbackRet = new LoginRet();
+        LoginUtils.setmCallbackRet(platformId, extras, mCallbackRet);
+        int diffAccountFlag = LoginUtils.checkDiffLogin(mCallbackRet);
+        
+        // 异账号判断本地日志保存
+        HashMap<String, String> map = new HashMap<String, String>();
+        map.put("platform", "" + mCallbackRet.platform);
+        map.put("diffAccountFlag", "" + diffAccountFlag);
+        SaveLogHelper.getInstance().reportLog("handleCallback", map, false);
+        // 结束日志上报
+        
+        Logger.d("diffAccountFlag flag:" + diffAccountFlag);
+        if (WeGame.QQPLATID == mCallbackRet.platform) {
+            Logger.d("handleQQCallback,diffAccountFlag:" + diffAccountFlag);
+            this.handleQQCallback(extras, diffAccountFlag);
+        } else if (WeGame.WXPLATID == mCallbackRet.platform) {
+            Logger.d("handleWXCallback,diffAccountFlag:" + diffAccountFlag);
+            this.handleWXCallback(extras, diffAccountFlag);
+        } else if (WeGame.QQHALL == mCallbackRet.platform) {
+            Logger.d("handleHallCallback,diffAccountFlag:" + diffAccountFlag);
+            this.handleHallCallback(extras, diffAccountFlag);
+        } else {
+            Logger.d("handdle unknow platformID: " + platformId);
+        }
+        Logger.d("###platformId:" + platformId);
+    }
+    
+    public int WGGetLoginRecord(LoginRet ret) {
+        Logger.d("LoginManager WGGetLoginRecord...");
+        // 如果正在执行，没必要再执行一次
+        if(getIsCheckingToken()) {
+            ret.flag = CallbackFlag.eFlag_Checking_Token;
+            return ret.platform;
+        } else {
+            LoginUtils.getLocalLoginRet(ret);
+         }
+         return ret.platform;
+    }
+    
+    public void WGRefreshWxToken() {
+        wxExpiredLoginReq(RequestConst.notifyLogin, false);
+    }
+    
+    public void WGLogin(EPlatform platform) {
+        Logger.d("LoginManager WGLogin..., platform:" + platform.val());
+        if(platform == EPlatform.ePlatform_None) {
+            WGLoginWithLocalInfo(true, null);
+        } else {
+            MsdkThreadManager.getInstance().sendLoginMsg(platform.val());
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("plat", platform == null ? "null" : String.valueOf(platform.val()));
+            SaveLogHelper.getInstance().reportLog("WGLogin", map, false);
+        }
+    }
+
+    private void WeixinQrCodeLogin (boolean useMsdkLayout) {
+    	WXQrCodeLogin.getInstance().login(useMsdkLayout);
+    }
+    
+    public void WGQrCodeLogin(EPlatform platform, boolean useMsdkLayout) {
+        Logger.d("LoginManager WGQrCodeLogin..., platform:" + platform.val());
+        if(platform == EPlatform.ePlatform_Weixin) {
+        	WeixinQrCodeLogin(useMsdkLayout);
+        } else {
+        	Logger.d("LoginManager WGQrCodeLogin platform:" + platform.val() + "not support");
+        }
+    }
+
+    public void WGLoginWithLocalInfo(boolean isGameStart, WakeupRet wakeupRet){
+        Logger.d("newLogin gamestart:" + isGameStart + ",ret:" + wakeupRet);
+        if(isGameStart) {
+            setIsGameRequest(true);
+        } else {
+            // 说明当前是定时器调用的
+            if(wakeupRet == null) {
+                long currentTime = System.currentTimeMillis() / 1000;
+                // 如果距上次执行不到1分钟，为避免频繁调用，因此此时不执行
+                if(currentTime - mLastExecuteTime < mBackgroundPeriod) {
+                    Logger.d("newLogin lastverify too short, don't timer loginwithlocal");
+                    return ;
+                }
+            }
+        }
+        Logger.d("newLogin");
+        mLastExecuteTime = System.currentTimeMillis() / 1000;
+        // 如果唤醒的调用则还是需要进行一次本地票据的验证，否则没有wakeup的通知
+        if(null == wakeupRet && getIsCheckingToken()) {
+            return;
+        }
+        LoginRet lr = new LoginRet();
+        LoginUtils.getLocalLoginRet(lr);
+        SaveLogHelper.getInstance().reportLog("WGLoginWithLocalInfo", lr, false);
+        if (lr.platform == WeGame.QQPLATID) {
+            switch (lr.flag) {
+            case CallbackFlag.eFlag_Succ: // 票据有效
+                Logger.d("local token valid");
+                // 如果本地时间判断还在buffer以内, 此时也不能算作票据有效, 还要到后台验证, 完成按之前的正常流程通知
+                QQLoginModel qui = getLastQQLoginModel();
+                if(qui == null) {
+                    // some error happens
+                    Logger.e("QQLoginModel qui==null");
+                    String errMsg = "getLastQQLoginModel null, let users login again!";
+                    LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID, CallbackFlag.eFlag_Local_Invalid, errMsg);
+                    if(null != wakeupRet) {
+                        WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                    }
+                    WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+                    return ;
+                }
+                qui.setWakeUpRet(wakeupRet);
+                verifyLocalQQToken(qui);
+                break;
+            case CallbackFlag.eFlag_QQ_AccessTokenExpired:
+            case CallbackFlag.eFlag_QQ_PayTokenExpired: {
+                Logger.d("TokenExpired");
+                // 票据过期, 需要重新授权
+                String errMsg = "accessToken or payToken expired, let users login again!";
+                LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID, CallbackFlag.eFlag_Local_Invalid, errMsg);
+                if(null != wakeupRet) {
+                    WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                }
+                WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+                break;
+            }
+            default: {
+                // 其他flag, 同票据过期处理
+                Logger.d("WGGetLoginRecord return flag: " + lr.flag);
+                Logger.d(lr);
+                LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID, CallbackFlag.eFlag_Local_Invalid, "flag: " + lr.flag);
+                if(null != wakeupRet) {
+                    WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                }
+                WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+                break;
+            }
+            }
+        } else if (lr.platform == WeGame.WXPLATID) {
+            switch (lr.flag) {
+            case CallbackFlag.eFlag_Succ: // 票据有效
+            case CallbackFlag.eFlag_WX_AccessTokenExpired:
+                Logger.d("local token valid");
+                WxLoginModel qui = getLastWxLoginModel();
+                if(qui == null) {
+                    // some error happens
+                    LoginRet failLoginRet = new LoginRet(WeGame.WXPLATID, CallbackFlag.eFlag_Local_Invalid, "invalid flag" + lr.flag);
+                    if(null != wakeupRet) {
+                        WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                    }
+                    WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+                    return;
+                }
+                qui.setWakeUpRet(wakeupRet);
+                // 如果过期了则不需要验证了，而是直接去刷新， 如果是成功的，则采用验+刷的机制
+                if(lr.flag == CallbackFlag.eFlag_Succ){
+                    verifyLocalAndRefreshWxToken(qui, true);
+                } else {
+                    verifyLocalAndRefreshWxToken(qui, false);
+                }
+                break;
+            case CallbackFlag.eFlag_WX_RefreshTokenExpired: {
+                // refresh票据过期, 需要重新授权
+                LoginRet failLoginRet = new LoginRet(WeGame.WXPLATID, CallbackFlag.eFlag_Local_Invalid, "refresh token expired");
+                if(null != wakeupRet) {
+                    WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                }
+                WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+                break;
+            }
+            default: {
+                // 其他flag, 同票据过期处理
+                Logger.d("WGGetLoginRecord return invalid flag");
+                Logger.d(lr);
+                LoginRet failLoginRet = new LoginRet(WeGame.WXPLATID, CallbackFlag.eFlag_Local_Invalid, "invalid flag" + lr.flag);
+                if(null != wakeupRet) {
+                    WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                }
+                WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+                break;
+            }
+            }
+        } else {
+            Logger.d("WGGetLoginRecord return invalid platform " + lr.platform);
+            if(null != wakeupRet) {
+                WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+            }
+            
+            LoginRet failLoginRet = new LoginRet(WeGame.QQPLATID,
+                        CallbackFlag.eFlag_Local_Invalid, "invalid platform");
+            WeGameNotifyGame.getInstance().OnPlatformLoginNotify(failLoginRet);
+        }
+    }
+    
+    /**
+     * 使用拉起账号登陆，目前只有手Q支持
+     * 
+     * @param switchToLaunchUser
+     *            是否用拉起账号登陆
+     * @return 如果没有票据，或票据无效将会返回NO；其它情况返回YES，YES不代表登陆成功
+     */
+    public boolean switchUser(boolean switchToLaunchUser, WakeupRet wakeupRet) {
+        Logger.d("switchUser:"+switchToLaunchUser);
+        if (mCallbackRet == null) {
+            return false;
+        }
+        if (switchToLaunchUser) {
+            Logger.d("login with callback");
+            if (WeGame.QQPLATID == mCallbackRet.platform) {
+                Logger.d("loginWithUrlInfo: qq");
+                QQLoginModel qui = new QQLoginModel();
+                qui.open_id = mCallbackRet.open_id;
+                long curTime = System.currentTimeMillis() / 1000;
+                qui.access_token = mCallbackRet.getAccessToken();
+                qui.access_token_expire = curTime
+                        + mCallbackRet
+                                .getTokenExpireByType(TokenType.eToken_QQ_Access);
+                qui.pay_token = mCallbackRet
+                        .getTokenByType(TokenType.eToken_QQ_Pay);
+                qui.pay_token_expire = curTime
+                        + mCallbackRet
+                                .getTokenExpireByType(TokenType.eToken_QQ_Pay);
+                qui.pf = mCallbackRet.pf;
+                qui.pf_key = mCallbackRet.pf_key;
+                if(null != wakeupRet) {
+                    qui.setWakeUpRet(wakeupRet);
+                }
+                getQQFirstLoginPfKeyReq(qui);
+                return true;
+            } else if (WeGame.WXPLATID == mCallbackRet.platform) {
+                Logger.d("loginWithUrlInfo: wechat");
+                if(null != wakeupRet) {
+                    WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                }
+                return false;
+            } else if (WeGame.QQHALL == mCallbackRet.platform) {
+                Logger.d("loginWithUrlInfo: hall");
+                if(null != wakeupRet) {
+                    WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                }
+                return false;
+            } else {
+                Logger.w("loginWithUrlInfo: " + mCallbackRet.platform);
+                if(null != wakeupRet) {
+                    WeGameNotifyGame.getInstance().OnPlatformWakeupNotify(wakeupRet);
+                }
+                return false;
+            }
+        } else {
+            Logger.d("login with local");
+            // 清空缓存中的票据信息
+            mCallbackRet = new LoginRet();
+            WGLoginWithLocalInfo(true, wakeupRet);
+            return true;
+        }
+    }
+    
+    private void handleQQCallback(Bundle b, int diffAccoutFlag) {
+        Logger.d("handleQQCallback" + "");
+
+        String openID = "";
+        if (!T.ckIsEmpty(b.getString("openid"))) {
+            openID = b.getString("openid");
+        } else {
+            openID = b.getString("current_uin");
+        }
+        Logger.d("qq SetOpenid " + openID);
+
+        WakeupRet wakeup = new WakeupRet();
+        wakeup.platform = WeGame.QQPLATID;
+        wakeup.open_id = openID;
+        wakeup.flag = diffAccoutFlag;
+        LoginUtils.bundleToVector(b, wakeup);
+        /*eFlag_Succ对应后续的操作WGLoginWithLocalinfo[微信和QQ都有可能]
+                * eFlag_UrlLogin对应后续的操作getQQFirstLoginPfKeyReq 
+                * eFlag_AccountRefresh对应后续的操作verifyLocalAndRefreshWxToken
+                * eFlag_NeedLogin对应后续的操作getPfKeyReqWithWakeup
+                * eFlag_NeedSelectAccount对应后续的操作调用WGLoginWithLocalinfo[微信和QQ都有可能]*/
+        switch (diffAccoutFlag) {
+            case CallbackFlag.eFlag_Succ:
+            case CallbackFlag.eFlag_NeedSelectAccount:
+                // 如果本地时间判断还在buffer以内, 此时也不能算作票据有效, 还要到后台验证, 完成按之前的正常流程通知
+                WGLoginWithLocalInfo(false, wakeup);
+                break;
+            case CallbackFlag.eFlag_UrlLogin:
+                switchUser(true, wakeup);
+                break;
+            case CallbackFlag.eFlag_NeedLogin:
+            default:
+                getPfKeyReqWithWakeup(RequestConst.notifyWakeup, wakeup);
+                break;
+        }
+    }
+
+    private void handleHallCallback(Bundle b, int diffAccoutFlag) {
+        /*
+         * 1、键值为'channelId', 数据类型为string的统计渠道ID；
+         * 2、键值为'OPEN_AUTH_DATA',* 数据类型为string的开放平台加密数据； 
+         * 3、键值为'OPEN_AUTH_ST', 数据类型为string的开放平台加密st；
+         */
+        if (b == null) {
+            Logger.d("handleHallCallback Bundle EMPTY");
+            return;
+        }
+        setIsCheckingToken(true);
+        String channelId = b.getString("channelId");
+        String openAuthData = b.getString("OPEN_AUTH_DATA");
+        String openAuthSt = b.getString("OPEN_AUTH_ST");
+
+        Logger.d("From Hall, channelId: " + channelId);
+        Logger.d("From Hall, openAuthData: " + openAuthData);
+        Logger.d("From Hall, openAuthSt: " + openAuthSt);
+
+        MsdkThreadManager.getInstance().qqA8Req(openAuthData, openAuthSt,
+                RequestConst.notifyWakeup);
+    }
+
+    private void handleWXCallback(Bundle extras, int diffAccoutFlag) {
+        Logger.d("handleWXCallback" + "");
+        if (extras == null) {
+            Logger.d("handleWXCallback Bundle EMPTY");
+            return;
+        }
+        // 这里的数据是在WXEntryActivity中设置的
+        String wxCallbackFlag = extras.getString("wx_callback");
+        int errCode = extras.getInt("wx_errCode");
+        String errStr = extras.getString("wx_errStr");
+        String transaction = extras.getString("wx_transaction");
+        String openID = extras.getString("wx_openId");
+        String token = extras.getString("wx_token");
+        String mediaTagName = extras.getString("wx_mediaTagName");
+        String messageExt = extras.getString("messageExt");
+        String country = extras.getString("country");
+        String lang = extras.getString("lang");
+
+        Logger.d("handleWXCallback errorCode: " + errCode);
+        if ("onReq".equals(wxCallbackFlag)) { 
+            // 微信拉起
+            WakeupRet wakeup = new WakeupRet();
+            wakeup.platform = WeGame.WXPLATID;
+            wakeup.open_id = openID;
+            wakeup.flag = diffAccoutFlag;
+
+            if (!T.ckIsEmpty(mediaTagName)) {
+                Logger.d("handleWXCallback" + "mediaTagName : " + mediaTagName);
+                wakeup.media_tag_name = mediaTagName;
+            } else {
+                Logger.d("handleWXCallback" + "mediaTagName null or empty");
+            }
+            if (!T.ckIsEmpty(messageExt)) {
+                Logger.d("handleWXCallback" + "messageExt : " + messageExt);
+                wakeup.messageExt = messageExt;
+            }
+            if (!T.ckIsEmpty(country)) {
+                Logger.d("handleWXCallback" + "country : " + messageExt);
+                wakeup.country = country;
+            }
+            if (!T.ckIsEmpty(lang)) {
+                Logger.d("handleWXCallback" + "lang : " + messageExt);
+                wakeup.lang = lang;
+            }
+            LoginUtils.bundleToVector(extras, wakeup);
+            switch (diffAccoutFlag) {
+                case CallbackFlag.eFlag_AccountRefresh:
+                    // 如果本地时间判断还在buffer以内, 此时也不能算作票据有效, 还要到后台验证, 完成按之前的正常流程通知
+                    WxLoginModel qui = getLastWxLoginModel();
+                    if(qui == null) {
+                        // some error happens
+                        Logger.e("WxLoginModel getLastWx is null");
+                        return;
+                    }
+                    qui.setWakeUpRet(wakeup);
+                    verifyLocalAndRefreshWxToken(qui, false);
+                    break;
+                case CallbackFlag.eFlag_Succ:
+                case CallbackFlag.eFlag_NeedSelectAccount:
+                    // 如果本地时间判断还在buffer以内, 此时也不能算作票据有效, 还要到后台验证, 完成按之前的正常流程通知
+                    WGLoginWithLocalInfo(false, wakeup);
+                    break;
+                case CallbackFlag.eFlag_NeedLogin:
+                default:
+                    // 更新 pfkey
+                    getPfKeyReqWithWakeup(RequestConst.notifyWakeup, wakeup);
+                    break;
+            }
+        } else if ("onQrcode".equals(wxCallbackFlag)) { 
+            Logger.d("onQrcode");
+            // 微信扫码登陆
+            LoginRet loginRet = new LoginRet();
+            loginRet.platform = WeGame.WXPLATID;
+            Logger.d("WXEntryActivity errcode:" + errCode);
+            if(BaseResp.ErrCode.ERR_OK == errCode){
+                loginRet.flag = CallbackFlag.eFlag_Succ;
+                TokenRet code = new TokenRet();
+                code.type = TokenType.eToken_WX_Code;
+                if (token == null) {
+                    code.value = "";
+                } else {
+                    code.value = token;
+                }
+                loginRet.token.add(code);
+                Logger.d("code: " + code.value);
+                // 到MSDK后台换票, 并且通知上层
+                wxFirstLoginReq(code.value, RequestConst.notifyLogin);
+            }else{
+                // 扫码返回的其余错误
+                loginRet.flag = CallbackFlag.eFlag_WX_LoginFail;
+                loginRet.desc = "errCode:" + errCode + ";errStr:" + errStr; 
+                WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+            }
+        } else {
+            if("appdata".equals(transaction) || "img".equals(transaction) || "msdkwebpage".equals(transaction) || "webpage".equals(transaction)) { 
+                // 分享返回
+                ShareRet shareRet = new ShareRet();
+                shareRet.flag = errCode;
+                shareRet.platform = WeGame.WXPLATID;
+                if (!T.ckIsEmpty(errStr)) {
+                    shareRet.desc = errStr;
+                }
+                Logger.d("WX Share ErrorCode :" + errCode);
+                switch (errCode) {
+                    case BaseResp.ErrCode.ERR_OK:
+                        shareRet.flag = CallbackFlag.eFlag_Succ;
+                        break;
+                    case BaseResp.ErrCode.ERR_USER_CANCEL:
+                        shareRet.flag = CallbackFlag.eFlag_WX_UserCancel;
+                        break;
+                    case BaseResp.ErrCode.ERR_UNSUPPORT:
+                        shareRet.flag = CallbackFlag.eFlag_WX_NotSupportApi;
+                        break;
+                    default:
+                        shareRet.flag = CallbackFlag.eFlag_Error;
+                        break;
+                }
+                // 当前webpage只有内置浏览器会调用，内置浏览器不需要通知game
+                if("msdkwebpage".equals(transaction)) {
+                    Logger.d("webpage share, flag:" + shareRet.flag);
+                } else {
+                    WeGameNotifyGame.getInstance().OnShareNotify(shareRet);
+                }
+            }else if ("wechatAddCardToWXCardPackage".equals(transaction)){
+            	//微信卡券接口插卡回调
+            	Logger.d("wechatAddCardToWXCardPackage, transaction:" + transaction+ ";errStr:" + errStr+ ";errCode:" + errCode);
+            	CardRet tempRet = new CardRet();
+            	switch (errCode) {
+            		case BaseResp.ErrCode.ERR_OK:
+            			tempRet.flag = CallbackFlag.eFlag_Succ;
+            			break;
+            		case BaseResp.ErrCode.ERR_USER_CANCEL:
+            			tempRet.flag = CallbackFlag.eFlag_WX_UserCancel;
+                        break;
+                    case BaseResp.ErrCode.ERR_AUTH_DENIED:
+                    	tempRet.flag = CallbackFlag.eFlag_WX_UserDeny;
+                        break;
+                    case BaseResp.ErrCode.ERR_SENT_FAILED:
+                    case BaseResp.ErrCode.ERR_UNSUPPORT:
+                    case BaseResp.ErrCode.ERR_COMM:
+                    default: // 通信失败 ，flag = 1
+                    	tempRet.flag = CallbackFlag.eFlag_Error;
+            	}
+            	String tempCardList = extras.getString("wxapi_add_card_to_wx_card_list");
+        		tempRet.open_id = openID;
+        		tempRet.wx_card_list = tempCardList;
+        		tempRet.desc = "transaction:" + transaction+ ";errStr:" + errStr+ ";errCode:" + errCode;
+            	LoginUtils.bundleToVector(extras, tempRet);
+            	
+            	WeGameNotifyGame.getInstance().OnAddWXCardNotify(tempRet);
+            }else { 
+                // 登陆回调
+                LoginRet loginRet = new LoginRet();
+                loginRet.platform = WeGame.WXPLATID;
+                Logger.d("WXEntryActivity errcode:" + errCode);
+                
+                int beaconErrorCode = 0;
+                boolean isLogicError = false;
+                switch (errCode) {
+                    case BaseResp.ErrCode.ERR_OK:
+                        loginRet.flag = CallbackFlag.eFlag_Succ;
+                        // 没有openid
+                        if (openID != null) {
+                            loginRet.open_id = openID;
+                        }
+                        TokenRet code = new TokenRet();
+                        code.type = TokenType.eToken_WX_Code;
+                        if (token == null) {
+                            code.value = "";
+                        } else {
+                            code.value = token;
+                        }
+                        loginRet.token.add(code);
+        
+                        Logger.d("code: " + code.value);
+                        // 到MSDK后台换票, 并且通知上层
+                        wxFirstLoginReq(code.value, RequestConst.notifyLogin);
+                        break;
+                    case BaseResp.ErrCode.ERR_USER_CANCEL:
+                        loginRet.flag = CallbackFlag.eFlag_WX_UserCancel;
+                        beaconErrorCode = ErrorCodeFlag.SDK_ERROR_USER_CANCEL;
+                        isLogicError = true; 
+                        WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+                        break;
+                    case BaseResp.ErrCode.ERR_AUTH_DENIED:
+                        loginRet.flag = CallbackFlag.eFlag_WX_UserDeny;
+                        beaconErrorCode = ErrorCodeFlag.SDK_ERROR_WX_AUTH_DENIED;
+                        WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+                        break;
+                    case BaseResp.ErrCode.ERR_SENT_FAILED:
+                    case BaseResp.ErrCode.ERR_UNSUPPORT:
+                    case BaseResp.ErrCode.ERR_COMM:
+                    default: // 通信失败 ，flag = 1
+                        loginRet.flag = CallbackFlag.eFlag_WX_LoginFail;
+                        beaconErrorCode = ErrorCodeFlag.SDK_ERROR_WX_LOGIN_FAIL;
+                        WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+                        break;
+                }
+                
+                if(beaconErrorCode == 0) {
+                    BeaconHelper.reportMSDKEvent("wxEntryFirstLogin", WeGame.getInstance().getWxRequestStartTime(), true, null, true);
+                } else {
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put("param_FailCode", "" + beaconErrorCode);
+                    map.put("msdk_logic_error", "" + (isLogicError ? 1 : 0));
+                    BeaconHelper.reportMSDKEvent("wxEntryFirstLogin", WeGame.getInstance().getWxRequestStartTime(), false, map, true);
+                }
+                HashMap<String, String> map = new HashMap<String, String>();
+                map.put("platform", "" + loginRet.platform);
+                map.put("errcode", "" + errCode);
+                SaveLogHelper.getInstance().reportLog("handleCallback", map, false);
+            }
+        }
+    }
+    
+    public QQLoginModel getLastQQLoginModel(){
+        synchronized (lockLastQQModel) {
+            if(mLastQQModel == null){
+                mLastQQModel = new QQLoginModel().getLastQQLoginUserinfo();
+                if(mLastQQModel == null) {
+                    return null;
+                }
+            }
+            
+            QQLoginModel lastUserInfo = new QQLoginModel();
+            lastUserInfo.open_id = mLastQQModel.open_id;
+            lastUserInfo.access_token = mLastQQModel.access_token;
+            lastUserInfo.access_token_expire = mLastQQModel.access_token_expire;
+            lastUserInfo.pay_token = mLastQQModel.pay_token;
+            lastUserInfo.pay_token_expire = mLastQQModel.pay_token_expire;
+            lastUserInfo.pf = mLastQQModel.pf;
+            lastUserInfo.pf_key = mLastQQModel.pf_key;
+            lastUserInfo.create_at = mLastQQModel.create_at;
+            return lastUserInfo;
+        }
+    }
+    
+    public void resetLastQQLoginModel() {
+        synchronized (lockLastQQModel) {
+            mLastQQModel = null;
+        }
+    }
+    
+    public void resetLastWxLoginModel() {
+        synchronized (lockLastWXModel) {
+            mLastWXModel = null;
+        }
+    }
+    
+    public synchronized WxLoginModel getLastWxLoginModel() {
+        synchronized (lockLastWXModel) {
+            if (mLastWXModel == null) {
+                mLastWXModel = new WxLoginModel().getLastWxLoginUserinfo();
+                if(mLastWXModel == null) {
+                    return null;
+                }
+            }
+            WxLoginModel lastUserInfo = new WxLoginModel();
+            lastUserInfo.open_id = mLastWXModel.open_id;
+            lastUserInfo.access_token = mLastWXModel.access_token;
+            lastUserInfo.access_token_expire = mLastWXModel.access_token_expire;
+            lastUserInfo.refresh_token = mLastWXModel.refresh_token;
+            lastUserInfo.refresh_token_expire = mLastWXModel.refresh_token_expire;
+            lastUserInfo.pf = mLastWXModel.pf;
+            lastUserInfo.pf_key = mLastWXModel.pf_key;
+            lastUserInfo.create_at = mLastWXModel.create_at;
+            return lastUserInfo;
+        }
+    }
+
+    public void reportLogin(String open_id, int plat){
+        this.openid = open_id;
+        this.platform = plat;
+        MsdkThreadManager.getInstance().sendReportLogin(open_id, plat);
+    }
+    
+    public String getCurrentOpenid(){
+        return this.openid;
+    }
+    
+    public int getCurrentPlatform(){
+        return this.platform;
+    }
+}

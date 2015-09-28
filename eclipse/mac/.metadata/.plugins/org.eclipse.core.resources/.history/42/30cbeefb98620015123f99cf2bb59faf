@@ -1,0 +1,7 @@
+package com.tencent.msdk.a;
+
+import android.util.Base64;
+
+public class Base extends Base64{
+
+}

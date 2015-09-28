@@ -1,0 +1,372 @@
+package com.tencent.msdk.push;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.content.Context;
+import android.text.TextUtils;
+
+import com.tencent.android.tpush.XGLocalMessage;
+import com.tencent.android.tpush.XGPush4Msdk;
+import com.tencent.android.tpush.XGPushConfig;
+import com.tencent.android.tpush.XGPushManager;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.api.LocalMessage;
+import com.tencent.msdk.config.ConfigManager;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.control.SwitcherManager;
+import com.tencent.msdk.locallog.SaveLogHelper;
+import com.tencent.msdk.stat.BeaconHelper;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+
+/**
+ * 控制打开和关闭信鸽处理逻辑
+ * @author kevinhao
+ *
+ */
+public class PushSwitchMng {
+    // TODO （不要删除）真正的SERVER配置是放置在msdkconfig.ini中如XG_PUSH_SERVER=183.232.93.168:8080
+    private static final String DEFAULT_XG_PUSH_SERVER = "183.232.93.168";
+    // 一般为8080，注意XGPush4Msdk.setDebugServerInfo值可能会改变
+    private static final int DEFAULT_XG_PUSH_PORT = 8080;
+    private static volatile PushSwitchMng instance = null;
+    private Context mAppContext;
+    private boolean mIsTestEnv;
+    private boolean mIsInitXG = false;
+    private String mQqAppId;
+    private String mWxAppId = "";
+    private String mQqAppKey = "";
+    public static PushSwitchMng getInstance() {
+        if (instance == null) {
+            synchronized (PushSwitchMng.class) {
+                if (instance == null) {
+                    instance = new PushSwitchMng();
+                }
+            }
+        }
+        return instance;
+    }
+    
+    public void init(Context ctx, String qqAppId, String qqAppKey, String wxAppId, boolean isTestEnv) {
+        this.mIsTestEnv = isTestEnv;
+        this.mAppContext = ctx.getApplicationContext();
+        this.mQqAppId = qqAppId;
+        this.mQqAppKey = qqAppKey;
+        this.mWxAppId = wxAppId;
+    }
+    
+    public void disableInitXG(){
+        this.mIsInitXG = false;
+    }
+    
+    /*
+     * 如果qqAppId不能转换成Long型则直接crash
+     */
+    private void initXG(){
+        if(mIsInitXG) {
+            Logger.d("initXG have finished, no need again.");
+            return ;
+        }
+        XGPush4Msdk.setDebugServerInfo(this.mAppContext, null, DEFAULT_XG_PUSH_PORT);
+        if(this.mIsTestEnv) {
+            XGPushConfig.enableDebug(this.mAppContext, true);
+        }
+        
+        // 测试环境需进行清理
+        String xgServerPort = ConfigManager.readValueByKey(this.mAppContext,
+                ConfigManager.configFileName, "XG_PUSH_SERVER");
+        if (!T.ckIsEmpty(xgServerPort)) {
+            String[] serverPort = xgServerPort.split(":");
+            if(serverPort != null && serverPort.length == 2) {
+                String xgServerStr = serverPort[0];
+                String xgPortStr = serverPort[1];
+                int xgPort = DEFAULT_XG_PUSH_PORT;
+                if (!T.ckIsEmpty(xgPortStr)) {
+                    try {
+                        xgPort = Integer.valueOf(xgPortStr);
+                    } catch (NumberFormatException e) {
+                        Logger.e("xgPort can't revert to Integer, it's value:" + xgPort);
+                    }
+                }
+                
+                if (T.ckIsEmpty(xgServerStr)) {
+                    xgServerStr = DEFAULT_XG_PUSH_SERVER;
+                }
+                
+                Logger.d("xgpush server:" + xgServerStr + ", port:" + xgPort);
+                XGPush4Msdk.setDebugServerInfo(this.mAppContext, xgServerStr, xgPort);
+            } else {
+                Logger.d("xgpush are using xianwang environment");
+            }
+        } else {
+            Logger.d("xgpush are using xianwang environment");
+        }
+        long qqAppId = 0;
+        try{
+            qqAppId = Long.valueOf(mQqAppId);
+        }catch( NumberFormatException e){
+            Logger.e("qqAppId can't revert to Long, it's value:" + qqAppId);
+        }
+        Logger.d("register init xgId:" + qqAppId);
+        XGPush4Msdk.setQQAppId(this.mAppContext, qqAppId);
+        XGPush4Msdk.setQQAppKey(this.mAppContext, this.mQqAppKey);
+        mIsInitXG = true;
+    }
+    
+    public void registerAppPush(){
+        Logger.d("PUSH: " + ConfigManager.needPush(mAppContext));
+        if (ConfigManager.needPush(mAppContext)) {
+            Logger.d("PUSH opened!");
+            if(SwitcherManager.getInstance().isUseMsdkPush()) {
+                Logger.d("register device for msdkpush");
+                // 先注册一遍App, 登录完成以后再注册一遍AppUser, 注册完成以后发起轮询
+                PushManager.gDefault.get().registerAppOnce(mAppContext, this.mQqAppId, this.mWxAppId);
+            } else {
+                registerXGDeviceWhenInit();
+            }
+        } else {
+            Logger.d("PUSH closed!");
+        }
+    }
+    
+    private void registerXGDeviceWhenInit(){
+        Logger.d("register device for xgpush");
+        // 在context, qqappid, qqappkey赋值以后
+        initXG();
+        Logger.d("register device but no unregister");
+        XGPush4Msdk.registerPush(this.mAppContext, null, new com.tencent.android.tpush.XGIOperateCallback() {
+            // 注册成功，参数1为token
+            @Override
+            public void onSuccess(Object token, int flag) {
+                Logger.d("register device success, token:" + token);
+                // 如果需要的话，在此处理token的相关信息，如上报token
+            }
+
+            @Override
+            public void onFail(Object data, int errCode, String msg) {
+                Logger.w("register device failed, errCode:" + errCode + ", msg:" + msg);
+                HashMap<String, String> logmap = new HashMap<String, String>();
+                logmap.put("msg", msg);
+                logmap.put("errcode", "" + errCode);
+                SaveLogHelper.getInstance().reportLog("bindXGDevice", logmap, true);
+                
+                HashMap<String, String> failmap = new HashMap<String, String>();
+                failmap.put("param_FailCode", "" + BeaconHelper.getXGErrCode(errCode));
+                failmap.put("msdk_logic_error", "0");
+                BeaconHelper.reportMSDKEvent("regXGDev", 0, false, failmap, true);
+            }
+        });
+    }
+    
+    private void bindXGUser(final int platform, String openid){
+        Logger.d("register user bind for xgpush, openid:" + openid);
+        initXG();
+        XGPush4Msdk.registerPush(this.mAppContext, openid,
+                new com.tencent.android.tpush.XGIOperateCallback() {
+                    // 注册成功，参数1为token
+                    @Override
+                    public void onSuccess(Object token, int flag) {
+                        Logger.d("register user success, token:" + token);
+                        // 如果需要的话，在此处理token的相关信息，如上报token和openid
+                        if (platform == WeGame.WXPLATID) { // 处理相关的标签,只有登陆成功后才能设置标签
+                            // 先删除QQ的标签
+                            XGPush4Msdk.deleteTag(mAppContext, "QQ");
+                            // 再设置微信的标签，这样后台能直接向微信或QQ用户群分开推送
+                            XGPush4Msdk.setTag(mAppContext, "WX");
+                        } else if (platform == WeGame.QQPLATID) { // 类似的标签处理
+                            // 先删除微信的标签
+                            XGPush4Msdk.deleteTag(mAppContext, "WX");
+                            // 再设置QQ的标签，这样后台能直接向微信或QQ用户群分开推送
+                            XGPush4Msdk.setTag(mAppContext, "QQ");
+                        }
+                    }
+
+                    @Override
+                    public void onFail(Object data, int errCode, String msg) {
+                        Logger.w("register user failed, errCode:" + errCode + ", msg:"
+                                + msg);
+                        HashMap<String, String> map = new HashMap<String, String>();
+                        map.put("msg", msg);
+                        map.put("errcode", "" + errCode);
+                        SaveLogHelper.getInstance().reportLog("bindXGUser", map, true);
+                        
+                        HashMap<String, String> failmap = new HashMap<String, String>();
+                        failmap.put("param_FailCode", "" + BeaconHelper.getXGErrCode(errCode));
+                        failmap.put("msdk_logic_error", "0");
+                        BeaconHelper.reportMSDKEvent("regXGUser", 0, false, failmap, true);
+                    }
+                }
+        );
+    }
+    
+    // 当前不管登录是否成功都会做一次注册，如果未登录成功则注册的openid为""，是否需要特别处理
+    // 有可能有其他的WeGame.WXPLATID 
+    // mta调用的上报时机
+    public void registerAppUserPush(int flag, final int platform, String openid, boolean isTimerRefresh){
+        Logger.d("PUSH: " + ConfigManager.needPush(mAppContext));
+        if (ConfigManager.needPush(mAppContext)) {
+            if(SwitcherManager.getInstance().isUseMsdkPush()) {
+                Logger.d("register user bind for msdkpush");
+                if (platform == WeGame.QQPLATID) {
+                    PushManager.gDefault.get().registerAppUserOnce(WeGame.getInstance().getActivity(), 
+                            WeGame.getInstance().qq_appid, openid);
+                } else if (platform == WeGame.WXPLATID) {
+                    PushManager.gDefault.get().registerAppUserOnce(WeGame.getInstance().getActivity(), 
+                            WeGame.getInstance().wx_appid, openid);
+                }
+            } else {
+                // 绝大部分情况下isTimerRefresh值为false，当定时刷新的时候isTimerRefresh值为true
+                if (flag == CallbackFlag.eFlag_Succ || (flag == CallbackFlag.eFlag_WX_RefreshTokenSucc && !isTimerRefresh)) {
+                    bindXGUser(platform, openid);
+                    reportXGPush(platform, openid);
+                } 
+            }
+        } else {
+            Logger.d("PUSH Closed!");
+        }
+    }
+    
+    private void reportXGPush(int platform, String openid) {
+        Logger.d("XG PUSH reporting!");
+        // MTA上报，用于取代之前的StatService.reportQQ接口
+        com.tencent.stat.StatAccount mtaAccount = new com.tencent.stat.StatAccount(openid);
+        if (platform == WeGame.WXPLATID) { 
+            // 设置账号类型
+            mtaAccount.setAccountType(com.tencent.stat.StatAccount.WECHAT_OPENID_TYPE);
+            // 设置对应的appid，即能够通过appid和openid转换成uin
+            mtaAccount.setExt(this.mWxAppId);
+        } else if(platform == WeGame.QQPLATID){
+            mtaAccount.setAccountType(com.tencent.stat.StatAccount.QQ_OPENID_TYPE);
+            mtaAccount.setExt(this.mQqAppId);
+        }
+        // 替换原来的StatService.reportQQ
+        com.tencent.stat.StatService.reportAccount(this.mAppContext, mtaAccount);
+        com.tencent.stat.StatService.commitEvents(this.mAppContext, -1);
+    }
+
+    /*private void logOut(){
+        Logger.d("PUSH: " + ConfigManager.needPush(mAppContext));
+        if (ConfigManager.needPush(mAppContext)) {
+            if(SwitcherManager.getInstance().isUseMsdkPush()) {
+                // donothing
+            } else {
+                // 先检测是否已初始化
+                initXG();
+                // 先反注册，取消账号的绑定
+                XGPush4Msdk.unregisterPush(this.mAppContext, null);
+                // 再重新注册设备
+                XGPush4Msdk.registerPush(this.mAppContext, null, new XGIOperateCallback() {
+                    // 注册成功，参数1为token
+                    @Override
+                    public void onSuccess(Object token, int flag) {
+                        Logger.d("register logOut success, token:" + token);
+                    }
+        
+                    @Override
+                    public void onFail(Object data, int errCode, String msg) {
+                        Logger.w("register logout failed, errCode:" + errCode + ", msg:"
+                                + msg);
+                    }
+                });
+            }
+        }
+    }*/
+    
+    public void cancelXGPush() {
+        // 如果原本使用信鸽push，而此时使用msdk push，则反注册信鸽push
+        Logger.d("cancel xg push");
+        if (mAppContext != null && ConfigManager.needPush(mAppContext)) {
+            XGPush4Msdk.unregisterPush(this.mAppContext, null);
+        }
+    }
+    public void clearLocalNotifications(){
+    	XGPushManager.clearLocalNotifications(mAppContext);
+    }
+    public long addLocalNotification(LocalMessage localMsg){
+    	Logger.d("addLocalNotification");
+		if(localMsg != null){
+			Logger.d("addLocalNotification:"+localMsg.toString());
+			XGLocalMessage msg = new XGLocalMessage();
+			if(localMsg.getType() != -1){
+				msg.setType(localMsg.getType());
+			}
+			if(!TextUtils.isEmpty(localMsg.getTitle())){
+				msg.setTitle(localMsg.getTitle());
+			}
+			if(!TextUtils.isEmpty(localMsg.getContent())){
+				msg.setContent(localMsg.getContent());
+			}
+			
+			if(!TextUtils.isEmpty(localMsg.getDate())){
+				msg.setDate(localMsg.getDate());
+			}
+			if(!TextUtils.isEmpty(localMsg.getHour())){
+				msg.setHour(localMsg.getHour());
+			}
+			if(!TextUtils.isEmpty(localMsg.getMin())){
+				msg.setMin(localMsg.getMin());
+			}
+			if(!TextUtils.isEmpty(localMsg.getIntent())){
+				msg.setIntent(localMsg.getIntent());
+			}
+			if(!TextUtils.isEmpty(localMsg.getUrl())){
+				msg.setUrl(localMsg.getUrl());
+			}
+			if(!TextUtils.isEmpty(localMsg.getActivity())){
+				msg.setActivity(localMsg.getActivity());
+			}
+			
+			if(localMsg.getAction_type() != -1){
+				msg.setAction_type(localMsg.getAction_type());
+			}
+			if(localMsg.getBuilderId() != -1){
+				msg.setBuilderId(localMsg.getBuilderId());
+			}
+			
+			if(!TextUtils.isEmpty(localMsg.getCustom_content())){				
+				//msg.setCustomContent(localMsg.getCustom_content());
+			}
+			if(!TextUtils.isEmpty(localMsg.getIcon_res())){
+				msg.setIcon_res(localMsg.getIcon_res());
+			}
+			if(localMsg.getIcon_type() != -1){
+				msg.setIcon_type(localMsg.getIcon_type());
+			}
+			if(localMsg.getLights() != -1){
+				msg.setLights(localMsg.getLights());
+			}
+			
+			if(!TextUtils.isEmpty(localMsg.getPackageDownloadUrl())){
+				msg.setPackageDownloadUrl(localMsg.getPackageDownloadUrl());
+			}
+			if(!TextUtils.isEmpty(localMsg.getPackageName())){
+				msg.setPackageName(localMsg.getPackageName());
+			}
+			if(localMsg.getRing() != -1){
+				msg.setRing(localMsg.getRing());
+			}
+			
+			
+			if(!TextUtils.isEmpty(localMsg.getRing_raw())){
+				msg.setRing_raw(localMsg.getRing_raw());
+			}
+			if(!TextUtils.isEmpty(localMsg.getSmall_icon())){
+				msg.setSmall_icon(localMsg.getSmall_icon());
+			}
+			if(localMsg.getStyle_id() != -1){
+				msg.setStyle_id(localMsg.getStyle_id());
+			}
+			if(localMsg.getVibrate() != -1){
+				msg.setVibrate(localMsg.getVibrate());
+			}
+			
+			Logger.d("addLocalNotification sucssee");
+			return XGPush4Msdk.addLocalNotification(mAppContext, msg);
+		}
+		return 0;
+	}
+}

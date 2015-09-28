@@ -1,0 +1,238 @@
+package com.tencent.msdk.communicator;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ConnectTimeoutException;
+import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.CoreProtocolPNames;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpProtocolParams;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.util.EntityUtils;
+
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+
+import com.tencent.msdk.a.A;
+import com.tencent.msdk.a.e;
+import com.tencent.msdk.consts.MessageNo;
+import com.tencent.msdk.tools.Logger;
+
+public class HttpTask extends AsyncTask<MHttpRequest, Integer, MHttpResponse> {
+	private Handler handler;
+	private int what;
+	private e test = new e(A.f4());
+    private int TIME_OUT = 15 * 1000; // 15 ms
+    private int SOCKET_OUT = 15 * 1000; // 15 ms
+
+	public HttpTask(Handler handler, int what) {
+		if (handler == null) {
+			Logger.d("hanlder is null");
+		}
+		this.handler = handler;
+		this.what = what;
+	}
+
+    private MHttpResponse clientParamError(String msg) {
+        return new MHttpResponse(MHttpResponse.HTTP_PARAMS_ERROR, msg, null);
+    }
+
+    private MHttpResponse serverErrorRsp(String msg) {
+    	return serverErrorRsp(MHttpResponse.HTTP_OTHER_ERROR, msg);
+    }
+
+    private MHttpResponse serverErrorRsp(int errorCode, String msg) {
+        return new MHttpResponse(errorCode, msg, null);
+    }
+
+    @Override
+    protected MHttpResponse doInBackground(MHttpRequest... params) {
+        if (params.length == 0) {
+            // 没有传入参数进来, 算作错误
+            Logger.d("no params");
+            return clientParamError("no params");
+        }
+        
+		MHttpRequest req = params[0];
+		if (req == null) {
+			Logger.d("HttpRequest is null");
+			return clientParamError("HttpRequest is null");
+		}
+        try {
+            DefaultHttpClient httpClient = new DefaultHttpClient();
+            HttpConnectionParams.setConnectionTimeout(httpClient.getParams(),
+                    TIME_OUT);
+            HttpConnectionParams.setSoTimeout(httpClient.getParams(), SOCKET_OUT);
+
+            HttpRequestBase baseReq = null;
+            switch (req.getMethod()) {
+                case GET:
+                    baseReq = new HttpGet(req.getUrl());
+                    break;
+                case POST:
+                    baseReq = new HttpPost(req.getUrl());
+                    baseReq.setHeader("Content-Type",
+                            "application/x-www-form-urlencoded");
+                    
+                    if(MessageNo.MSG_NO_QUERY_FOREIGN_DNS == this.what) {
+                        if (null != req.getStrBody()) {
+                            ((HttpPost) baseReq).setEntity(new StringEntity(req.getStrBody()));
+                        }
+                    } else {
+                        if (HttpRequestManager.isEncode) {
+                            baseReq.setHeader("Content-Encrypt", "msdktea");
+                            baseReq.setHeader("Accept-Encrypt", "msdktea");
+                        }
+                        ((HttpPost) baseReq).setEntity(new ByteArrayEntity(req.getBody()));
+                        ((HttpPost) baseReq).getParams().setBooleanParameter(
+                                CoreProtocolPNames.USE_EXPECT_CONTINUE, false);
+                        HttpProtocolParams.setUseExpectContinue(httpClient.getParams(),
+                                false);
+                    }
+                    break;
+                case PUT:
+                case DELETE:
+                    // 暂时不用实现这两个方法
+                    break;
+            }
+
+            HttpResponse response;
+            response = httpClient.execute(baseReq);
+            return processHttpResponse(response);
+        } catch (IllegalStateException e) {
+            Logger.w("IllegalStateException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp(MHttpResponse.HTTP_ILLEGAL_STATE, "IllegalStateException" + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            Logger.w("IllegalArgumentException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp(MHttpResponse.HTTP_ILLEGAL_ARGUMENT, "IllegalArgumentException" + e.getMessage());
+        } catch (SocketException e) {
+            Logger.w("SocketException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp(MHttpResponse.HTTP_SOCKET_EXCEPTION, "SocketException" + e.getMessage());
+        } catch (ClientProtocolException e) {
+            Logger.w("ClientProtocolException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp(MHttpResponse.HTTP_CPROTOCOL_EXCEPTION, "ClientProtocolException" + e.getMessage());
+        } catch (ConnectTimeoutException e) {
+            // 超时异常
+            Logger.w("ConnectTimeoutException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp(MHttpResponse.HTTP_TIME_OUT, "ConnectTimeoutException"
+                    + e.getMessage());
+        } catch (SocketTimeoutException e) {
+            // 超时异常
+            Logger.w("SocketTimeoutException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp(MHttpResponse.HTTP_SOCKET_TIME_OUT, "SocketTimeoutException"
+                    + e.getMessage());
+        } catch (UnknownHostException e) {
+            // 无网络时会出现这个错误
+            Logger.w("UnknownHostException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp(MHttpResponse.HTTP_UNKNOWN_HOST, "UnknownHostException:"
+                    + e.getMessage());
+        } catch (Exception e) {
+            Logger.w("UnknownException, msg: " + e.getMessage());
+            e.printStackTrace();
+            return serverErrorRsp("UnknownException" + e.getMessage());
+        }
+    }
+
+	private MHttpResponse processHttpResponse(HttpResponse response) {
+		HttpEntity entity = response.getEntity();
+		int length = (int) entity.getContentLength();
+		Logger.d("getContentLength is：" + length);
+		if (length < 0) { // 任何内容没返回, 不做处理
+			// 没有返回错误
+			Logger.w("response is null");
+			return null;
+		}
+		try {
+            String strResult = "";
+            if (MessageNo.MSG_NO_QUERY_FOREIGN_DNS == this.what
+                    || MessageNo.MSG_NO_QUERY_FOREIGN_NET_STATUS == this.what) {
+                strResult = EntityUtils.toString(response.getEntity(), HTTP.UTF_8);
+            } else {
+                if (HttpRequestManager.isEncode) {
+                    byte[] entityBeforeDecode = new byte[length];
+                    InputStream inputStream = entity.getContent();
+                    int readContent = 0;
+                    while (readContent < length) {
+                        Logger.d("getContentLength: readContent[" + String.valueOf(readContent)
+                                + "]" + entityBeforeDecode[readContent]);
+                        readContent += inputStream.read(entityBeforeDecode, readContent, length
+                                - readContent);
+                        Logger.d("getContentLength: get content length:" + length
+                                + ";get byte length:" + readContent);
+                        Logger.d("getContentLength: readContent[" + String.valueOf(readContent - 2)
+                                + "]" + entityBeforeDecode[readContent - 2]);
+                        Logger.d("getContentLength: readContent[" + String.valueOf(readContent - 1)
+                                + "]" + entityBeforeDecode[readContent - 1]);
+                    }
+                    byte[] entityAfterDecode = test.f4(entityBeforeDecode);
+                    if (null == entityAfterDecode) {
+                        strResult = "";
+                        Logger.w("entityAfterDecode is null");
+                    } else {
+                        strResult = new String(entityAfterDecode, "UTF-8");
+                        Logger.d("strResult:" + strResult);
+                    }
+                } else {
+                    // 解决后台下发中文乱码问题 2013/11/26 turing
+                    strResult = EntityUtils.toString(response.getEntity(),
+                            HTTP.UTF_8);
+                }
+            }
+			return new MHttpResponse(response.getStatusLine().getStatusCode(),
+					"", strResult);
+		} catch (IllegalStateException e) {
+			e.printStackTrace();
+			return serverErrorRsp(MHttpResponse.HTTP_ILLEGAL_STATE, "IllegalStateException " + e.getMessage());
+		} catch (IOException e) {
+			e.printStackTrace();
+			return serverErrorRsp(MHttpResponse.HTTP_IO_EXCEPTION, "IOException " + e.getMessage());
+		}
+	}
+
+	@Override
+	protected void onPostExecute(MHttpResponse result) {
+		super.onPostExecute(result);
+		Message message;
+		if (result == null) {
+			Logger.d("network return null!!!");
+			result = new MHttpResponse(MHttpResponse.HTTP_RETURN_NULL_VALUE, "response no params", null);
+		}
+
+		if (null != result.getBody()) {
+			Logger.d("result body is" + new String(result.getBody()));
+		} else {
+			Logger.d("result body is null");
+		}
+
+		Bundle data = new Bundle();
+		data.putParcelable(HttpRequestManager.RSP_KEY, result);
+
+		if (this.handler != null) {
+			message = Message.obtain(handler, this.what, result.getStatus(), 0);
+			message.setData(data);
+			this.handler.sendMessage(message);
+		}
+	}
+
+}

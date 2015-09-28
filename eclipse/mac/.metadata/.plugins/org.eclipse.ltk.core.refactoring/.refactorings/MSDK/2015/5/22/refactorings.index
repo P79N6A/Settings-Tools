@@ -1,0 +1,65 @@
+1432522098774	Rename local variable 'QueryQQGroupPara'
+1432522174197	Rename type 'QQQueryGroupResponseResponesHandle'
+1432523327869	Rename method 'parseQQGroupRespones'
+1432546485989	Copy compilation unit
+1432610884081	Move compilation unit
+1432610904756	Copy packages
+1432610956230	Move compilation units
+1432610967306	Delete element
+1432610972263	Delete element
+1432610984302	Move compilation units
+1432611015577	Move compilation unit
+1432611072517	Copy compilation unit
+1432611099861	Copy compilation unit
+1432611223592	Move compilation unit
+1432611348919	Copy compilation unit
+1432611524217	Move compilation unit
+1432620551884	Delete element
+1432621141190	Move compilation units
+1432621149895	Move compilation unit
+1432621172193	Delete element
+1432621186963	Rename type 'QQGroupRet'
+1432621195283	Move compilation unit
+1432621202337	Move compilation unit
+1432635994804	Copy compilation unit
+1432637177947	Rename field 'PERMISSION'
+1432637188615	Rename field 'OTHER_FUNCS'
+1432637194119	Rename field 'CHECK_TOKEN_FLAG'
+1432637412213	Rename field 'ACCESS_TOKEN'
+1432637498064	Rename field 'PARA_ACCESS_TOKEN'
+1432637502551	Rename field 'EXPIRED'
+1432637506738	Rename field 'REFRESH_TOKEN'
+1432637510875	Rename field 'OPEN_ID'
+1432637514461	Rename field 'SCOPE'
+1432637518064	Rename field 'FIRST'
+1432637521683	Rename field 'REG_CHANNEL'
+1432637525886	Rename field 'PK_KEY'
+1432637530691	Rename field 'PF'
+1432637556327	Rename field 'OTHER_FUNCS'
+1432637585751	Rename field 'PERMISSION'
+1432637627518	Rename field 'CHECK_TOKEN_FLAG'
+1432637677020	Rename field 'PARAM_OTHER_FUNCS'
+1432637826207	Rename field 'PARAM_PERMISSION'
+1432637852085	Rename field 'permission'
+1432637869825	Rename field 'mPermission'
+1432637879682	Rename field 'otherFuncs'
+1432637929264	Rename field 'permission'
+1432637961205	Rename field 'msdkPermission'
+1432637966743	Rename field 'otherFuncs'
+1432638194868	Delete element
+1432688660909	Rename method 'parseConfig'
+1432688672977	Rename method 'setPermission'
+1432688710365	Rename field 'permissionJson'
+1432688730147	Rename field 'configJson'
+1432688751201	Rename method 'addConfigInfo'
+1432688774571	Rename method 'getConfigInfo'
+1432688790409	Rename method 'isHavePermission'
+1432688803119	Rename method 'isHaveApiPermission'
+1432688917226	Rename field 'PARAM_QQ_PERMISSION'
+1432688928243	Rename field 'qqPermission'
+1432688953783	Rename field 'PARAM_QQ_PERMISSION'
+1432688964548	Rename field 'qqPermission'
+1432688981729	Rename field 'PARAM_WX_PERMISSION'
+1432688992833	Rename field 'wxPermission'
+1432693943082	Rename local variable 'accessToken'
+1432693956392	Rename local variable 'accessToken'

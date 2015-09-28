@@ -1,0 +1,25 @@
+20:31:37 **** Build of configuration Default for project MSDKEncrypt ****
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: MSDK <= MSDK.cpp
+[armeabi] Compile++ thumb: MSDK <= com_tencent_msdk_a_A.cpp
+[armeabi] Compile thumb  : MSDK <= md5.c
+[armeabi] SharedLibrary  : libMSDK.so
+[armeabi] Install        : libMSDK.so => libs/armeabi/libMSDK.so
+[armeabi-v7a] Compile++ thumb: MSDK <= MSDK.cpp
+[armeabi-v7a] Compile++ thumb: MSDK <= com_tencent_msdk_a_A.cpp
+[armeabi-v7a] Compile thumb  : MSDK <= md5.c
+[armeabi-v7a] SharedLibrary  : libMSDK.so
+[armeabi-v7a] Install        : libMSDK.so => libs/armeabi-v7a/libMSDK.so
+[x86] Compile++      : MSDK <= MSDK.cpp
+[x86] Compile++      : MSDK <= com_tencent_msdk_a_A.cpp
+[x86] Compile        : MSDK <= md5.c
+[x86] SharedLibrary  : libMSDK.so
+[x86] Install        : libMSDK.so => libs/x86/libMSDK.so
+[mips] Compile++      : MSDK <= MSDK.cpp
+[mips] Compile++      : MSDK <= com_tencent_msdk_a_A.cpp
+[mips] Compile        : MSDK <= md5.c
+[mips] SharedLibrary  : libMSDK.so
+[mips] Install        : libMSDK.so => libs/mips/libMSDK.so
+
+20:31:39 Build Finished (took 1s.549ms)
+

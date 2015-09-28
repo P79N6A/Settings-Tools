@@ -1,7 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
+	<item value="464" key="SetSvnPropertyDialog.size.y"/>
+	<item value="941" key="RevertDialog.location.x"/>
 	<item value="564" key="passwordStores.size.y"/>
-	<item value="540" key="passwordStores.size.x"/>
-	<item value="23" key="passwordStores.location.y"/>
-	<item value="510" key="passwordStores.location.x"/>
+	<item value="382" key="SetSvnPropertyDialog.location.y"/>
+	<item value="940" key="passwordStores.size.x"/>
+	<item value="447" key="RevertDialog.location.y"/>
+	<item value="246" key="passwordStores.location.y"/>
+	<item value="733" key="passwordStores.location.x"/>
+	<item value="525" key="RevertDialog.size.x"/>
+	<item value="367" key="RevertDialog.size.y"/>
+	<item value="525" key="SetSvnPropertyDialog.size.x"/>
+	<item value="941" key="SetSvnPropertyDialog.location.x"/>
+	<section name="IgnoreResourcesDialog">
+		<item value="2" key="Action"/>
+	</section>
+	<section name="NewLocationWizard">
+	</section>
 </section>

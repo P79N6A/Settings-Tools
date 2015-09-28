@@ -1,0 +1,34 @@
+1428373924910	Delete element
+1428390086720	Delete element
+1428390115043	Move compilation units
+1428390140145	Move compilation units
+1428390159627	Move compilation unit
+1428390170719	Move compilation unit
+1428390247051	Copy compilation unit
+1428392136478	Rename type 'AutoUpdate'
+1428392266373	Rename type 'WhiteList'
+1428392285884	Delete element
+1428398722520	Delete element
+1428402642561	Delete element
+1428403377613	Rename resource 'tmassistantsdk_selfupdate_v1.0_20150313173816.jar'
+1428406271595	Rename type 'WhiteListCallback'
+1428406293029	Rename type 'AutoUpdateCallback'
+1428457943394	Copy compilation units
+1428459366400	Move compilation unit
+1428459382838	Rename type 'MSDKMyAppWhiteListCallback'
+1428459480708	Move compilation unit
+1428461833799	Rename type 'AutoUpdateManage'
+1428461842254	Move compilation unit
+1428461846688	Delete element
+1428461855565	Move compilation unit
+1428461861110	Delete elements
+1428461888642	Rename type 'WhiteListManage'
+1428462171302	Rename resource 'libammsdk.jar'
+1428462572155	Copy compilation units
+1428463005949	Copy compilation units
+1428468823311	Rename local variable 'ret'
+1428468859440	Rename field 'wxapi'
+1428469038371	Rename field 'col_pay_token'
+1428469048660	Rename field 'col_pay_token_expire'
+1428476799849	Rename method 'saveWXUserLoginRet'
+1428477881692	Rename local variable 'lastUserLoginRet'

@@ -1,0 +1,75 @@
+package com.tencent.msdk.a;
+
+import java.util.Arrays;
+
+import com.tencent.beacon.event.UserAction;
+import com.tencent.msdk.tools.MD5Util;
+import com.tencent.msdk.tools.T;
+
+/**
+ * class
+ * 
+ * @author hardyshi
+ *
+ */
+public class A {
+	// MSDK DB相关的加密key,此key与设备相关
+	public static String d = "";
+	// MSDK 网络相关的加密key,此key与设备相关
+	public static String n = "";
+
+	// 获取DB相关的加密key，参数只有s1有用，为qimei
+	public static native String f1(String s1, String s2, String s3, String s4);
+
+	// 获取网络请求相关的加密key，所有参数均无需关注
+	public static native String f2(String s1, String s2, String s3, String s4);
+
+	// 获取DB相关的加密key
+	public static byte[] f3(String a) {
+		if (T.ckIsEmpty(d)) {
+			String a = "";
+			String b = "";
+			String c = "";
+			String e = "";
+			try {
+				a = UserAction.getQIMEI();
+				b = f5();
+				c = String.valueOf(System.currentTimeMillis());
+				String[] arra = {a,b,c};
+				Arrays.sort(arra);
+				e = MD5Util.encode2HexStr((arra[0] + arra[1] + arra[2]).getBytes());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			d = f1(a, b, c, e);
+		}
+		return d.getBytes();
+	}
+
+	// 获取网络请求相关的加密key
+	public static byte[] f4(String b) {
+		if (T.ckIsEmpty(n)) {
+			String a = "";
+			String b = "";
+			String c = "";
+			String e = "";
+			try {
+				a = UserAction.getQIMEI();
+				b = f5();
+				c = String.valueOf(System.currentTimeMillis());
+				String[] arra = {a,b,c};
+				Arrays.sort(arra);
+				e = MD5Util.encode2HexStr((arra[0] + arra[1] + arra[2]).getBytes());
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			n = f2(a, b, c, e);
+		}
+		return n.getBytes();
+	}
+
+	//取本地ip
+	private static String f5() {
+		return T.a(16);
+	}
+}

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog_dialogBounds">
+		<item value="265" key="DIALOG_WIDTH"/>
+		<item value="287" key="DIALOG_Y_ORIGIN"/>
+		<item value="1342" key="DIALOG_X_ORIGIN"/>
+		<item value="399" key="DIALOG_HEIGHT"/>
+		<item value="1|.Helvetica Neue DeskInterface|11.0|0|COCOA|1|.HelveticaNeueDeskInterface-Regular" key="DIALOG_FONT_NAME"/>
+	</section>
+	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
+		<item value="true" key="wrap"/>
+		<item value="true" key="casesensitive"/>
+		<item value="false" key="isRegEx"/>
+		<item value="false" key="incremental"/>
+		<item value="false" key="wholeword"/>
+		<item value="a_a" key="selection"/>
+		<list key="findhistory">
+			<item value="a_A"/>
+			<item value="_A"/>
+			<item value="A_"/>
+			<item value="A"/>
+			<item value="func4_2"/>
+			<item value="func1"/>
+			<item value="T."/>
+			<item value="e"/>
+		</list>
+		<list key="replacehistory">
+			<item value="a_a"/>
+			<item value=""/>
+			<item value="groupInterfaceImp"/>
+			<item value="userInterfaceImp"/>
+			<item value="json"/>
+			<item value="mGroupInfo."/>
+			<item value="String "/>
+			<item value="noticeInfo."/>
+		</list>
+	</section>
+</section>

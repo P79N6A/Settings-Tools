@@ -1,5 +1,7 @@
 PROBLEMS_FILTERS_MIGRATE=true
+TASKS_FILTERS_MIGRATE=true
+WORKSPACE_NAME=MSDK\u6A21\u5757\u5316
 eclipse.preferences.version=1
-platformState=1427283271353
+platformState=1427283272200
 quickStart=false
 tipsAndTricks=true

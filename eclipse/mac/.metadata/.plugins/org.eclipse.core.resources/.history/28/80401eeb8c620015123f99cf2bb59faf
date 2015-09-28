@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 如果需要在本地打包, 需要将MSDKDemo/env.xml中的sdk目录以及NDK目录均改为本地对应环境的地址, 目前MSDKDemo/env.xmlz中地址为erichua的本地环境 -->
+<project name="MSDKEncrypt" default="package_msdk" basedir=".">
+	<import file="./env.xml" optional="true" />
+	<import file="./custom_rules.xml" optional="true" />
+	<property file="./ant.properties" />
+	<loadproperties srcFile="project.properties" />
+	<import file="${sdk.dir}/tools/ant/build.xml" />
+	 
+    <target name="package_msdk" depends="clean,release">
+        <property environment="env" />
+        <property name="msdk_jar_name" value="MSDK_Encrypt_Inner.jar"/>
+		<property name="msdk_outer_jar_name" value="MSDK_Encrypt.jar"/>
+        <echo message="msdk_jar_name:${msdk_jar_name}" />
+        <echo message="msdk_outer_jar_name:${msdk_outer_jar_name}" />
+
+        <delete dir="./MSDKEncryptTemp"/>
+        <mkdir dir="./MSDKEncryptTemp"/>
+		
+        <zip destfile="./MSDKEncryptTemp/${msdk_jar_name}">
+            <zipfileset dir="./bin/classes">
+                <exclude name="com/tencent/msdk/BuildConfig.class"/>
+            </zipfileset>
+        </zip>
+        
+        <property name="proguard.jar" location="${sdk.dir}/tools/proguard/lib/proguard.jar" />
+        <taskdef name="proguard" classname="proguard.ant.ProGuardTask" classpath="${proguard.jar}" />
+  		<proguard configuration="./proguard-project.txt">
+  		    <injar file="./MSDKEncryptTemp/${msdk_jar_name}" />  
+            <outjar file="./MSDKEncryptTemp/${msdk_outer_jar_name}" />  
+            <libraryjar >  
+                <fileset dir="${sdk.dir}/platforms/android-18">  
+                    <include name="android.jar" />  
+                </fileset>  
+                <fileset dir=".MSDKEncryptTemp">  
+                    <include name="**.jar" />  
+                </fileset>  
+            </libraryjar> 
+  		</proguard>
+        
+        <copy todir="./MSDKEncryptTemp">
+            <fileset dir="./libs/">
+            </fileset>
+        </copy>
+        
+       
+
+        <!--  
+        <zip destfile="./Tencent_MSDK_Encrypt.zip"
+            basedir="./MSDKEncryptTemp"
+            update="false"
+        />
+        <delete dir="./MSDKEncryptTemp"/>
+        -->
+        
+    </target>
+
+</project>

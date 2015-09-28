@@ -1,0 +1,98 @@
+#include "com_tencent_msdk_a_A.h"
+
+#include <android/log.h>
+#include <jni.h>
+#include <md5.h>
+#include <string>
+
+
+static const char hex_chars[] = "0123456789abcdef";
+static const char defaultDBEncryptKey[] = "ab6a982160309dcc";
+static const char defaultNetEncryptKey[] = "msdkmsdkmsdkmsdk";
+static const int KEY_LENGTH = 16;
+
+/**
+ * convert_hex
+ */
+void fuc(unsigned char *md, unsigned char *mdstr, int start)
+{
+    int i;
+    int j = 0;
+    unsigned int c;
+
+    for (i = 0; i < KEY_LENGTH; i++) {
+        c = (md[start + i] >> 4) & 0x0f;
+        mdstr[j++] = hex_chars[c];
+        mdstr[j++] = hex_chars[md[start + i] & 0x0f];
+    }
+    mdstr[KEY_LENGTH] = '\0';
+}
+
+/*
+ * Class:     com_tencent_msdk_a_A
+ * Method:    f1
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_tencent_msdk_a_A_f1
+(JNIEnv *env, jclass, jstring jqimei, jstring localip, jstring jtimestamp, jstring jsignature) {
+
+	jboolean isCopy;
+	const char* cInfo = env->GetStringUTFChars(jqimei, &isCopy);
+
+	int cInfoLength = strlen(cInfo);
+	if(cInfoLength > KEY_LENGTH){
+		cInfoLength = KEY_LENGTH;
+	}
+
+	unsigned char* cFinalKey[KEY_LENGTH + cInfoLength];
+	memset(cFinalKey, 0, sizeof(cFinalKey));
+
+	if(cInfoLength > 0){
+		memcpy((char*)cFinalKey,cInfo,cInfoLength);
+		strcat((char*)cFinalKey,defaultDBEncryptKey);
+	}else{
+		strcpy((char*)cFinalKey,defaultDBEncryptKey);
+	}
+
+	MD5_CTX md5_ctx;
+	BYTE md[32];
+	BYTE mdstr[KEY_LENGTH];
+
+	// 初始化
+	lib1_func1(&md5_ctx);
+	// md5 加密
+	lib1_func2(&md5_ctx, (BYTE *)cFinalKey, KEY_LENGTH + cInfoLength);
+	lib1_func3(&md5_ctx,md);
+
+	fuc(md, mdstr,cInfoLength%10);
+
+	//转为jstring
+	jclass strClass = env->FindClass("java/lang/String");
+	jmethodID ctorID = env->GetMethodID(strClass, "<init>","([BLjava/lang/String;)V");
+	jbyteArray bytes = env->NewByteArray(KEY_LENGTH);
+	env->SetByteArrayRegion(bytes, 0, KEY_LENGTH, (jbyte*) mdstr);
+	jstring encoding = env->NewStringUTF("utf-8");
+
+	env->ReleaseStringUTFChars(jqimei,cInfo);
+
+	return (jstring) env->NewObject(strClass, ctorID, bytes, encoding);
+}
+
+
+
+/*
+ * Class:     com_tencent_msdk_a_A
+ * Method:    f2
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_com_tencent_msdk_a_A_f2
+(JNIEnv *env, jclass, jstring jqimei, jstring localip, jstring jtimestamp, jstring jsignature) {
+
+	//转为jstring
+	jclass strClass = env->FindClass("java/lang/String");
+	jmethodID ctorID = env->GetMethodID(strClass, "<init>","([BLjava/lang/String;)V");
+	jbyteArray bytes = env->NewByteArray(KEY_LENGTH);
+	env->SetByteArrayRegion(bytes, 0, KEY_LENGTH, (jbyte*) defaultNetEncryptKey);
+	jstring encoding = env->NewStringUTF("utf-8");
+	return (jstring) env->NewObject(strClass, ctorID, bytes, encoding);
+}

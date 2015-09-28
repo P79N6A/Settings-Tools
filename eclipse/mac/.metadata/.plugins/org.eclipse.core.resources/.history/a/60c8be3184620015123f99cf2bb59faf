@@ -1,0 +1,12 @@
+package com.tencent.msdk.tools;
+
+public class T{
+	
+	public static boolean ckIsEmpty(String s) {
+		if (s == null || s.trim().equals("") || s.trim().equals("null")) {
+			return true;
+		}
+		return false;
+	}
+
+}

@@ -1,0 +1,58 @@
+
+**** Build of configuration Default for project OldDemo ****
+
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:834:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:275) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1255:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:564) [-Wdeprecated-declarations]
+[armeabi] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGADObserverForSO.cpp
+[armeabi] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGQQGroupObserverForSO.cpp
+[armeabi] SharedLibrary  : libWeGameSample.so
+[armeabi] Install        : libWeGameSample.so => libs/armeabi/libWeGameSample.so
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:834:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:275) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1255:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:564) [-Wdeprecated-declarations]
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGCommon.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= WGPlatform.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGADObserverForSO.cpp
+[armeabi-v7a] Compile++ thumb: WeGameSample <= com_tencent_msdk_api_WGQQGroupObserverForSO.cpp
+[armeabi-v7a] SharedLibrary  : libWeGameSample.so
+[armeabi-v7a] Install        : libWeGameSample.so => libs/armeabi-v7a/libWeGameSample.so
+[x86] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:834:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:275) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1255:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:564) [-Wdeprecated-declarations]
+[x86] Compile++      : WeGameSample <= WGCommon.cpp
+[x86] Compile++      : WeGameSample <= WGPlatform.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGADObserverForSO.cpp
+[x86] Compile++      : WeGameSample <= com_tencent_msdk_api_WGQQGroupObserverForSO.cpp
+[x86] SharedLibrary  : libWeGameSample.so
+[x86] Install        : libWeGameSample.so => libs/x86/libWeGameSample.so
+[mips] Compile++      : WeGameSample <= com_example_wegame_PlatformTest.cpp
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGReportEvent__Ljava_lang_String_2Ljava_lang_String_2Z(JNIEnv*, jclass, jstring, jstring, jboolean)':
+jni/com_example_wegame_PlatformTest.cpp:834:55: warning: 'void WGPlatform::WGReportEvent(unsigned char*, unsigned char*, bool)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:275) [-Wdeprecated-declarations]
+jni/com_example_wegame_PlatformTest.cpp: In function 'void Java_com_example_wegame_PlatformTest_WGOpenAmsCenter(JNIEnv*, jclass, jstring)':
+jni/com_example_wegame_PlatformTest.cpp:1255:50: warning: 'bool WGPlatform::WGOpenAmsCenter(unsigned char*)' is deprecated (declared at jni/CommonFiles/WGPlatform.h:564) [-Wdeprecated-declarations]
+[mips] Compile++      : WeGameSample <= WGCommon.cpp
+[mips] Compile++      : WeGameSample <= WGPlatform.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_myapp_autoupdate_WGSaveUpdateObserverNative.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGPlatformObserverForSO.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGADObserverForSO.cpp
+[mips] Compile++      : WeGameSample <= com_tencent_msdk_api_WGQQGroupObserverForSO.cpp
+[mips] SharedLibrary  : libWeGameSample.so
+[mips] Install        : libWeGameSample.so => libs/mips/libWeGameSample.so
+
+**** Build Finished ****

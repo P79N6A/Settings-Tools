@@ -1,0 +1,24 @@
+1428915773499	Copy compilation unit
+1428915857557	Delete element
+1428916000058	Copy compilation unit
+1428993443109	Rename local variable 'plantformStr'
+1428996341115	Rename local variable 'tempLoginRet'
+1428999484513	Rename field 'platformId'
+1428999497190	Rename field 'messageExt'
+1428999508447	Rename field 'mMsgExt'
+1429069555897	Delete element
+1429076215783	Rename method 'handleWXEntryActivityIntent'
+1429076224614	Rename method 'handleOnIntent'
+1429099152337	Delete elements
+1429099198673	Delete elements
+1429171195672	Delete elements
+1429171923342	Rename field 'grantType'
+1429171932848	Rename field 'wxCode'
+1429188119078	Rename field 'GRANT_TYPE'
+1429188123723	Rename field 'WX_CODE'
+1429237099093	Rename method 'registMoodule'
+1429255594419	Copy compilation units
+1429255634556	Rename type 'WXFirstLoginRequest'
+1429255648677	Rename type 'WXFirstLoginResponse'
+1429255850220	Rename type 'WXAutoLoginRequest'
+1429255864183	Rename type 'WXAutoLoginResponse'

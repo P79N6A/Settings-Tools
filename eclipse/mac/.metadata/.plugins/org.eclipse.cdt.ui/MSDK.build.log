@@ -1,0 +1,13 @@
+20:31:39 **** Build of configuration Default for project MSDK ****
+/usr/local/android-ndk-r9c/ndk-build all 
+[armeabi] SharedLibrary  : libMSDKSystem.so
+[armeabi] Install        : libMSDKSystem.so => libs/armeabi/libMSDKSystem.so
+[armeabi-v7a] SharedLibrary  : libMSDKSystem.so
+[armeabi-v7a] Install        : libMSDKSystem.so => libs/armeabi-v7a/libMSDKSystem.so
+[x86] SharedLibrary  : libMSDKSystem.so
+[x86] Install        : libMSDKSystem.so => libs/x86/libMSDKSystem.so
+[mips] SharedLibrary  : libMSDKSystem.so
+[mips] Install        : libMSDKSystem.so => libs/mips/libMSDKSystem.so
+
+20:31:39 Build Finished (took 222ms)
+

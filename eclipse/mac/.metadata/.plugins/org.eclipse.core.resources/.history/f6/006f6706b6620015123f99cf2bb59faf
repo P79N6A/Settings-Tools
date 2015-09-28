@@ -1,0 +1,99 @@
+package com.tencent.msdk.a;
+
+import java.util.Arrays;
+import java.util.Random;
+
+/**
+ * class
+ * 
+ * @author hardyshi
+ *
+ */
+public class a {
+	// MSDK DB相关的加密key,此key与设备相关
+	public static String sDynamicKey = "";
+	// MSDK 网络相关的加密key,此key与设备相关
+	public static String sStaticKey = "";
+
+	static{
+		System.loadLibrary("MSDK");
+	}
+	// 获取DB相关的加密key，参数只有qimei有用
+	public static native String f1(String qimei, String randomStr, String timestamp, String sign);
+
+	// 获取网络请求相关的加密key，所有参数均无需关注
+	public static native String f2(String qimei, String randomStr, String timestamp, String sign);
+
+	private static String getSign(String key, String randomStr, String timestamp){
+		String sign = "";
+		try {
+			String[] arra = {key,randomStr,timestamp};
+			Arrays.sort(arra);
+	            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+	            digest.update((arra[0] + arra[1] + arra[2]).getBytes());
+	            byte[] digesta = digest.digest();
+	            sign = HexUtil.bytes2HexStr(digesta);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+	// 获取DB相关的加密key
+	public static byte[] f3() {
+		if (ckIsEmpty(sDynamicKey)) {
+			String a = "";
+			String b = "";
+			String c = "";
+			
+			sDynamicKey = f1(a, b, c, sign);
+		}
+		return sDynamicKey.getBytes();
+	}
+
+	// 获取网络请求相关的加密key
+	public static byte[] f4() {
+		if (ckIsEmpty(sStaticKey)) {
+			String a = "";
+			String b = "";
+			String c = "";
+			String sign = "";
+			try {
+				b = f5();
+				c = String.valueOf(System.currentTimeMillis());
+				String[] arra = {a,b,c};
+				Arrays.sort(arra);
+		            java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+		            digest.update((arra[0] + arra[1] + arra[2]).getBytes());
+		            byte[] digesta = digest.digest();
+		            HexUtil.bytes2HexStr(digesta);
+				
+			} catch (Exception ex) {
+				ex.printStackTrace();
+			}
+			sStaticKey = f2(a, b, c, sign);
+		}
+		return sStaticKey.getBytes();
+	}
+
+	//取本地ip
+	private static String f5() {
+		return a(16);
+	}
+	
+	public static boolean ckIsEmpty(String s) {
+		if (s == null || s.trim().equals("") || s.trim().equals("null")) {
+			return true;
+		}
+		return false;
+	}
+	
+	public static String a(int len) {
+		String returnStr = "";
+		char[] ch = new char[len];
+		Random rd = new Random();
+		for (int i = 0; i < len; i++) {
+			ch[i] = (char) (rd.nextInt(9) + 97);
+		}
+		returnStr = new String(ch);
+		return returnStr;
+	}
+}

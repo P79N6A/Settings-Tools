@@ -1,0 +1,190 @@
+package com.tencent.peng.wxapi;
+
+
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
+
+import com.tencent.mm.sdk.modelbase.BaseReq;
+import com.tencent.mm.sdk.modelbase.BaseResp;
+import com.tencent.mm.sdk.modelmsg.LaunchFromWX;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
+import com.tencent.mm.sdk.modelmsg.ShowMessageFromWX;
+import com.tencent.mm.sdk.modelmsg.WXAppExtendObject;
+import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
+import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.tools.Logger;
+import com.tencent.msdk.tools.T;
+/**
+ * !!此文件的代码逻辑部分使用者不要修改，MSDK从1.7开始，父类名称由WXEntryActivity改为BaseWXEntryActivity，如果此文件出错请优先检查此项
+ */
+/**
+ * !!此文件的代码逻辑部分使用者不要修改，MSDK从1.7开始，父类名称由WXEntryActivity改为BaseWXEntryActivity，如果此文件出错请优先检查此项
+ */
+public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
+    private static final String TAG = WXEntryActivity.class.getName();
+    private String platformId;
+    private String messageExt;
+
+    public void onCreate(Bundle b) {
+        super.onCreate(b);
+        this.requestWindowFeature(Window.FEATURE_NO_TITLE);
+        this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        TestPlatform(getIntent());
+        setPlatformInfo(getIntent());
+        initEntry();
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        TestPlatform(getIntent());
+        setIntent(intent);
+        setPlatformInfo(intent);
+        initEntry();
+    }
+
+    private void TestPlatform(Intent intent) {
+        if (intent == null ) { // 手动启动, 不处理callback
+            Logger.d(TAG, "wx intent is NULL");
+            return;
+        }
+
+        try{
+            Bundle extras = intent.getExtras();
+            if(extras == null) {
+                Logger.d(TAG, "wx getExtras is NULL");
+                return ;
+            }
+            Logger.d(extras);
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+
+        Logger.d(TAG, "intent content end");
+    }
+
+    private void setPlatformInfo(Intent intent) {
+        try{
+            if (intent != null && intent.getExtras() != null) {
+                Bundle extras = getIntent().getExtras();
+                platformId = extras.getString("platformId"); // 获得拉起平台ID
+                messageExt = extras.getString("_wxobject_message_ext"); // 获得拉起平台ID
+            }
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void initEntry() {
+        WeGame.getInstance().api = WXAPIFactory.createWXAPI(this,
+                WeGame.getInstance().wx_appid, true);
+        WeGame.getInstance().api.registerApp(WeGame.getInstance().wx_appid);
+        try{
+            WeGame.getInstance().api.handleIntent(getIntent(), this);
+			Logger.d(getIntent());
+			Logger.d(TAG, "initEntry");
+        }catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void onReq(BaseReq req) {
+        if (req.openId == null) {
+            Logger.d("OpenID Null");
+        } else if ("".equals(req.openId)) {
+            Logger.d("OpenID is empty");
+        } else {
+            Logger.d("OpenID : " + req.openId);
+        }
+
+        if (req.openId == null) { // 兼容不带OpenId版本的微信
+            req.openId = "";
+        }
+
+        PackageManager pm = this.getPackageManager();
+        String packageName = this.getPackageName();
+        Intent i = pm.getLaunchIntentForPackage(packageName);
+
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        i.putExtra("wx_callback", "onReq");
+        Logger.d("onReq" + messageExt);
+        if (req instanceof LaunchFromWX.Req) { // 游戏推荐启动
+            i.putExtra("wx_mediaTagName", "wgWXGameRecommend");
+            LaunchFromWX.Req launchReq = (LaunchFromWX.Req) req;
+            i.putExtra("messageExt", launchReq.messageExt); // 只有点击玩一把 才会传这个值过来。
+            i.putExtra("country", launchReq.country);
+            i.putExtra("lang", launchReq.lang);
+        } else if (req instanceof ShowMessageFromWX.Req) {
+            ShowMessageFromWX.Req smReq = (ShowMessageFromWX.Req) req;
+            WXAppExtendObject appObj = (WXAppExtendObject) smReq.message.mediaObject;
+            String mediaTagName = appObj.extInfo;
+            i.putExtra("wx_mediaTagName", mediaTagName);
+            WXMediaMessage mediaMsg = smReq.message;
+            i.putExtra("country", smReq.country);
+            i.putExtra("lang", smReq.lang);
+            Logger.d("mediaMsg.messageExt" + mediaMsg.messageExt);
+            if (T.ckIsEmpty(mediaMsg.messageExt)) {
+                i.putExtra("messageExt", messageExt);
+            } else {
+                i.putExtra("messageExt", mediaMsg.messageExt);
+            }
+        }
+        i.putExtra("wx_transaction", req.transaction);
+        i.putExtra("wx_openId", req.openId);
+        i.putExtra("platformId", platformId); // 透传 platformId
+        Logger.d("打印最终给msdk 的intent ---- s\n");// 打印
+        Logger.d(i);
+        Logger.d("打印最终给msdk 的intent ---- e\n");// 打印
+        this.startActivity(i);
+        this.finish();
+    }
+
+    @Override
+    public void onResp(BaseResp resp) {
+        PackageManager pm = this.getPackageManager();
+        String packageName = this.getPackageName();
+        Intent i = pm.getLaunchIntentForPackage(packageName);
+        try {
+            Class<?> launchActivity = Class.forName(i.getComponent()
+                    .getClassName());
+            Intent intent = new Intent(this, launchActivity);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            Logger.d("getComponent" + i.getComponent().flattenToString());
+            Logger.d("getComponent" + i.getComponent().getClassName());
+
+            intent.putExtra("wx_callback", "onResp");
+            intent.putExtra("wx_errCode", resp.errCode);
+            intent.putExtra("wx_errStr", resp.errStr);
+            intent.putExtra("wx_transaction", resp.transaction);
+            intent.putExtra("wx_openId", resp.openId);
+            intent.putExtra("platformId", platformId); // 透传 platformId
+
+            if (resp instanceof SendAuth.Resp) { // 登陆回调
+                SendAuth.Resp res = (SendAuth.Resp) resp;
+                Logger.d("code: " + res.code);
+                intent.putExtra("wx_token", res.code);
+            }
+
+            // 当前msdkwebpage只有内置浏览器会调用，内置浏览器不需要通知game，以免影响到游戏的正常逻辑
+            if(!"msdkwebpage".equals(resp.transaction)) {
+                this.startActivity(intent);
+            }
+            this.finish();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+}

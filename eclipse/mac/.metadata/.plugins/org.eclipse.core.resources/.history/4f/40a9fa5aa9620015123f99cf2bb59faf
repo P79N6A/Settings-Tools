@@ -1,0 +1,73 @@
+package com.tencent.msdk.communicator;
+
+import android.os.Bundle;
+
+import com.tencent.msdk.a.A;
+import com.tencent.msdk.a.e;
+
+public class MHttpRequest {
+    public enum HttpMethod {
+        GET, POST, PUT, DELETE
+    }
+    
+    private String url = "";
+    private Bundle params = new Bundle();
+    private byte[] body;
+    private HttpMethod method;
+    private e test = new e(A.f3(""));
+    private String strBody;
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public Bundle getParams() {
+        return params;
+    }
+
+    public void setParams(Bundle params) {
+        this.params = params;
+    }
+
+    public HttpMethod getMethod() {
+        return method;
+    }
+
+    public void setMethod(HttpMethod method) {
+        this.method = method;
+    }
+
+    public byte[] getBody() {
+        return body;
+    }
+
+    public void addParam(String key, String value) {
+        params.putString(key, value);
+    }
+    
+    public void setBody(byte[] body){
+        this.body = body;
+    }
+    
+    // 设置请求body
+    public void setBody(String body) {
+        if (HttpRequestManager.isEncode) {
+            this.body = test.f1(body.getBytes());
+        } else {
+            this.body = body.getBytes();
+        }
+    }
+    
+    // 采用StringEntity
+    public void setStrBody(String body) {
+        strBody = body;
+    }
+    
+    public String getStrBody() {
+        return strBody;
+    }
+}

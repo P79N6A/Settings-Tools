@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="env" default="-env">
+	 <property name="encoding" value="UTF-8"/>
+    <property name="msdk_package_name" value="MSDK_Android"/>
+	<tstamp>
+        <format property="datetime" pattern="yyyy-MM-dd HH:mm:ss.SSS"/>
+        <format property="shortdate" pattern="yyMMdd"/>
+    </tstamp>
+	<property environment="env" />
+	<condition property="sdk.dir" value="${env.ANDROIDSDK_LINUX_R16}" else="${env.ANDROID_HOME}">
+	    <isset property="env.ANDROIDSDK_LINUX_R16" />
+	</condition>
+
+	<condition property="env.ANDROID_NDK_CMD" value="${env.ANDROIDNDK_LINUX_R9C}/ndk-build" else="${env.NDK_HOME}/ndk-build.cmd">
+	    <isset property="env.ANDROIDNDK_LINUX_R9C" />
+	</condition>
+
+	<condition property="env.MajorVersion" value="${env.MajorVersion}" else="0">
+	    <isset property="env.MajorVersion" />
+	</condition>
+
+	<condition property="env.MinorVersion" value="${env.MinorVersion}" else="0">
+	    <isset property="env.MinorVersion" />
+	</condition>
+
+	<condition property="env.FixVersion" value="${env.FixVersion}" else="0">
+	    <isset property="env.FixVersion" />
+	</condition>
+
+	<condition property="env.NumberVersion" value="${env.NumberVersion}" else="test">
+	    <isset property="env.NumberVersion" />
+	</condition>
+	<condition property="env.SVN_REVISION" value="${env.SVN_REVISION}" else="local">
+	    <isset property="env.SVN_REVISION" />
+	</condition>
+	 <condition property="isRelease" else="false">
+        <isset property="env.isRelease"/>
+    </condition>
+	<property name="env.MSDKVersionName" value="${env.MajorVersion}.${env.MinorVersion}.${env.FixVersion}a"/>
+	<property name="msdk_base_line" value="Tag_${env.NumberVersion}_${env.SVN_REVISION}"/>
+	<property name="msdk_detail_version" value="${env.NumberVersion}_${env.SVN_REVISION}"/>
+	<property name="env.BaseLine" value="${msdk_base_line}"/>
+	<echo message="SDK: ${sdk.dir}" />
+	<echo message="NDK: ${env.ANDROID_NDK_CMD}" />
+	<echo message="NUM: ${env.NumberVersion}" />
+	<echo message="SVN: ${env.SVN_REVISION}" />
+	<echo message="JDK: ${java.version}" />
+	<echo message="Version: ${env.MSDKVersionName}" />
+	<echo message="msdk_base_line: ${msdk_base_line}" />
+</project>

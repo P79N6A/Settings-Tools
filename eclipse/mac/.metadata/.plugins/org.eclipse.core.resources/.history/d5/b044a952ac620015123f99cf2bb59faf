@@ -1,0 +1,152 @@
+package com.tencent.msdk.weixin.qrcode;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
+import com.tencent.mm.sdk.diffdev.DiffDevOAuthFactory;
+import com.tencent.mm.sdk.diffdev.IDiffDevOAuth;
+import com.tencent.mm.sdk.diffdev.OAuthErrCode;
+import com.tencent.mm.sdk.diffdev.OAuthListener;
+import com.tencent.msdk.WeGame;
+import com.tencent.msdk.WeGameNotifyGame;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.consts.CallbackFlag;
+import com.tencent.msdk.consts.RequestConst;
+import com.tencent.msdk.login.LoginManager;
+
+public class WXQrCodeLogin implements OAuthListener {
+	private boolean mUseMsdkLayout = true;
+	private IDiffDevOAuth mOAuth = null;
+	
+	private static volatile WXQrCodeLogin mInstance;
+    public static WXQrCodeLogin getInstance() {
+        if (mInstance == null) {
+            synchronized (WXQrCodeLogin.class) {
+                if (mInstance == null) {
+                    mInstance = new WXQrCodeLogin();
+                }
+            }
+        }
+        return mInstance;
+    }
+
+	private WXQrCodeLogin() {	
+		mOAuth = DiffDevOAuthFactory.getDiffDevOAuth();
+	}
+
+	public void login(boolean useMsdkLayout) {
+		mUseMsdkLayout = useMsdkLayout;
+		new GetWXQrSignature(this).send();
+	}
+	
+	public void cancel(boolean withNotify) {
+		mOAuth.stopAuth();
+		mOAuth.removeAllListeners();
+		mOAuth.detach();
+		
+		if (withNotify == true) {
+			LoginRet loginRet = new LoginRet();
+			loginRet.platform = WeGame.WXPLATID;
+			loginRet.flag = CallbackFlag.eFlag_WX_UserCancel;
+			loginRet.desc = "user cancel";
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+		}
+	}
+
+	public void onWXQrSignatureSuccess(String nonceStr, String timeStamp, String signature) {
+		String appid = WeGame.getInstance().wx_appid;
+	
+		mOAuth.stopAuth();
+		mOAuth.removeAllListeners();		
+		String scope = "snsapi_login,snsapi_userinfo,snsapi_friend,snsapi_message";
+		boolean authRet = mOAuth.auth(appid, scope, nonceStr, timeStamp, signature, this);
+
+		if (authRet == false) {
+	        LoginRet loginRet = new LoginRet();
+	        loginRet.platform = WeGame.WXPLATID;
+			loginRet.flag = CallbackFlag.eFlag_WX_LoginFail;
+			loginRet.desc = "IDiffDevOAuth auth failed";
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+		}
+	}
+
+	public void onWXQrSignatureFailed(String errorContent) {
+		LoginRet loginRet = new LoginRet();
+		loginRet.platform = WeGame.WXPLATID;
+		loginRet.flag = CallbackFlag.eFlag_WX_LoginFail;
+		loginRet.desc = "get WXQrSignature failed : " + errorContent;
+		WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+	}
+
+	@Override
+	public void onAuthGotQrcode(String qrcodeImgPath, byte[] imgBuf) {
+		Bitmap bmp = BitmapFactory.decodeFile(qrcodeImgPath);
+		if (bmp == null) {
+			LoginRet loginRet = new LoginRet();
+			loginRet.platform = WeGame.WXPLATID;
+			loginRet.flag = CallbackFlag.eFlag_WX_LoginFail;
+			loginRet.desc = "qrcodeImg decode failed";
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+		} else {
+			if (mUseMsdkLayout == true) {
+				updateQrCodeImgActivity(WXQrCodeActivity.ACTION_ON_QRCODE_READY, qrcodeImgPath);
+			} else {
+				//TODO(hopeliu)下个版本增加，目前mUseMsdkLayout必须为true
+			}
+		}
+	}
+
+	@Override
+	public void onQrcodeScanned() {
+		if (mUseMsdkLayout == true) {
+			updateQrCodeImgActivity(WXQrCodeActivity.ACTION_ON_QRCODE_SCANNED, null);
+		} else {
+			//TODO(hopeliu)下个版本增加，目前mUseMsdkLayout必须为true
+		}
+	}
+
+	@Override
+	public void onAuthFinish(OAuthErrCode errCode, String authCode) {
+		if (mUseMsdkLayout == true) {
+			updateQrCodeImgActivity(WXQrCodeActivity.ACTION_ON_QRCODE_AUTH, null);
+		} else {
+			//TODO(hopeliu)下个版本增加，目前mUseMsdkLayout必须为true
+		}
+
+        LoginRet loginRet = new LoginRet();
+        loginRet.platform = WeGame.WXPLATID;
+        loginRet.desc = "onAuthFinish errCode: " + errCode;
+		
+		switch (errCode) {
+		case WechatAuth_Err_OK:
+			LoginManager.getInstance().wxFirstLoginReq(authCode, RequestConst.notifyLogin);
+			break;
+		case WechatAuth_Err_Cancel:
+			loginRet.flag = CallbackFlag.eFlag_WX_UserCancel;
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+			break;
+		case WechatAuth_Err_NormalErr:
+		case WechatAuth_Err_NetworkErr:
+		case WechatAuth_Err_JsonDecodeErr:
+		case WechatAuth_Err_Timeout:
+		default:
+			loginRet.flag = CallbackFlag.eFlag_WX_LoginFail;
+			WeGameNotifyGame.getInstance().OnPlatformLoginNotify(loginRet);
+			break;
+		}
+	}
+	
+	private void updateQrCodeImgActivity(String action, String qrcodeImgPath) {
+		Activity activity = WeGame.getInstance().getActivity();
+		if (activity != null) {
+			Intent intent = new Intent(activity, WXQrCodeActivity.class);
+			intent.setAction(action);
+			if (qrcodeImgPath != null) {
+				intent.putExtra("qrcode_img", qrcodeImgPath);
+			}
+			activity.startActivity(intent);
+		}
+	}
+}

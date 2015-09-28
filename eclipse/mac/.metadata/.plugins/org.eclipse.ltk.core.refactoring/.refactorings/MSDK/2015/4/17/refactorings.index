@@ -1,0 +1,10 @@
+1429603645140	Rename field 'mRrefreshToken'
+1429603964236	Rename local variable 'wxFirstLoginResponse'
+1429603982205	Rename local variable 'wxFirstLoginResponse'
+1429604117578	Rename local variable 'plantform'
+1429604179470	Rename method 'parseWXFirstLoginResponse'
+1429606391323	Rename type 'WXFirstLoginResponseHandler'
+1429684354778	Delete element
+1429684368286	Rename type 'WXUserFirstLoginResponse'
+1429685327021	Rename field 'MSG_WX_LOGIN'
+1429685334121	Rename field 'MSG_WX_AUTO_LOGIN'

@@ -1,0 +1,93 @@
+package com.tencent.msdk.a;
+
+import java.util.Arrays;
+import java.util.Random;
+
+/**
+ * MSDK 加密相关功能
+ * 
+ * @author hardyshi
+ *
+ */
+public class A {
+	// MSDK 函数f3 返回的key，此函数f3传递的参数有关
+	private static String sDynamicKey = "";
+	
+	// MSDK 函数f4 返回的key，此函数f4传递的参数有关，使用native固定的加密key
+	private static String sStaticKey = "";
+
+	// MSDK 随机字符串的长度
+	private static final int LENGTH = 16;
+
+		
+		
+	// 获取DB相关的加密key，参数只有s1有用，为qimei
+	public static native String f1(String qimei, String randomStr, String timestamp, String sign);
+
+	// 获取网络请求相关的加密key，所有参数均无需关注
+	public static native String f2(String qimei, String randomStr, String timestamp, String sign);
+
+	
+	private static String getSign(String qimei, String randomStr, String timestamp){
+		String sign = "";
+		try {
+			String[] arra = {qimei,randomStr,timestamp};
+			Arrays.sort(arra);
+			java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+	        digest.update((arra[0] + arra[1] + arra[2]).getBytes());
+	        byte[] digesta = digest.digest();
+	        sign = HexUtil.bytes2HexStr(digesta);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return sign;
+	}
+	// 获取DB相关的加密key
+	public static byte[] f3(String key) {
+		if (ckIsEmpty(sDynamicKey)) {
+			if(ckIsEmpty(key)){
+				key = "";
+			}
+			String randomStr = f5(LENGTH);
+			String timestamp = String.valueOf(System.currentTimeMillis());
+			String sign = getSign(key, randomStr, timestamp);
+			sDynamicKey = f1(key, randomStr, timestamp, sign);
+		}
+		return sDynamicKey.getBytes();
+	}
+
+	// 获取网络请求相关的加密key
+	public static byte[] f4(String key) {
+		if (ckIsEmpty(sStaticKey)) {
+			if(ckIsEmpty(key)){
+				key = "";
+			}
+			String randomStr = f5(LENGTH);
+			String timestamp = String.valueOf(System.currentTimeMillis());
+			String sign = getSign(key, randomStr, timestamp);
+			sStaticKey = f2(key, randomStr, timestamp, sign);
+		}
+		return sStaticKey.getBytes();
+	}
+
+	//取本地ip
+	private static String f5(int length) {
+		String returnStr = "";
+		char[] ch = new char[length];
+		Random rd = new Random();
+		for (int i = 0; i < length; i++) {
+			ch[i] = (char) (rd.nextInt(9) + 97);
+		}
+		returnStr = new String(ch);
+		return returnStr;
+	}
+	
+		
+	private static boolean ckIsEmpty(String s) {
+		if (s == null || s.trim().equals("") || s.trim().equals("null")) {
+			return true;
+		}
+		return false;
+	}
+
+}

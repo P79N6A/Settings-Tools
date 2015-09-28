@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 如果需要在本地打包, 需要将MSDKDemo/env.xml中的sdk目录以及NDK目录均改为本地对应环境的地址, 目前MSDKDemo/env.xmlz中地址为erichua的本地环境 -->
+<project name="MSDKEncrypt" default="all" basedir=".">
+	
+
+    
+   
+    <target name="package_msdk" depends="clean,release">
+        <property environment="env" />
+        <property name="msdk_jar_name" value="MSDK_Encrypt.jar"/>
+        <echo message="msdk_jar_name:${msdk_jar_name}" />
+
+        <delete dir="./temp"/>
+        <mkdir dir="./temp"/>
+
+		<echo message="./../bin" />
+		
+        <echo file="./../bin/msdkinfo.ini" message="VERSION=${env.MSDKVersionName}${line.separator}SVN_REVISION=${env.SVN_REVISION}${line.separator}BASE_LINE=${msdk_base_line}${line.separator}DATETIME=${datetime}"/>
+        <echo file="./../bin/${msdk_base_line}" message=""/>
+
+        <!-- 生成最终jar包 -->
+        <!-- 目录变更的话，计算包大小也需同步变更-->
+        <zip destfile="./../bin/${msdk_jar_name}">
+            <zipfileset dir="./../MSDK/bin/classes">
+                <exclude name="com/tencent/msdk/BuildConfig.class"/>
+                <exclude name="com/tencent/msdk/R.class"/>
+                <exclude name="com/tencent/msdk/R$attr.class"/>
+                <exclude name="com/tencent/msdk/R$drawable.class"/>
+                <exclude name="com/tencent/msdk/R$string.class"/>
+                <exclude name="com/tencent/msdk/R$id.class"/>
+                <exclude name="com/tencent/msdk/R$layout.class"/>
+                <exclude name="com/tencent/msdk/test/*.class"/>
+            </zipfileset>
+            <zipfileset dir="./../bin/" includes="msdkinfo.ini" fullpath="assets/msdkinfo.ini"/>
+            <zipgroupfileset dir="./../MSDK/libs" includes="*.jar">
+                <exclude name="android-support-v4.jar"/>
+				<exclude name="jg_filter_sdk_1.1.jar"/>
+				<exclude name="mid-sdk-2.20.jar"/>
+				<exclude name="Xg_sdk_2.38.jar"/>
+            </zipgroupfileset>
+        </zip>
+		
+		<copy todir="./../${msdk_package_name}/MSDKLibrary">
+            <fileset dir="./../MSDKLibrary">
+            </fileset>
+        </copy>
+
+		<copy todir="./../${msdk_package_name}/MSDKLibrary/libs">
+			<fileset dir="./../MSDK/libs">
+				<include name="*/libMSDK.so"/>
+				<include name="android-support-v4.jar"/>
+				<include name="jg_filter_sdk_1.1.jar"/>
+				<include name="mid-sdk-2.20.jar"/>
+				<include name="Xg_sdk_2.38.jar"/>
+			</fileset>
+		</copy>
+
+        <!-- 创建发布包中的Guide目录
+        <mkdir dir="./../${msdk_package_name}/Guide" />
+        -->
+		
+        <!-- 复制文档 -->
+        <copy file="../README.html" tofile="./../${msdk_package_name}/README.html" />
+
+        <exec executable="svn">
+            <arg line="co http://tc-svn.tencent.com/ied/ied_ieod03_rep/MSDK_proj/document/publish/  ./../${msdk_package_name}/  --no-auth-cache --non-interactive --username ${env.P_USERNAME} --password ${env.P_PASSWORD}" />
+        </exec>
+
+		
+        <!-- 将最终的jar复制到MSDKLibrary/libs下 -->
+        <copy todir="./../${msdk_package_name}/MSDKLibrary/libs">
+            <fileset dir="./../bin/">
+                <include name="**/*.jar" />
+            </fileset>
+        </copy>
+
+        <!-- 将MSDKLibrary的project.properties换成没有依赖项的 -->
+        <copy file="./../${msdk_package_name}/MSDKLibrary/project.properties.nodeps" tofile="./../${msdk_package_name}/MSDKLibrary/project.properties" overwrite="true" />
+
+        <copy todir="./../${msdk_package_name}/MSDKDemo">
+            <fileset dir="./../MSDKDemo">
+            </fileset>
+        </copy>
+
+        <copy todir="./../${msdk_package_name}/MSDKLibrary/jni">
+            <fileset dir="./../MSDKDemo/jni">
+            </fileset>
+        </copy>
+
+        
+        <!-- 计算MSDK的包大小 -->        
+        <length property="msdk_size" mode="all">
+            <fileset dir="./../bin" includes="${msdk_jar_name}" />
+            <fileset dir="./../MSDKLibrary/res"/>
+        </length>
+        <!-- 计算支付的包大小 -->  
+        <length property="payment_size" mode="all">
+            <fileset dir="./../Payment">
+                <include name="**/AndroidPaySample/assert/**"/>
+                <include name="**/AndroidPaySample/res/**" />
+                <include name="**/AndroidPaySample/libs/**"/>
+            </fileset>
+        </length>
+        
+        <!-- 写入大小到指定目录 -->
+        <echo file="./../bin/Len_msdk.${msdk_size}_payment.${payment_size}" 
+			message="msdk_size:${msdk_size}B${line.separator}payment_size:${payment_size}B${line.separator}" />        
+        <!-- 结束计算包大小 -->
+       
+        <!-- 把支付的包打入 -->
+	<zip destfile="./../${msdk_package_name}/Tencent AndroidPayRelease.zip"
+            basedir="./../Payment"
+            update="false"
+        />
+		<ant antfile="./../Payment/AndroidPaySample/build.xml" target="release" inheritAll="false"/>
+		<!-- 把支付的demo 拷入bin -->
+		 <copy
+            file="./../Payment/AndroidPaySample/bin/Midas-release.apk"
+            tofile="./../bin/Midas-release.apk"
+            overwrite="true"/>
+		<copy
+            file="./../${msdk_package_name}/MSDKDemo/src/com/example/wegame/wxapi/WXEntryActivity.java"
+            tofile="./../${msdk_package_name}/MSDKLibrary/WXEntryActivity.java"
+            overwrite="true" />
+
+        <!--<copy
+            file="./../${msdk_package_name}/MSDKDemo/src/com/example/wegame/push/ForwardActivity.java"
+            tofile="./../${msdk_package_name}/MSDKLibrary/ForwardActivity.java"
+            overwrite="true" />-->
+
+        <copy
+            file="./../MSDKDemo/src/com/example/wegame/wxapi/WXEntryActivity.java"
+            tofile="./../MSDKLibrary/WXEntryActivity.java"
+            overwrite="true"/>
+
+        <copy todir="./../${msdk_package_name}/MSDKLibrary/jni">
+            <fileset dir="./../MSDKDemo/jni">
+            </fileset>
+        </copy>
+        <delete file="./../${msdk_package_name}/MSDKLibrary/jni/com_example_wegame_PlatformTest.cpp"/>
+        <delete file="./../${msdk_package_name}/MSDKLibrary/jni/com_example_wegame_PlatformTest.h"/>
+        <delete file="./../${msdk_package_name}/MSDKLibrary/jni/Application.mk"/>
+        <delete file="./../${msdk_package_name}/MSDKLibrary/jni/Android.mk"/>
+
+        <!-- <delete dir="./../${msdk_package_name}"/> -->
+
+
+        <echo>Copy apk to bin</echo>
+        <copy
+            file="./bin/MSDKDemo_CI-release.apk"
+            tofile="./../bin/MSDKDemo-development-${msdk_detail_version}.apk"
+            overwrite="true"/>
+
+         <!-- build a package for test(test.msdk.qq.com) -->
+        <copy file="./../MSDK/assets/msdkconfig.test.ini" tofile="./../${msdk_package_name}/MSDKDemo/assets/msdkconfig.ini" overwrite="true" />
+		<copy file="./../MSDK/assets/adconfig.test.ini" tofile="./../${msdk_package_name}/MSDKDemo/assets/adconfig.ini" overwrite="true" />
+        <ant antfile="./../${msdk_package_name}/MSDKDemo/build.xml" target="release" inheritAll="false"/>
+        <copy
+            file="./../${msdk_package_name}/MSDKDemo/bin/MSDKDemo-release.apk"
+            tofile="./../bin/MSDKDemo-test-${msdk_detail_version}.apk"
+            overwrite="true"/>
+
+         <!-- build a package for debug(msdktest.qq.com) -->
+        <copy file="./../MSDK/assets/msdkconfig.debug.ini" tofile="./../${msdk_package_name}/MSDKDemo/assets/msdkconfig.ini" overwrite="true" />
+		<copy file="./../MSDK/assets/adconfig.debug.ini" tofile="./../${msdk_package_name}/MSDKDemo/assets/adconfig.ini" overwrite="true" />
+        <ant antfile="./../${msdk_package_name}/MSDKDemo/build.xml" target="release" inheritAll="false"/>
+        <copy
+            file="./../${msdk_package_name}/MSDKDemo/bin/MSDKDemo-release.apk"
+            tofile="./../bin/MSDKDemo-debug-${msdk_detail_version}.apk"
+            overwrite="true"/>
+
+
+        <echo>Package Zip</echo>
+        <delete dir="./../${msdk_package_name}/MSDKDemo/bin"/>
+
+        <delete file="./../bin/Tencent_MSDK_Android_Build${shortdate}_V${env.MSDKVersionName}_svn${env.SVN_REVISION}.zip"/>
+        <zip destfile="./../bin/Tencent_MSDK_Android_Build${shortdate}_V${env.MSDKVersionName}_svn${env.SVN_REVISION}.zip"
+            basedir="./../${msdk_package_name}"
+            update="false"
+        />
+        
+        <antcall target="build_unity3d"></antcall>
+        
+        <delete dir="./../${msdk_package_name}"/>
+    </target>
+
+</project>

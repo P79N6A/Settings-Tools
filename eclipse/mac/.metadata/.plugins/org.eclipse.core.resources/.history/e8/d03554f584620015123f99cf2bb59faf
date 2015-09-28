@@ -1,0 +1,84 @@
+package com.tencent.msdk.a;
+
+import java.util.Arrays;
+import java.util.Random;
+
+/**
+ * MSDK 加密相关功能
+ * 
+ * @author hardyshi
+ *
+ */
+public class A {
+	// MSDK 函数f3 返回的key，此函数f3传递的参数有关
+	public static String  = "";
+	
+	// MSDK 函数f4 返回的key，此函数f4传递的参数有关，使用native固定的加密key
+	public static String n = "";
+
+	// 获取DB相关的加密key，参数只有s1有用，为qimei
+	public static native String f1(String s1, String s2, String s3, String s4);
+
+	// 获取网络请求相关的加密key，所有参数均无需关注
+	public static native String f2(String s1, String s2, String s3, String s4);
+
+	private static String getE(String s1, String s2, String s3){
+		String e = "";
+		try {
+			String[] arra = {s1,s2,s3};
+			Arrays.sort(arra);
+			java.security.MessageDigest digest = java.security.MessageDigest.getInstance("MD5");
+	        digest.update((arra[0] + arra[1] + arra[2]).getBytes());
+	        byte[] digesta = digest.digest();
+	        e = HexUtil.bytes2HexStr(digesta);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+		}
+		return e;
+	}
+	// 获取DB相关的加密key
+	public static byte[] f3(String key) {
+		if (ckIsEmpty(d)) {
+			String a = key;
+			String b = f5();
+			String c = String.valueOf(System.currentTimeMillis());
+			String e = getE(a, b, c);
+			d = f1(a, b, c, e);
+		}
+		return d.getBytes();
+	}
+
+	// 获取网络请求相关的加密key
+	public static byte[] f4(String key) {
+		if (ckIsEmpty(n)) {
+			String a = key;
+			String b = f5();
+			String c = String.valueOf(System.currentTimeMillis());
+			String e = getE(a, b, c);
+			n = f2(a, b, c, e);
+		}
+		return n.getBytes();
+	}
+
+	//取本地ip
+	private static String f5() {
+		int len = 16;
+		String returnStr = "";
+		char[] ch = new char[len];
+		Random rd = new Random();
+		for (int i = 0; i < len; i++) {
+			ch[i] = (char) (rd.nextInt(9) + 97);
+		}
+		returnStr = new String(ch);
+		return returnStr;
+	}
+	
+		
+	public static boolean ckIsEmpty(String s) {
+		if (s == null || s.trim().equals("") || s.trim().equals("null")) {
+			return true;
+		}
+		return false;
+	}
+
+}

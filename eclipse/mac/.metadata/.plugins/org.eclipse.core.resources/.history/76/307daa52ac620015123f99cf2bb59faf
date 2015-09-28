@@ -1,0 +1,114 @@
+
+package com.tencent.msdk.weixin;
+
+import org.json.JSONException;
+import org.json.JSONStringer;
+
+import com.tencent.msdk.tools.T;
+
+public class MsgVideo extends MsgBase {
+    private final static String sMSG_KEY = "type_info";
+    private final static String sMSG_TYPE = "video";
+
+    private static int sDefaultWidth = 0;
+    private static int sDefaultHeight = 0;
+    private static String sDefaultPicUrl = "";
+    private static String sDefaultMediaUrl = "";
+
+    private Video mVideo = new Video();
+
+    public MsgVideo(String picUrl, String mediaUrl, int height, int width) {
+        this();
+        setmPicUrl(picUrl);
+        setmMediaUrl(mediaUrl);
+        setmHeight(height);
+        setmWidth(width);
+    }
+    public MsgVideo() {
+        super(sMSG_TYPE);
+        setmMediaUrl(sDefaultMediaUrl);
+        setmPicUrl(sDefaultPicUrl);
+        setmHeight(sDefaultHeight);
+        setmWidth(sDefaultWidth);
+    }
+
+    private class Video {
+        private String mPicUrl = "";
+        private int mWidth = 0;
+        private int mHeight = 0;
+        private String mMediaUrl = "";
+
+        public void setmPicUrl(String mPicUrl) {
+            this.mPicUrl = mPicUrl;
+        }
+
+        public void setmWidth(int mWidth) {
+            this.mWidth = mWidth;
+        }
+
+        public void setmHeight(int mHeight) {
+            this.mHeight = mHeight;
+        }
+
+        public void setmMediaurl(String mMediaurl) {
+            this.mMediaUrl = mMediaurl;
+        }
+    }
+
+    @Override
+    public String toString() {
+        try {
+            JSONStringer js = new JSONStringer();
+            js.object()
+                    .key("mediaurl").value(this.mVideo.mMediaUrl)
+                    .key("picurl").value(this.mVideo.mPicUrl)
+                    .key("width").value(this.mVideo.mWidth)
+                    .key("height").value(this.mVideo.mHeight)
+                    .endObject();
+            return js.toString();
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return "";
+        }
+    }
+
+    @Override
+    public String checkParam() {
+        String errorMsg = super.checkParam();
+        if (T.ckIsEmpty(this.mVideo.mPicUrl)) {
+            errorMsg += "mPicUrl cann't be Empty;";
+        }
+        if (T.ckIsEmpty(this.mVideo.mMediaUrl)) {
+            errorMsg += "mMediaUrl cann't be Empty;";
+        }
+        if (this.mVideo.mHeight <= 0) {
+            errorMsg += "mHeihgt cann't be a nagtive number;";
+        }
+        if (this.mVideo.mWidth <= 0) {
+            errorMsg += "mWidth cann't be a nagtive number;";
+        }
+        return errorMsg.trim();
+    }
+
+    @Override
+    protected String getMsgKey() {
+        return sMSG_KEY;
+    }
+
+    public void setmPicUrl(String mPicUrl) {
+        mVideo.setmPicUrl(mPicUrl);
+    }
+
+    public void setmWidth(int mWidth) {
+        mVideo.setmWidth(mWidth);
+    }
+
+    public void setmHeight(int mHeight) {
+        mVideo.setmHeight(mHeight);
+    }
+
+    public void setmMediaUrl(String mMediaurl) {
+        mVideo.setmMediaurl(mMediaurl);
+    }
+
+}

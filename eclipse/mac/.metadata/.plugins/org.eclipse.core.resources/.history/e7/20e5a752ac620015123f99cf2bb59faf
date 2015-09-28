@@ -1,0 +1,122 @@
+package com.tencent.msdk.weixin.qrcode;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.tencent.msdk.tools.ResID;
+
+public class WXQrCodeActivity extends Activity {
+	public static final String ACTION_ON_QRCODE_READY = "com.tencent.msdk.weixin.qrcode.QRCODE_READY";
+	public static final String ACTION_ON_QRCODE_SCANNED = "com.tencent.msdk.weixin.qrcode.QRCODE_SCANNED";
+	public static final String ACTION_ON_QRCODE_AUTH = "com.tencent.msdk.weixin.qrcode.HIDE_AUTH";
+	
+	private ImageView mQrCode;
+	private TextView mQrCodeStatus;
+	private TextView mQrCodePrompt;
+	private Button mQrCodeButton;
+	private String mQrCodeStatusReady;
+	private String mQrCodeStatusScanned;
+	private String mQrCodeStatusScannedPrompt;
+	private int mQrCodeStatusScannedImage;
+	
+	private void initView () {
+	      String packageName = this.getPackageName();
+	      Resources resources = this.getResources();
+	      
+	      int layout_msdk_qrcode_window = ResID.loadIdentifierResource(resources, "com_tencent_msdk_qrcode_window", "layout", packageName);
+	      int qrcode_iv = ResID.loadIdentifierResource(resources, "qrcode_iv", "id", packageName);
+	      int qrcode_status_tv = ResID.loadIdentifierResource(resources, "qrcode_status_tv", "id", packageName);
+	      int qrcode_status_tv_prompt = ResID.loadIdentifierResource(resources, "qrcode_status_tv_prompt", "id", packageName);
+	      int qrcode_bt = ResID.loadIdentifierResource(resources, "qrcode_bt", "id", packageName);
+	      int qrcode_status_ready = ResID.loadIdentifierResource(resources, "wx_qrcode_status_ready", "string", packageName);
+	      int qrcode_status_scanned = ResID.loadIdentifierResource(resources, "wx_qrcode_status_scanned", "string", packageName);
+	      int qrcode_status_scanned_prompt = ResID.loadIdentifierResource(resources, "wx_qrcode_status_scanned_prompt", "string", packageName);
+	      mQrCodeStatusReady = getString(qrcode_status_ready);
+	      mQrCodeStatusScanned = getString(qrcode_status_scanned);
+	      mQrCodeStatusScannedPrompt = getString(qrcode_status_scanned_prompt); 
+	      mQrCodeStatusScannedImage = resources.getIdentifier("com_tencent_msdk_wxqrcode_scanned", "drawable", packageName);
+	      
+	      setContentView(layout_msdk_qrcode_window);
+	      mQrCode = (ImageView)findViewById(qrcode_iv);
+	      mQrCodeStatus = (TextView)findViewById(qrcode_status_tv);	
+	      mQrCodePrompt = (TextView)findViewById(qrcode_status_tv_prompt);	
+	      mQrCodeButton = (Button)findViewById(qrcode_bt);
+	      mQrCodeButton.setOnClickListener(new View.OnClickListener() {
+			
+			@Override
+			public void onClick(View v) {
+				WXQrCodeLogin.getInstance().cancel(true);
+				finish();				
+			}
+		});
+	}
+	
+	private void updateView (String qrcodeImgPath, String qrcodeStatus, String qrcodePrompt) {
+		if (qrcodeImgPath != null) {
+			Bitmap bmp = BitmapFactory.decodeFile(qrcodeImgPath);
+			mQrCode.setImageBitmap(bmp);
+		} else {
+			//设置游戏自定义扫描后提示图片
+			if (mQrCodeStatusScannedImage != 0) {
+				mQrCode.setImageResource(mQrCodeStatusScannedImage);
+			}
+		}
+		
+		if (qrcodeStatus != null) {
+			mQrCodeStatus.setText(qrcodeStatus);
+		}
+		
+		if (qrcodePrompt != null) {
+			mQrCodePrompt.setText(qrcodePrompt);
+		}
+	}
+	
+	private void handleIntent (Intent intent) {
+		String action = intent.getAction();
+    	if (ACTION_ON_QRCODE_READY.equals(action)) {
+    		String qrcodeImgPath = intent.getStringExtra("qrcode_img");
+    		updateView (qrcodeImgPath, mQrCodeStatusReady, null);
+    	} else if (ACTION_ON_QRCODE_SCANNED.equals(action)) {
+    		String qrcodeImgPath = intent.getStringExtra("qrcode_img");
+    		updateView (qrcodeImgPath, mQrCodeStatusScanned, mQrCodeStatusScannedPrompt);
+    	} else if (ACTION_ON_QRCODE_AUTH.equals(action)) {
+    		this.finish();
+    	}
+	}
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		
+		initView();
+		Intent intent = getIntent();
+		handleIntent (intent);
+	}
+    
+    @Override
+    protected void onNewIntent(Intent intent) {
+    	super.onNewIntent(intent);
+    	
+    	handleIntent (intent);
+    }
+    
+    @Override
+    public void onBackPressed() {
+    	WXQrCodeLogin.getInstance().cancel(true);
+    	super.onBackPressed(); 
+    }
+    
+    @Override
+    public void onDestroy() {    	  	
+    	WXQrCodeLogin.getInstance().cancel(false);
+    	super.onDestroy();
+    }
+}

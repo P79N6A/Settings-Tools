@@ -1,0 +1,66 @@
+package com.tencent.msdk.db;
+
+import android.database.Cursor;
+
+import com.tencent.beacon.event.UserAction;
+import com.tencent.msdk.a.a;
+import com.tencent.msdk.api.LoginRet;
+import com.tencent.msdk.tools.T;
+
+public abstract class BaseUserInfo {
+	
+    public String open_id = "";
+    public String access_token = "";
+    public long access_token_expire = 0;
+    
+    // 用户支付票据
+    public String pf = "";
+    public String pf_key = "";
+
+    // 记录状态
+    public String is_active = "";
+    public long create_at = 0;
+    public long update_at = 0;
+    
+    // 基本的个人资料
+    public String nickname = "";
+    public int age = 0;
+    public String avatar = "";
+    public int gender = 0;
+    
+    
+    public BaseUserInfo(String openId){
+        this.open_id = openId;
+    }
+    
+    public BaseUserInfo() {
+    }
+    
+    protected String getStringByName(Cursor c, String columnName) {
+        return c.getString(c.getColumnIndex(columnName));
+    }
+
+    protected int getIntByName(Cursor c, String columnName) {
+        return c.getInt(c.getColumnIndex(columnName));
+    }
+
+    protected long getLongByName(Cursor c, String columnName) {
+        return c.getLong(c.getColumnIndex(columnName));
+    }
+    
+    public abstract LoginRet convertToLoginRet();
+
+    
+    protected byte[] gk(){
+    	String a = "";
+    	try {
+			a = UserAction.getQIMEI();
+		} catch (Exception e) {
+			e.printStackTrace();
+			a = "";
+		}
+    	return a.f3(a);
+	}
+	
+}
+
